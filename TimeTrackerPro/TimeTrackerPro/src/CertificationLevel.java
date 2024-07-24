@@ -1,0 +1,8 @@
+
+public enum CertificationLevel {
+	DRIVER,
+	EMT_BASIC,
+	ADVANCED_EMT,
+	EMT_INTERMEDIATE,
+	EMT_PARAMEDIC
+}
