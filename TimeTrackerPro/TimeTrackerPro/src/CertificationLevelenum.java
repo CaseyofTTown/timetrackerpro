@@ -1,5 +1,5 @@
 
-public enum CertificationLevel {
+public enum CertificationLevelenum {
 	DRIVER,
 	EMT_BASIC,
 	ADVANCED_EMT,
