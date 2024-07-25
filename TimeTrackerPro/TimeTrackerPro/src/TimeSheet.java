@@ -1,23 +1,35 @@
 import java.util.Date;
 
 public class TimeSheet {
-	private Employee employee;
+	private String employeeName;
+	private int timeSheetId;
 	private Date shiftStartDate;
 	private Date shiftEndDate;
 	private Date shiftStartTime;
 	private Date shiftEndTime;
 	
+	//create a new time sheet, doesnt have the ID, will be created by sqlite
+	public TimeSheet(String employeeName, Date shiftStartDate, Date shiftEndDate, Date shiftStartTime, Date shiftEndTime) {
+		this.employeeName = employeeName;
+		this.shiftStartDate = shiftStartDate;
+		this.shiftEndDate = shiftEndDate;
+		this.shiftStartTime = shiftStartTime;
+		this.shiftEndTime = shiftEndTime;
+		this.timeSheetId = -1;
+	}
 	
-	public TimeSheet(Employee employee, Date shiftStartDate, Date shiftEndDate, Date shiftStartTime, Date shiftEndTime) {
-		this.employee = employee;
+	//create a time sheet in memory from db, will have an ID
+	public TimeSheet(int timeSheetID, String employeeName, Date shiftStartDate, Date shiftEndDate, Date shiftStartTime, Date shiftEndTime) {
+		this.timeSheetId = timeSheetID;
+		this.employeeName = employeeName;
 		this.shiftStartDate = shiftStartDate;
 		this.shiftEndDate = shiftEndDate;
 		this.shiftStartTime = shiftStartTime;
 		this.shiftEndTime = shiftEndTime;
 	}
 	
-	public Employee getEmployee() {
-		return this.employee;
+	public String getEmployeeName() {
+		return this.employeeName;
 	}
 	public Date getShiftStartDate() {
 		return this.shiftStartDate;
