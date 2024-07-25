@@ -5,6 +5,7 @@ public class TimeTrackerProApplication {
 
 
 		System.out.println("Hello world, fuck you eclipse lol");
+		System.out.println("testing");
 	}
 
 }
