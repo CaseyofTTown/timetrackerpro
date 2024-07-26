@@ -5,9 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class DatabaseManager {
 
@@ -16,10 +14,37 @@ public class DatabaseManager {
 	public DatabaseManager(String dbUrl) {
 		try {
 			connection = DriverManager.getConnection(dbUrl);
+			createTables();
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
 	}
+	
+	 private void createTables() {
+	        String sqlCreateEmployeesTable = "CREATE TABLE IF NOT EXISTS employees (\n"
+	                + " id integer PRIMARY KEY,\n"
+	                + " name text NOT NULL,\n"
+	                + " level text,\n"
+	                + " certificationNumber text,\n"
+	                + " certExpirationDate text\n"
+	                + ");";
+
+	        String sqlCreateTimeSheetsTable = "CREATE TABLE IF NOT EXISTS timesheets (\n"
+	                + " id integer PRIMARY KEY,\n"
+	                + " employeeName text NOT NULL,\n"
+	                + " shiftStartDate text,\n"
+	                + " shiftEndDate text,\n"
+	                + " shiftStartTime text,\n"
+	                + " shiftEndTime text\n"
+	                + ");";
+
+	        try (Statement stmt = connection.createStatement()) {
+	            stmt.execute(sqlCreateEmployeesTable);
+	            stmt.execute(sqlCreateTimeSheetsTable);
+	        } catch (SQLException e) {
+	            System.out.println(e.getMessage());
+	        }
+	    }
 
 	// add employee to the database
 	public void addEmployee(Employee employee) {

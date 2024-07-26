@@ -43,7 +43,7 @@ public class Employee {
 		this.timeSheetList = null;
 	}
 
-	// call this method to get time sheets from db
+	// call this method to get recent (not all) time sheets from db
 	public void loadTimeSheetsFromDatabase(DatabaseManager dbManager) {
 		this.timeSheetList = dbManager.getRecentTimeSheetsForEmployee(id);
 	}
