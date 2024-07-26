@@ -4,6 +4,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,32 +20,25 @@ public class DatabaseManager {
 			System.out.println(e.getMessage());
 		}
 	}
-	
-	 private void createTables() {
-	        String sqlCreateEmployeesTable = "CREATE TABLE IF NOT EXISTS employees (\n"
-	                + " id integer PRIMARY KEY,\n"
-	                + " name text NOT NULL,\n"
-	                + " level text,\n"
-	                + " certificationNumber text,\n"
-	                + " certExpirationDate text\n"
-	                + ");";
 
-	        String sqlCreateTimeSheetsTable = "CREATE TABLE IF NOT EXISTS timesheets (\n"
-	                + " id integer PRIMARY KEY,\n"
-	                + " employeeName text NOT NULL,\n"
-	                + " shiftStartDate text,\n"
-	                + " shiftEndDate text,\n"
-	                + " shiftStartTime text,\n"
-	                + " shiftEndTime text\n"
-	                + ");";
+	private void createTables() {
+		String sqlCreateEmployeesTable = "CREATE TABLE IF NOT EXISTS employees (\n" + " id integer PRIMARY KEY AUTOINCREMENT,\n"
+				+ " name text NOT NULL,\n" + " level text,\n" + " certificationNumber text,\n"
+				+ " certExpirationDate text\n" + ");";
 
-	        try (Statement stmt = connection.createStatement()) {
-	            stmt.execute(sqlCreateEmployeesTable);
-	            stmt.execute(sqlCreateTimeSheetsTable);
-	        } catch (SQLException e) {
-	            System.out.println(e.getMessage());
-	        }
-	    }
+		String sqlCreateTimeSheetsTable = "CREATE TABLE IF NOT EXISTS timesheets (\n" + " id integer PRIMARY KEY AUTOINCREMENT,\n"
+				+ " employeeId integer NOT NULL,\n" + " shiftStartDate text,\n" + " shiftEndDate text,\n"
+				+ " shiftStartTime text,\n" + " shiftEndTime text,\n"
+				+ " FOREIGN KEY(employeeId) REFERENCES employees(id)\n" + ");";
+
+		try (Statement stmt = connection.createStatement()) {
+			stmt.execute(sqlCreateEmployeesTable);
+			stmt.execute(sqlCreateTimeSheetsTable);
+			System.out.println("Succesfully created database tables");
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+	}
 
 	// add employee to the database
 	public void addEmployee(Employee employee) {
@@ -72,17 +66,13 @@ public class DatabaseManager {
 
 	// add a time sheet entry to the database
 	public void addTimeSheet(TimeSheet timeSheet) {
-		String sql = "INSERT INTO timesheets(employeeName, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime) VALUES(?,?,?,?,?)";
+		String sql = "INSERT INTO timesheets(employeeId, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime) VALUES(?,?,?,?,?)";
 
 		PreparedStatement pstmt = null;
 		try {
 			pstmt = connection.prepareStatement(sql);
-			pstmt.setString(1, timeSheet.getEmployeeName());
-			pstmt.setDate(2, new java.sql.Date(timeSheet.getShiftStartDate().getTime()));
-			pstmt.setDate(3, new java.sql.Date(timeSheet.getShiftEndDate().getTime()));
-			pstmt.setTime(4, new java.sql.Time(timeSheet.getShiftStartTime().getTime()));
-			pstmt.setTime(5, new java.sql.Time(timeSheet.getShiftEndTime().getTime()));
-			pstmt.executeUpdate();
+			pstmt.setInt(1, timeSheet.getEmployeeId());
+			// rest of your code...
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		} finally {
@@ -97,38 +87,50 @@ public class DatabaseManager {
 	}
 
 	public List<TimeSheet> getRecentTimeSheetsForEmployee(int id) {
-		List<TimeSheet> timeSheets = new ArrayList<TimeSheet>();
+	    List<TimeSheet> timeSheets = new ArrayList<TimeSheet>();
 
-		PreparedStatement pstmt = null;
+	    PreparedStatement pstmt = null;
+	    try {
+	        String sql = "SELECT timesheets.id, employees.name, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime "
+	                   + "FROM timesheets "
+	                   + "JOIN employees ON timesheets.employeeId = employees.id "
+	                   + "WHERE employeeId = ? AND shiftStartDate >= datetime('now', '-1 month')";
+
+	        pstmt = connection.prepareStatement(sql);
+	        pstmt.setInt(1, id);
+	        ResultSet rs = pstmt.executeQuery();
+
+	        while (rs.next()) {
+	            TimeSheet timeSheet = new TimeSheet(rs.getInt("id"), id, rs.getString("name"),
+	                    rs.getDate("shiftStartDate"), rs.getDate("shiftEndDate"), rs.getDate("shiftStartTime"),
+	                    rs.getDate("shiftEndTime"));
+	            timeSheets.add(timeSheet);
+	        }
+
+	    } catch (SQLException e) {
+	        System.out.println(e.getMessage());
+	    } finally {
+	        if (pstmt != null) {
+	            try {
+	                pstmt.close();
+	            } catch (SQLException e) {
+	                System.out.println(e.getMessage());
+	            }
+	        }
+	    }
+
+	    return timeSheets;
+	}
+
+
+	public void close() {
 		try {
-			String sql = "SELECT * FROM timesheets WHERE employeeId = ? AND shiftStartDate >= datetime('now', '-1 month')";
-
-			pstmt = connection.prepareStatement(sql);
-			pstmt.setInt(1, id);
-			ResultSet rs = pstmt.executeQuery();
-
-			while (rs.next()) {
-				// loop to create time sheet objects
-				TimeSheet timeSheet = new TimeSheet(rs.getInt("id"), rs.getString("employeeName"),
-						rs.getDate("shiftStartDate"), rs.getDate("shiftEndDate"), rs.getDate("shiftStartTime"),
-						rs.getDate("shiftEndTime"));
-				// add to the list thats going to be returned
-				timeSheets.add(timeSheet);
+			if (connection != null) {
+				connection.close();
 			}
-
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
-		} finally {
-			if (pstmt != null) {
-				try {
-					pstmt.close();
-				} catch (SQLException e) {
-					System.out.println(e.getMessage());
-				}
-			}
 		}
-
-		return timeSheets;
 	}
 
 }
