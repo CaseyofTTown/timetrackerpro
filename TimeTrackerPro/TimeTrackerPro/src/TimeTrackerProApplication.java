@@ -1,5 +1,8 @@
 import javax.swing.SwingUtilities;
 
+import model.DatabaseManager;
+import view.viewClass;
+
 public class TimeTrackerProApplication {
 
 	// db url
