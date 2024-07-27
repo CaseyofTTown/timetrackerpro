@@ -24,18 +24,23 @@ public class DatabaseManager {
 	}
 
 	private void createTables() {
-		String sqlCreateEmployeesTable = "CREATE TABLE IF NOT EXISTS employees (\n" + " id integer PRIMARY KEY AUTOINCREMENT,\n"
-				+ " name text NOT NULL,\n" + " level text,\n" + " certificationNumber text,\n"
-				+ " certExpirationDate text\n" + ");";
+		String sqlCreateEmployeesTable = "CREATE TABLE IF NOT EXISTS employees (\n"
+				+ " id integer PRIMARY KEY AUTOINCREMENT,\n" + " name text NOT NULL,\n" + " level text,\n"
+				+ " certificationNumber text,\n" + " certExpirationDate text\n" + ");";
 
-		String sqlCreateTimeSheetsTable = "CREATE TABLE IF NOT EXISTS timesheets (\n" + " id integer PRIMARY KEY AUTOINCREMENT,\n"
-				+ " employeeId integer NOT NULL,\n" + " shiftStartDate text,\n" + " shiftEndDate text,\n"
-				+ " shiftStartTime text,\n" + " shiftEndTime text,\n"
-				+ " FOREIGN KEY(employeeId) REFERENCES employees(id)\n" + ");";
+		String sqlCreateTimeSheetsTable = "CREATE TABLE IF NOT EXISTS timesheets (\n"
+				+ " id integer PRIMARY KEY AUTOINCREMENT,\n" + " employeeId integer NOT NULL,\n"
+				+ " shiftStartDate text,\n" + " shiftEndDate text,\n" + " shiftStartTime text,\n"
+				+ " shiftEndTime text,\n" + " FOREIGN KEY(employeeId) REFERENCES employees(id)\n" + ");";
+
+		String sqlCreateUsersTable = "CREATE TABLE IF NOT EXISTS users (\n " + " username text PRIMARY KEY, \n"
+				+ " hashedPassword text NOT NULL, \n" + " salt text NOT NULL, \n" + " employeeId integer, \n"
+				+ "FOREIGN KEY(employeeID) REFERENCES employees(id)\n" + ")";
 
 		try (Statement stmt = connection.createStatement()) {
 			stmt.execute(sqlCreateEmployeesTable);
 			stmt.execute(sqlCreateTimeSheetsTable);
+			stmt.execute(sqlCreateUsersTable);
 			System.out.println("Succesfully created database tables");
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
@@ -89,41 +94,73 @@ public class DatabaseManager {
 	}
 
 	public List<TimeSheet> getRecentTimeSheetsForEmployee(int id) {
-	    List<TimeSheet> timeSheets = new ArrayList<TimeSheet>();
+		List<TimeSheet> timeSheets = new ArrayList<TimeSheet>();
 
-	    PreparedStatement pstmt = null;
-	    try {
-	        String sql = "SELECT timesheets.id, employees.name, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime "
-	                   + "FROM timesheets "
-	                   + "JOIN employees ON timesheets.employeeId = employees.id "
-	                   + "WHERE employeeId = ? AND shiftStartDate >= datetime('now', '-1 month')";
+		PreparedStatement pstmt = null;
+		try {
+			String sql = "SELECT timesheets.id, employees.name, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime "
+					+ "FROM timesheets " + "JOIN employees ON timesheets.employeeId = employees.id "
+					+ "WHERE employeeId = ? AND shiftStartDate >= datetime('now', '-1 month')";
 
-	        pstmt = connection.prepareStatement(sql);
-	        pstmt.setInt(1, id);
-	        ResultSet rs = pstmt.executeQuery();
+			pstmt = connection.prepareStatement(sql);
+			pstmt.setInt(1, id);
+			ResultSet rs = pstmt.executeQuery();
 
-	        while (rs.next()) {
-	            TimeSheet timeSheet = new TimeSheet(rs.getInt("id"), id, rs.getString("name"),
-	                    rs.getDate("shiftStartDate"), rs.getDate("shiftEndDate"), rs.getDate("shiftStartTime"),
-	                    rs.getDate("shiftEndTime"));
-	            timeSheets.add(timeSheet);
-	        }
+			while (rs.next()) {
+				TimeSheet timeSheet = new TimeSheet(rs.getInt("id"), id, rs.getString("name"),
+						rs.getDate("shiftStartDate"), rs.getDate("shiftEndDate"), rs.getDate("shiftStartTime"),
+						rs.getDate("shiftEndTime"));
+				timeSheets.add(timeSheet);
+			}
 
-	    } catch (SQLException e) {
-	        System.out.println(e.getMessage());
-	    } finally {
-	        if (pstmt != null) {
-	            try {
-	                pstmt.close();
-	            } catch (SQLException e) {
-	                System.out.println(e.getMessage());
-	            }
-	        }
-	    }
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} finally {
+			if (pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (SQLException e) {
+					System.out.println(e.getMessage());
+				}
+			}
+		}
 
-	    return timeSheets;
+		return timeSheets;
 	}
 
+	public void registerUser(String username, String hashedPassword, String salt, int employeeId) {
+		String sql = "INSERT INTO users(username, hashedPassword, salt, employeeId) VALUES(?,?,?,?)";
+
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setString(1, username);
+			pstmt.setString(2, hashedPassword);
+			pstmt.setString(3, salt);
+			pstmt.setInt(4, employeeId);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+
+	}
+
+	public String[] getSaltAndHashedPassword(String username) {
+		String sql = "SELECT salt, hashedPassword FROM users WHERE username = ?";
+
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setString(1, username);
+			ResultSet rs = pstmt.executeQuery();
+			if(rs.next()) {
+				String salt = rs.getString("salt");
+				String hashedPassword = rs.getString("hashedPassword");
+				return new String[] {salt, hashedPassword};
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		System.out.println("unknown error in getSaltAndHashedPassword db manager");
+		return null;
+	}
 
 	public void close() {
 		try {
