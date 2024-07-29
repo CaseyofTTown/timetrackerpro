@@ -3,9 +3,13 @@ package view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -33,48 +37,117 @@ public class Login_Register_View extends JFrame {
 		// add the panel to the frame
 		add(panel);
 
+		// create a panel for the welcome messages
+		JPanel welcomePanel = new JPanel();
+		welcomePanel.setLayout(new BoxLayout(welcomePanel, BoxLayout.Y_AXIS));
+		welcomePanel.setBackground(new Color(50, 50, 50));
+
 		// create a label for the welcome message
-		JLabel welcomeLabel = new JLabel("Welcome to Time Tracker Pro! \n" + "Please sign in to continue.",
-				SwingConstants.CENTER);
+		JLabel welcomeLabel = new JLabel("Welcome to Time Tracker Pro!", SwingConstants.CENTER);
 		welcomeLabel.setForeground(Color.GREEN);
-		panel.add(welcomeLabel, BorderLayout.NORTH);
+		welcomePanel.add(welcomeLabel);
+
+		// create a label for the sign-in message
+		JLabel signInLabel = new JLabel("Please sign in to continue :)", SwingConstants.CENTER);
+		signInLabel.setForeground(Color.GREEN);
+		welcomePanel.add(signInLabel);
+
+		// add the welcome panel to the NORTH region of the main panel
+		panel.add(welcomePanel, BorderLayout.NORTH);
 
 		// create a tabbed pane for sign-in and registration options
 		JTabbedPane tabbedPane = new JTabbedPane();
 
 		// create the sign-in panel
-		JPanel signInPanel = new JPanel(new GridLayout(2, 2));
-		signInPanel.add(new JLabel("Username:"));
-		signInPanel.add(new JTextField("Enter your username"));
-		signInPanel.add(new JLabel("Password:"));
-		signInPanel.add(new JPasswordField("Enter your password"));
+		JPanel signInPanel = new JPanel(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = 0;
+		signInPanel.add(new JLabel("Username:"), c);
+		c.gridy++;
+		
+		//clear username text when it gains focus
+		JTextField usernameSignIn = new JTextField("Enter your username", 20);
+		usernameSignIn.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				usernameSignIn.setText("");
+			}
+		});
+		signInPanel.add(usernameSignIn, c);
+		c.gridy++;
+		signInPanel.add(new JLabel("Password:"), c);
+		c.gridy++;
+		
+		//clear password when gains focus
+		JPasswordField passwordSignIn = new JPasswordField("Enter your password", 20);
+		passwordSignIn.addFocusListener(new FocusAdapter(){
+			@Override 
+			public void focusGained(FocusEvent e) {
+				passwordSignIn.setText("");
+			}
+		});
+		signInPanel.add(passwordSignIn, c);
+		c.gridy++;
+		
+		
 		JButton signInButton = new JButton("Sign In");
 		signInButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO: Add sign-in logic here
+				// TODO: add sign in logic here
 			}
 		});
-		signInPanel.add(signInButton);
+		signInPanel.add(signInButton, c);
 		tabbedPane.addTab("Sign In", signInPanel);
 
-		// create the registration panel
-		JPanel registerPanel = new JPanel(new GridLayout(3, 2));
-		registerPanel.add(new JLabel("Username:"));
-		registerPanel.add(new JTextField("Enter your username"));
-		registerPanel.add(new JLabel("Password:"));
-		registerPanel.add(new JPasswordField("Enter your password"));
-		registerPanel.add(new JLabel("PIN (last 4 digits of SSN):"));
-		registerPanel.add(new JTextField("Enter your PIN"));
-		JButton registerButton = new JButton("Register");
-		registerButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO: Add registration logic here
-			}
-		});
-		registerPanel.add(registerButton);
-		tabbedPane.addTab("Register", registerPanel);
+		  // create the registration panel
+        JPanel registerPanel = new JPanel(new GridBagLayout());
+        c.gridy = 0;
+        registerPanel.add(new JLabel("Username:"), c);
+        c.gridy++;
+        JTextField usernameRegister = new JTextField("Enter your username", 20);
+        usernameRegister.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                usernameRegister.setText("");
+            }
+        });
+        registerPanel.add(usernameRegister, c);
+        c.gridy++;
+        registerPanel.add(new JLabel("Password:"), c);
+        c.gridy++;
+        JPasswordField passwordRegister = new JPasswordField("Enter your password", 20);
+        passwordRegister.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                passwordRegister.setText("");
+            }
+        });
+        registerPanel.add(passwordRegister, c);
+        c.gridy++;
+        registerPanel.add(new JLabel("PIN (last 4 digits of SSN):"), c);
+        c.gridy++;
+        JTextField pinRegister = new JTextField("Enter your PIN", 20);
+        pinRegister.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                pinRegister.setText("");
+            }
+        });
+        registerPanel.add(pinRegister, c);
+        c.gridy++;
+        JButton registerButton = new JButton("Register");
+        registerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO: Add registration logic here
+            }
+        });
+        registerPanel.add(registerButton, c);
+        c.gridy++;
+        registerPanel.add(new JLabel(" "), c); // Padding at the bottom
+        tabbedPane.addTab("Register", registerPanel);
 
 		// add the tabbed pane to the panel
 		panel.add(tabbedPane, BorderLayout.CENTER);
