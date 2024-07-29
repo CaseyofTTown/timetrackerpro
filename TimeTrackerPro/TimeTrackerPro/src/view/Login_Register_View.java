@@ -22,6 +22,15 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 public class Login_Register_View extends JFrame {
+	
+	private JButton signInButton;
+	private JButton registerButton;
+	private JTextField usernameSignIn;
+	private JPasswordField passwordSignIn;
+	private JTextField usernameRegister;
+	private JPasswordField passwordRegister;
+	private JTextField pinRegister;
+	
 
 	public Login_Register_View() {
 		// set the window title
@@ -67,7 +76,7 @@ public class Login_Register_View extends JFrame {
 		c.gridy++;
 		
 		//clear username text when it gains focus
-		JTextField usernameSignIn = new JTextField("Enter your username", 20);
+		usernameSignIn = new JTextField("Enter your username", 20);
 		usernameSignIn.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
@@ -80,7 +89,7 @@ public class Login_Register_View extends JFrame {
 		c.gridy++;
 		
 		//clear password when gains focus
-		JPasswordField passwordSignIn = new JPasswordField("Enter your password", 20);
+		passwordSignIn = new JPasswordField("Enter your password", 20);
 		passwordSignIn.addFocusListener(new FocusAdapter(){
 			@Override 
 			public void focusGained(FocusEvent e) {
@@ -91,13 +100,7 @@ public class Login_Register_View extends JFrame {
 		c.gridy++;
 		
 		
-		JButton signInButton = new JButton("Sign In");
-		signInButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO: add sign in logic here
-			}
-		});
+		signInButton = new JButton("Sign In");
 		signInPanel.add(signInButton, c);
 		tabbedPane.addTab("Sign In", signInPanel);
 
@@ -106,7 +109,7 @@ public class Login_Register_View extends JFrame {
         c.gridy = 0;
         registerPanel.add(new JLabel("Username:"), c);
         c.gridy++;
-        JTextField usernameRegister = new JTextField("Enter your username", 20);
+        usernameRegister = new JTextField("Enter your username", 20);
         usernameRegister.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -117,7 +120,7 @@ public class Login_Register_View extends JFrame {
         c.gridy++;
         registerPanel.add(new JLabel("Password:"), c);
         c.gridy++;
-        JPasswordField passwordRegister = new JPasswordField("Enter your password", 20);
+        passwordRegister = new JPasswordField("Enter your password", 20);
         passwordRegister.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -128,7 +131,7 @@ public class Login_Register_View extends JFrame {
         c.gridy++;
         registerPanel.add(new JLabel("PIN (last 4 digits of SSN):"), c);
         c.gridy++;
-        JTextField pinRegister = new JTextField("Enter your PIN", 20);
+        pinRegister = new JTextField("Enter your PIN", 20);
         pinRegister.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -137,13 +140,8 @@ public class Login_Register_View extends JFrame {
         });
         registerPanel.add(pinRegister, c);
         c.gridy++;
-        JButton registerButton = new JButton("Register");
-        registerButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // TODO: Add registration logic here
-            }
-        });
+        registerButton = new JButton("Register");
+       
         registerPanel.add(registerButton, c);
         c.gridy++;
         registerPanel.add(new JLabel(" "), c); // Padding at the bottom
@@ -159,4 +157,27 @@ public class Login_Register_View extends JFrame {
 		// center the frame on the screen
 		setLocationRelativeTo(null);
 	}
+	//getters to provide buttons to view so it can to controller
+	
+	public JButton getSignInButton() {
+		return signInButton;
+	}
+	
+	public JButton getRegisterButton() {
+		return registerButton;
+	}
+	
+	public void addSignInButtonListener(ActionListener listenForSignInButton) {
+		signInButton.addActionListener(listenForSignInButton);
+	}
+	
+	public void addRegisterButtonListener(ActionListener listenForRegisterButton) {
+		registerButton.addActionListener(listenForRegisterButton);
+	}
+	
+	//TODO: add getters and setters for fields 
+	
+	
+	
+	
 }

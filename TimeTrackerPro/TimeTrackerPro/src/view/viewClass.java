@@ -64,5 +64,13 @@ public class viewClass extends JFrame {
 	public void hideLoginRegisterview() {
 		loginRegisterView.setVisible(false);
 	}
+	
+	//getters so controller can access the buttons
+	public JButton getSignInButton() {
+		return loginRegisterView.getSignInButton();
+	}
+	public JButton getRegisterButton() {
+		return loginRegisterView.getRegisterButton();
+	}
 
 }
