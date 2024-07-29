@@ -128,14 +128,15 @@ public class DatabaseManager {
 		return timeSheets;
 	}
 
-	public void registerUser(String username, String hashedPassword, String salt, int employeeId) {
-		String sql = "INSERT INTO users(username, hashedPassword, salt, employeeId) VALUES(?,?,?,?)";
+	public void registerUser(String username, String hashedPassword, String salt, int employeeId, int pin) {
+		String sql = "INSERT INTO users(username, hashedPassword, salt, employeeId, pin) VALUES(?,?,?,?,?)";
 
 		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 			pstmt.setString(1, username);
 			pstmt.setString(2, hashedPassword);
 			pstmt.setString(3, salt);
 			pstmt.setInt(4, employeeId);
+			pstmt.setInt(5, pin);
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
@@ -160,6 +161,47 @@ public class DatabaseManager {
 		}
 		System.out.println("unknown error in getSaltAndHashedPassword db manager");
 		return null;
+	}
+	
+	public int getPin(String username) {
+		String sql = "SELECT pin FROM users WHERE username = ?";
+
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setString(1, username);
+			ResultSet rs = pstmt.executeQuery();
+
+			// if the user exists, return the pin
+			if (rs.next()) {
+				return rs.getInt("pin");
+			} else {
+				throw new IllegalArgumentException("User not found");
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+			throw new RuntimeException("Database error");
+			
+		}
+	}
+	
+	//if user resets password with pin, use this
+	public void updatePasswordAndSalt(String username, String newHashedPassword, String newSalt) {
+		String sql = "UPDATE users SET hashedPassword = ?, salt = ? WHERE username = ?";
+
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setString(1, newHashedPassword);
+			pstmt.setString(2, newSalt);
+			pstmt.setString(3, username);
+			int affectedRows = pstmt.executeUpdate();
+
+			// if no rows were affected, the user does not exist
+			if (affectedRows == 0) {
+				throw new IllegalArgumentException("User not found");
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+			// if there is a database error, throw a runtime exception
+			throw new RuntimeException("Database error");
+		}
 	}
 
 	public void close() {

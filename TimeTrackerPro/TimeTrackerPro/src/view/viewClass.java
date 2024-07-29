@@ -1,8 +1,11 @@
 package view;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class viewClass extends JFrame {
+
+	private Login_Register_View loginRegisterView;
 
 	public viewClass() {
 		// set the window title
@@ -17,20 +20,14 @@ public class viewClass extends JFrame {
 		// set a dark theme using UiManager
 		try {
 			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-			UIManager.put("control", new Color(128, 128, 128));
-			UIManager.put("info", new Color(128, 128, 128));
-			UIManager.put("nimbusBase", new Color(18, 30, 49));
-			UIManager.put("nimbusAlertYellow", new Color(248, 187, 0));
+			UIManager.put("control", new Color(40, 40, 40));
+			UIManager.put("nimbusBase", new Color(0, 0, 0));
+			UIManager.put("nimbusAlertYellow", new Color(255, 187, 0));
 			UIManager.put("nimbusDisabledText", new Color(128, 128, 128));
 			UIManager.put("nimbusFocus", new Color(115, 164, 209));
-			UIManager.put("nimbusGreen", new Color(176, 179, 50));
-			UIManager.put("nimbusInfoBlue", new Color(66, 139, 221));
-			UIManager.put("nimbusLightBackground", new Color(18, 30, 49));
-			UIManager.put("nimbusOrange", new Color(191, 98, 4));
-			UIManager.put("nimbusRed", new Color(169, 46, 34));
-			UIManager.put("nimbusSelectedText", new Color(255, 255, 255));
-			UIManager.put("nimbusSelectionBackground", new Color(104, 93, 156));
-			UIManager.put("text", new Color(230, 230, 230));
+			UIManager.put("nimbusLightBackground", new Color(50, 50, 50));
+			UIManager.put("nimbusSelectionBackground", new Color(100, 100, 100));
+			UIManager.put("text", new Color(255, 255, 255));
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -39,29 +36,33 @@ public class viewClass extends JFrame {
 		// create a panel with a BoxLayout
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		panel.setBackground(new Color(10, 30, 49));
+		panel.setBackground(new Color(50, 50, 50));
 
 		// add the panel to the frame
 		add(panel);
 
-		// create a label for the greeting message
-		JLabel greetingLabel = new JLabel("Welcome to time Tracker Pro!");
-		greetingLabel.setForeground(Color.green);
+		// The components will be added here in the future
 
-		greetingLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		panel.add(greetingLabel);
+		// create an instance of Login_Register_View to the panel
+		loginRegisterView = new Login_Register_View();
+		panel.add(loginRegisterView.getContentPane());
 
-		// create a label for the explanation message
-		//TODO make this fit and continue
-		JLabel explanationLabel = new JLabel("This application is used for the creation and management of "
-				+ "time sheets. Please be sure to enter your data in a timely and \naccurate manner for faster processing.");
-		
-		explanationLabel.setForeground(Color.GREEN);
-		explanationLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		panel.add(explanationLabel);
-		
-		
+		// pack frame to fit contents @ preferred size
+		pack();
 
+		// Center frame on the escreen
+		setLocationRelativeTo(null);
+
+		// method to show login/register view
+
+	}
+
+	public void showLoginRegisterView() {
+		loginRegisterView.setVisible(true);
+	}
+	
+	public void hideLoginRegisterview() {
+		loginRegisterView.setVisible(false);
 	}
 
 }

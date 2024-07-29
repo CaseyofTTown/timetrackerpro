@@ -12,11 +12,11 @@ public class UserAuth {
 		this.db = db;
 	}
 
-	public void registerUser(String username, String password, int employeeId) {
+	public void registerUser(String username, String password, int employeeId, int pin) {
 		String salt = generateSalt();
 		String hashedPassword = hashPassword(password, salt);
 		System.out.println("generating salt, hashing password");
-		db.registerUser(username, hashedPassword, salt, employeeId);
+		db.registerUser(username, hashedPassword, salt, employeeId, pin);
 	}
 	
 	public boolean authenticateUser(String username, String password) {
@@ -58,4 +58,21 @@ public class UserAuth {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	//if user forgets password, use pin to reset it 
+	public boolean resetPasswordWithPin(String username, int pin, String newPassword) {
+		//retrieve the stored pin from the database
+		int storedPin = db.getPin(username);
+		if(storedPin == pin) {
+			//if the entered pin matches the stored pin, reset the password
+			String newSalt = generateSalt();
+			String newHashedPassword = hashPassword(newPassword, newSalt);
+			db.updatePasswordAndSalt(username, newHashedPassword, newSalt);
+			return true;
+		} else {
+			//if the entered pin does not match the stored pin, return false
+			return false;
+		}
+	}
+
 }

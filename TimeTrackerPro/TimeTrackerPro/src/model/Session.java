@@ -21,7 +21,7 @@ public class Session {
 	public void logout() {
 		loggedInUser = null;
 		lastActivity = null;
-		System.out.println("User logged out from Session");
+		System.out.println("User logged out from Session due to inactivity");
 	}
 
 	public String getLoggedInUser() {
