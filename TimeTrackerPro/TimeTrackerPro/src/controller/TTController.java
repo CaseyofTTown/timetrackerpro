@@ -36,9 +36,15 @@ public class TTController {
 		String username = view.getUsernameRegister();
 		String password = view.getPasswordRegister();
 		int pin = view.getPinRegister();
+		//if registration = success, close login_register, open new employee info
+		boolean isRegistered = userAuth.registerUser(username, password, pin);
 		
-		userAuth.registerUser(username, password, pin);
-		
+		if(isRegistered) {
+			view.dispose(); //close view
+			
+			//TODO: create and show new_employee_info_view
+			
+		}
 	}
 
 }

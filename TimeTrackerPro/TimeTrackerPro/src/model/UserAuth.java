@@ -12,11 +12,13 @@ public class UserAuth {
 		this.db = db;
 	}
 
-	public void registerUser(String username, String password, int pin) {
+	public boolean registerUser(String username, String password, int pin) {
 		String salt = generateSalt();
 		String hashedPassword = hashPassword(password, salt);
 		System.out.println("generating salt, hashing password");
-		db.registerUser(username, hashedPassword, salt, pin);
+		boolean isRegistered = db.registerUser(username, hashedPassword, salt, pin);
+		
+		return isRegistered;
 	}
 	
 	public boolean authenticateUser(String username, String password) {

@@ -129,9 +129,9 @@ public class DatabaseManager {
 		return timeSheets;
 	}
 
-	public void registerUser(String username, String hashedPassword, String salt, int pin) {
+	public boolean registerUser(String username, String hashedPassword, String salt, int pin) {
 		String sql = "INSERT INTO users(username, hashedPassword, salt, employeeId, pin) VALUES(?,?,?,?,?)";
-
+		int result = 0; //number of rows affected to verify success
 		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 			pstmt.setString(1, username);
 			pstmt.setString(2, hashedPassword);
@@ -139,10 +139,11 @@ public class DatabaseManager {
 			int employeeId = generateEmployeeId();
 			pstmt.setInt(4, employeeId);
 			pstmt.setInt(5, pin);
-			pstmt.executeUpdate();
+			result = pstmt.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
+		return result > 0; //true if successful
 
 	}
 	//find highest employee id in database or start with 001
