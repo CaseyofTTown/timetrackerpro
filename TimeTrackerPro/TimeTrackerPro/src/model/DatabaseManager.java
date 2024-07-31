@@ -25,8 +25,8 @@ public class DatabaseManager {
 
 	private void createTables() {
 		String sqlCreateEmployeesTable = "CREATE TABLE IF NOT EXISTS employees (\n"
-				+ " id integer PRIMARY KEY AUTOINCREMENT,\n" + " name text NOT NULL,\n" + " level text,\n"
-				+ " certificationNumber text,\n" + " certExpirationDate text\n" + ");";
+	            + " id integer PRIMARY KEY,\n" + " name text NOT NULL,\n" + " level text,\n"
+	            + " certificationNumber text,\n" + " certExpirationDate text\n" + ");";
 
 		String sqlCreateTimeSheetsTable = "CREATE TABLE IF NOT EXISTS timesheets (\n"
 				+ " id integer PRIMARY KEY AUTOINCREMENT,\n" + " employeeId integer NOT NULL,\n"
@@ -49,14 +49,15 @@ public class DatabaseManager {
 
 	// add employee to the database
 	public void addEmployee(Employee employee) {
-		String sql = "INSERT INTO employees(name, level, certificationNumber, certExpirationDate) VALUES(?,?,?,?)";
+		String sql = "INSERT INTO employees(id, name, level, certificationNumber, certExpirationDate) VALUES(?,?,?,?,?)";
 		PreparedStatement pstmt = null;
 		try {
 			pstmt = connection.prepareStatement(sql);
-			pstmt.setString(1, employee.getName());
-			pstmt.setString(2, employee.getCertLevel().toString());
-			pstmt.setString(3, employee.getCertificationNumber());
-			pstmt.setDate(4, new Date(employee.getCertExpDate().getTime()));
+			pstmt.setInt(1, employee.getId());
+			pstmt.setString(2, employee.getName());
+			pstmt.setString(3, employee.getCertLevel().toString());
+			pstmt.setString(4, employee.getCertificationNumber());
+			pstmt.setDate(5, new Date(employee.getCertExpDate().getTime()));
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
@@ -128,13 +129,14 @@ public class DatabaseManager {
 		return timeSheets;
 	}
 
-	public void registerUser(String username, String hashedPassword, String salt, int employeeId, int pin) {
+	public void registerUser(String username, String hashedPassword, String salt, int pin) {
 		String sql = "INSERT INTO users(username, hashedPassword, salt, employeeId, pin) VALUES(?,?,?,?,?)";
 
 		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 			pstmt.setString(1, username);
 			pstmt.setString(2, hashedPassword);
 			pstmt.setString(3, salt);
+			int employeeId = generateEmployeeId();
 			pstmt.setInt(4, employeeId);
 			pstmt.setInt(5, pin);
 			pstmt.executeUpdate();
@@ -142,6 +144,23 @@ public class DatabaseManager {
 			System.out.println(e.getMessage());
 		}
 
+	}
+	//find highest employee id in database or start with 001
+	private int generateEmployeeId() {
+		String sql = "SELECT MAX(employeeId) AS max_id FROM users";
+		
+		try(PreparedStatement pstmt = connection.prepareStatement(sql)){
+			ResultSet rs = pstmt.executeQuery();
+			if(rs.next()) {
+				int maxId = rs.getInt("max_id");
+				return maxId > 0 ? maxId + 1 : 1;
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		//if error occurs return a defaul value
+		System.out.println("Error in generateEmployeeID");
+		return 1;
 	}
 
 	public String[] getSaltAndHashedPassword(String username) {

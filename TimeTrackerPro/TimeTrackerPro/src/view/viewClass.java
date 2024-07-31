@@ -72,5 +72,26 @@ public class viewClass extends JFrame {
 	public JButton getRegisterButton() {
 		return loginRegisterView.getRegisterButton();
 	}
+	
+	public String getUsernameSignIn() {
+		return loginRegisterView.getUsernameSignIn();
+	}
+	
+	public String getUsernameRegister() {
+		return loginRegisterView.getUsernameRegister();
+	}
+	
+	public String getPasswordSignIn() {
+		return loginRegisterView.getPasswordSignIn();
+	}
+	public String getPasswordRegister() {
+		return loginRegisterView.getPasswordRegister();
+	}
+	public int getPinRegister() {
+		return loginRegisterView.getPinRegister();
+	}
+	
+	
+	
 
 }

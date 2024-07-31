@@ -10,9 +10,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.KeyAdapter;
 
 import javax.swing.BoxLayout;
+import javax.swing.InputVerifier;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -131,7 +134,16 @@ public class Login_Register_View extends JFrame {
         c.gridy++;
         registerPanel.add(new JLabel("PIN (last 4 digits of SSN):"), c);
         c.gridy++;
+        
         pinRegister = new JTextField("Enter your PIN", 20);
+        //verify is 4 digits
+        pinRegister.setInputVerifier(new InputVerifier() {
+        	@Override
+        	public boolean verify(JComponent input) {
+        		String text = ((JTextField) input).getText();
+        		return text.matches("\\d(4)");
+        	}
+        });
         pinRegister.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -175,8 +187,31 @@ public class Login_Register_View extends JFrame {
 		registerButton.addActionListener(listenForRegisterButton);
 	}
 	
-	//TODO: add getters and setters for fields 
-	
+	public String getUsernameSignIn() {
+	    return usernameSignIn.getText();
+	}
+
+	public String getPasswordSignIn() {
+	    return new String(passwordSignIn.getPassword());
+	}
+
+	public String getUsernameRegister() {
+	    return usernameRegister.getText();
+	}
+
+	public String getPasswordRegister() {
+	    return new String(passwordRegister.getPassword());
+	}
+
+	public int getPinRegister() {
+		String pinText = pinRegister.getText();
+		try {
+			return Integer.parseInt(pinText);
+		} catch (NumberFormatException e) {
+			System.out.println("Invalid PIN format!");
+			return -1;
+		}
+	}
 	
 	
 	
