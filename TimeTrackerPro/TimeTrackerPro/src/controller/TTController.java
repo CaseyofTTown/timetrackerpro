@@ -78,7 +78,7 @@ public class TTController {
 		
 		if (isStored) {
 			view.hideNewEmployeeInfoView();
-			view.showMainView();
+			view.showHomeView(employee.getName());
 		}
 		
 		

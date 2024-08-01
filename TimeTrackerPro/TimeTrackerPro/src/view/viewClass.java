@@ -11,6 +11,7 @@ public class viewClass extends JFrame {
 
 	private Login_Register_View loginRegisterView;
 	private NewEmployeeInfoView newEmployeeInfoView;
+	private HomeView homeView;
 
 	public viewClass() {
 		// set the window title
@@ -79,6 +80,20 @@ public class viewClass extends JFrame {
 	public void hideNewEmployeeInfoView() {
 		newEmployeeInfoView.setVisible(false);
 	}
+	//main view
+		public void showHomeView(String employeeName) {
+			if(homeView == null) {
+				homeView = new HomeView(employeeName);
+			}
+			homeView.setVisible(true);
+			
+		}
+	
+	public void hideHomeView() {
+		if(homeView != null) {
+			homeView.setVisible(false);
+		}
+	}
 	
 	//getters for login_register_view so controller can access the buttons
 	public JButton getSignInButton() {
@@ -127,11 +142,7 @@ public class viewClass extends JFrame {
 	}
 
 	
-	//main view
-	public void showMainView() {
-		// TODO Auto-generated method stub
-		
-	}
+	
 
 	
 	
