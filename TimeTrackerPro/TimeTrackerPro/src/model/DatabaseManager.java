@@ -48,7 +48,7 @@ public class DatabaseManager {
 	}
 
 	// add employee to the database
-	public void addEmployee(Employee employee) {
+	public boolean addEmployee(Employee employee) {
 		String sql = "INSERT INTO employees(id, name, level, certificationNumber, certExpirationDate) VALUES(?,?,?,?,?)";
 		PreparedStatement pstmt = null;
 		try {
@@ -59,8 +59,10 @@ public class DatabaseManager {
 			pstmt.setString(4, employee.getCertificationNumber());
 			pstmt.setDate(5, new Date(employee.getCertExpDate().getTime()));
 			pstmt.executeUpdate();
+			return true;
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
+			return false;
 		} finally {
 			if (pstmt != null) {
 				try {
@@ -162,6 +164,20 @@ public class DatabaseManager {
 		//if error occurs return a defaul value
 		System.out.println("Error in generateEmployeeID");
 		return 1;
+	}
+	
+	public int getEmployeeIdByUsername(String username) {
+		String sql = "SELECT employeeId FROM users WHERE username = ?";
+		try(PreparedStatement pstmt = connection.prepareStatement(sql)){
+			pstmt.setString(1, username);
+			ResultSet rs = pstmt.executeQuery();
+			if(rs.next()) {
+				return rs.getInt("employeeId");
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		return -1;
 	}
 
 	public String[] getSaltAndHashedPassword(String username) {

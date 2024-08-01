@@ -9,6 +9,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.util.Date;
+
 import org.jdatepicker.impl.JDatePickerImpl;
 import model.CertificationLevelenum;
 
@@ -119,5 +121,35 @@ public class NewEmployeeInfoView extends JFrame {
 	        submitNewEmployeeButton.setEnabled(true);
 	    }
 	}
-	//TODO: getters for the data so view and controller can use it
+	//getters for the data so view and controller can use it
+	
+	public String getName() {
+		return this.nameField.getText();
+	}
+	
+	public String getEmsCertified() {
+		return (String) this.emsCertifiedComboBox.getSelectedItem();
+	}
+	
+	public CertificationLevelenum getCertificationLevel() {
+		return (CertificationLevelenum) this.certificationLevelComboBox.getSelectedItem();
+	}
+	
+	public String getCertificationNumber() {
+		return this.certificationNumberField.getText();
+	}
+	
+	public Date getExpirationDate() {
+		try {
+			return (Date) this.expirationDateField.getModel().getValue();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	public JButton getSubmitNewEmployeeButton() {
+		return submitNewEmployeeButton;
+	}
+
+	
 }

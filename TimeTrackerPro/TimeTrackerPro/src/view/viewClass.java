@@ -1,11 +1,16 @@
 package view;
 
 import javax.swing.*;
+
+import model.CertificationLevelenum;
+
 import java.awt.*;
+import java.util.Date;
 
 public class viewClass extends JFrame {
 
 	private Login_Register_View loginRegisterView;
+	private NewEmployeeInfoView newEmployeeInfoView;
 
 	public viewClass() {
 		// set the window title
@@ -46,6 +51,9 @@ public class viewClass extends JFrame {
 		// create an instance of Login_Register_View to the panel
 		loginRegisterView = new Login_Register_View();
 		panel.add(loginRegisterView.getContentPane());
+		
+		// create an instance of NewEmployeeInfoView
+		newEmployeeInfoView = new NewEmployeeInfoView();
 
 		// pack frame to fit contents @ preferred size
 		pack();
@@ -65,7 +73,14 @@ public class viewClass extends JFrame {
 		loginRegisterView.setVisible(false);
 	}
 	
-	//getters so controller can access the buttons
+	public void showNewEmployeeInfoView() {
+		newEmployeeInfoView.setVisible(true);
+	}
+	public void hideNewEmployeeInfoView() {
+		newEmployeeInfoView.setVisible(false);
+	}
+	
+	//getters for login_register_view so controller can access the buttons
 	public JButton getSignInButton() {
 		return loginRegisterView.getSignInButton();
 	}
@@ -91,6 +106,33 @@ public class viewClass extends JFrame {
 		return loginRegisterView.getPinRegister();
 	}
 	
+	//getters for NewEmployeeView
+	public String getEmployeeName() {
+		return newEmployeeInfoView.getName();
+	}
+	public String getIsEmsCertified() {
+		return newEmployeeInfoView.getEmsCertified();
+	}
+	public CertificationLevelenum getCertificationLevel() {
+		return (CertificationLevelenum) newEmployeeInfoView.getCertificationLevel();
+	}
+	public String getEmsCertificationNumber() {
+		return newEmployeeInfoView.getCertificationNumber();
+	}
+	public Date getExpirationDate() {
+		return newEmployeeInfoView.getExpirationDate();
+	}
+	public JButton getSubmitEmployeeInfoButton() {
+		return newEmployeeInfoView.getSubmitNewEmployeeButton();
+	}
+
+	
+	//main view
+	public void showMainView() {
+		// TODO Auto-generated method stub
+		
+	}
+
 	
 	
 
