@@ -50,7 +50,7 @@ public class TTController {
 		
 		if(isRegistered) {
 			employeeId = db.getEmployeeIdByUsername(username);
-			view.hideLoginRegisterview();
+			view.hideLoginRegisterView();
 			view.showNewEmployeeInfoView();
 			
 			//TODO: create and show new_employee_info_view

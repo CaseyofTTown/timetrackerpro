@@ -34,7 +34,7 @@ public class DatabaseManager {
 				+ " shiftEndTime text,\n" + " FOREIGN KEY(employeeId) REFERENCES employees(id)\n" + ");";
 
 		String sqlCreateUsersTable = "CREATE TABLE IF NOT EXISTS users (\n " + " username text PRIMARY KEY, \n"
-				+ " hashedPassword text NOT NULL, \n" + " salt text NOT NULL, \n" + " employeeId integer, \n"
+				+ " hashedPassword text NOT NULL, \n" + " salt text NOT NULL, \n" + " employeeId integer, \n" + "pin integer, \n"
 				+ "FOREIGN KEY(employeeID) REFERENCES employees(id)\n" + ")";
 
 		try (Statement stmt = connection.createStatement()) {
