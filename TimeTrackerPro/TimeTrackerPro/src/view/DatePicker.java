@@ -4,8 +4,14 @@ import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
+import model.ColorConstants;
+
 import javax.swing.text.DefaultFormatterFactory;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFormattedTextField.AbstractFormatter;
+import javax.swing.JPanel;
 import javax.swing.text.DateFormatter;
 
 import java.text.ParseException;
@@ -24,12 +30,31 @@ public class DatePicker {
         p.put("text.year", "Year");
         JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
         datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+        
+        //customize the colors
+        customizeDatePicker();
     }
 
     public JDatePickerImpl getDatePicker() {
         return datePicker;
     }
+    
+    private void customizeDatePicker() {
+        // Customize the text field
+        JFormattedTextField textField = datePicker.getJFormattedTextField();
+        textField.setBackground(ColorConstants.DARK_GRAY);
+        textField.setForeground(ColorConstants.GOLD);
+        textField.setBorder(BorderFactory.createLineBorder(ColorConstants.GOLD));
 
+        
+
+        // Customize the buttons
+        JButton calendarButton = (JButton) datePicker.getComponent(1);
+        calendarButton.setBackground(ColorConstants.SLATE_GRAY);
+        calendarButton.setForeground(ColorConstants.GOLD);
+    }
+
+    
     class DateLabelFormatter extends AbstractFormatter {
         private String datePattern = "yyyy-MM-dd";
         private SimpleDateFormat dateFormatter = new SimpleDateFormat(datePattern);

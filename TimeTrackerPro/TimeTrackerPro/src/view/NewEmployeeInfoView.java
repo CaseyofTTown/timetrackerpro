@@ -7,6 +7,7 @@ import javax.swing.event.DocumentListener;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.util.Date;
@@ -34,6 +35,13 @@ public class NewEmployeeInfoView extends JFrame {
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
 		c.gridy = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.insets = new Insets(5,5,5,5); //padding
+		
+		JLabel topLabel = new JLabel("Additional Information", SwingConstants.CENTER);
+		topLabel.setForeground(ColorConstants.GOLD);
+		panel.add(topLabel, c);
+		c.gridy++;
 
 		nameField = new TitledTextField("Full Name","First and Last", 20);
 		nameField.addFocusListener(new FocusAdapter() {
@@ -121,7 +129,8 @@ public class NewEmployeeInfoView extends JFrame {
 		certificationNumberField.getTextField().getDocument().addDocumentListener(documentListener);
 		emsCertifiedComboBox.addItemListener(itemEvent -> checkFields());
 		certificationLevelComboBox.addItemListener(itemEvent -> checkFields());
-
+		expirationDateField.getJFormattedTextField().getDocument().addDocumentListener(documentListener);
+		
 	}
 
 	private void checkFields() {

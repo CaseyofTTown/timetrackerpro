@@ -7,12 +7,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseManager {
 
 	private Connection connection;
+	private static final String DATE_FORMAT = "yyyy-MM-dd";
 
 	public DatabaseManager(String dbUrl) {
 		try {
@@ -182,24 +185,24 @@ public class DatabaseManager {
 	}
 
 	public Employee getEmployeeById(int employeeId) {
-		String sql = "SELECT * FROM employees WHERE employeeId = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, employeeId);
-			ResultSet rs = pstmt.executeQuery();
-			if (rs.next()) {
-				//user has an entry in employee table
-				return new Employee(rs.getInt("employeeId"), rs.getString("name"),
-						CertificationLevelenum.valueOf(rs.getString("certificationLevel")),
-						rs.getString("certificationNumber"), rs.getDate("expirationDate"));
-			}
-		} catch (SQLException e) {
-			//error occured
-			System.out.println(e.getMessage());
-		}
-		//user does not have an entry, will display new employee info gui
-		System.out.println("No entry in employee table for user");
-		return null;
-	}
+        String sql = "SELECT * FROM employees WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, employeeId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                // User has an entry in employee table
+                return new Employee(rs.getInt("id"), rs.getString("name"),
+                        CertificationLevelenum.valueOf(rs.getString("level")),
+                        rs.getString("certificationNumber"), new java.util.Date(rs.getLong("certExpirationDate"))); 
+                }
+        } catch (SQLException e) {
+            // Error occurred
+            System.out.println(e.getMessage());
+        }
+        // User does not have an entry, will display new employee info GUI
+        System.out.println("No entry in employee table for user");
+        return null;
+    }
 
 	public String[] getSaltAndHashedPassword(String username) {
 		String sql = "SELECT salt, hashedPassword FROM users WHERE username = ?";
@@ -260,6 +263,22 @@ public class DatabaseManager {
 			throw new RuntimeException("Database error");
 		}
 	}
+	
+	private String formatDate(java.util.Date date) {
+	    SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+	    return sdf.format(date);
+	}
+
+	private java.util.Date parseDate(String date) {
+	    SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+	    try {
+	        return sdf.parse(date);
+	    } catch (ParseException e) {
+	        System.out.println("Error parsing date: " + e.getMessage());
+	        return null;
+	    }
+	}
+
 
 	public void close() {
 		try {

@@ -60,7 +60,7 @@ public class TTController {
 			}
 		} else {
 			//handle auth failure
-			CustomAlertDialog.showDialog(view, "Invalid username or password", "Login Error");
+			CustomAlertDialog.showDialog(view, "Invalid username or password", "Please try again");
 		}
 	}
 	
