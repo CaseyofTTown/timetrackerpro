@@ -13,12 +13,13 @@ import java.util.Date;
 
 import org.jdatepicker.impl.JDatePickerImpl;
 import model.CertificationLevelenum;
+import model.ColorConstants;
 
 public class NewEmployeeInfoView extends JFrame {
-	private JTextField nameField;
+	private TitledTextField nameField;
 	private JComboBox<String> emsCertifiedComboBox;
 	private JComboBox<CertificationLevelenum> certificationLevelComboBox;
-	private JTextField certificationNumberField;
+	private TitledTextField certificationNumberField;
 	private JDatePickerImpl expirationDateField;
 	private JButton submitNewEmployeeButton;
 
@@ -27,16 +28,14 @@ public class NewEmployeeInfoView extends JFrame {
 		setTitle("New Employee Information");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		JPanel panel = new JPanel(new GridBagLayout());
-		panel.setBackground(new Color(50, 50, 50));
+		panel.setBackground(ColorConstants.CHARCOAL);
 		add(panel);
 
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
 		c.gridy = 0;
 
-		panel.add(new JLabel("Full Name:"), c);
-		c.gridy++;
-		nameField = new JTextField("Enter first and last name", 20);
+		nameField = new TitledTextField("Full Name","First and Last", 20);
 		nameField.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
@@ -46,10 +45,16 @@ public class NewEmployeeInfoView extends JFrame {
 		panel.add(nameField, c);
 		c.gridy++;
 
-		// selector used to controll collection of cert exp date
-		panel.add(new JLabel("Are you a certified EMS provider?"), c);
+		JLabel emsProviderLabel = new JLabel("Are you a certified EMS provider?");
+		emsProviderLabel.setForeground(ColorConstants.GOLD);
+		panel.add(emsProviderLabel, c);
 		c.gridy++;
+
+		
+		
 		emsCertifiedComboBox = new JComboBox<>(new String[] { "Please select", "Yes", "No" });
+		emsCertifiedComboBox.setBackground(ColorConstants.CHARCOAL);
+		emsCertifiedComboBox.setForeground(ColorConstants.GOLD);
 		emsCertifiedComboBox.addActionListener(e -> {
 			boolean isCertified = emsCertifiedComboBox.getSelectedItem().equals("Yes");
 			boolean isAnswered = !emsCertifiedComboBox.getSelectedItem().equals("Please select");
@@ -62,27 +67,37 @@ public class NewEmployeeInfoView extends JFrame {
 		panel.add(emsCertifiedComboBox, c);
 		c.gridy++;
 
-		panel.add(new JLabel("Certification Level:"), c);
+		JLabel certificationLevelLabel = new JLabel("Certification Level:");
+		certificationLevelLabel.setForeground(ColorConstants.GOLD);
+		panel.add(certificationLevelLabel, c);
 		c.gridy++;
+
 		certificationLevelComboBox = new JComboBox<>(CertificationLevelenum.values());
+		certificationLevelComboBox.setBackground(ColorConstants.CHARCOAL); // Set background color
+		certificationLevelComboBox.setForeground(ColorConstants.GOLD); // Set text color
 		certificationLevelComboBox.setEnabled(false);
 		panel.add(certificationLevelComboBox, c);
 		c.gridy++;
 
-		panel.add(new JLabel("Certification Number:"), c);
-		c.gridy++;
-		certificationNumberField = new JTextField(20);
+
+		certificationNumberField = new TitledTextField("Certification Number", "Include letter",20);
 		certificationNumberField.setEnabled(false);
 		panel.add(certificationNumberField, c);
 		c.gridy++;
 
-		panel.add(new JLabel("Expiration Date:"), c);
+		JLabel expirationDateLabel = new JLabel("Certification Expiration Date:");
+		expirationDateLabel.setForeground(ColorConstants.GOLD);
+		panel.add(expirationDateLabel, c);
 		c.gridy++;
+
 		DatePicker datePicker = new DatePicker();
 		expirationDateField = datePicker.getDatePicker();
+		expirationDateField.getJFormattedTextField().setBackground(ColorConstants.DARK_GRAY); // Set background color
+		expirationDateField.getJFormattedTextField().setForeground(ColorConstants.GOLD); // Set text color
 		expirationDateField.setEnabled(false);
 		panel.add(expirationDateField, c);
 		c.gridy++;
+
 
 		submitNewEmployeeButton = new JButton("Submit");
 		submitNewEmployeeButton.setEnabled(false);
@@ -102,8 +117,8 @@ public class NewEmployeeInfoView extends JFrame {
 			}
 		};
 
-		nameField.getDocument().addDocumentListener(documentListener);
-		certificationNumberField.getDocument().addDocumentListener(documentListener);
+		nameField.getTextField().getDocument().addDocumentListener(documentListener);
+		certificationNumberField.getTextField().getDocument().addDocumentListener(documentListener);
 		emsCertifiedComboBox.addItemListener(itemEvent -> checkFields());
 		certificationLevelComboBox.addItemListener(itemEvent -> checkFields());
 
@@ -119,6 +134,8 @@ public class NewEmployeeInfoView extends JFrame {
 	        submitNewEmployeeButton.setEnabled(false);
 	    } else {
 	        submitNewEmployeeButton.setEnabled(true);
+	        submitNewEmployeeButton.setBackground(ColorConstants.DEEP_BLUE);
+	        submitNewEmployeeButton.setForeground(ColorConstants.LIME_GREEN);
 	    }
 	}
 	//getters for the data so view and controller can use it
