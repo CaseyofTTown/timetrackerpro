@@ -3,6 +3,7 @@ package view;
 import javax.swing.*;
 
 import model.CertificationLevelenum;
+import model.ColorConstants;
 
 import java.awt.*;
 import java.util.Date;
@@ -28,14 +29,14 @@ public class viewClass extends JFrame {
 		// set a dark theme using UiManager
 		try {
 			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-			UIManager.put("control", new Color(40, 40, 40));
-			UIManager.put("nimbusBase", new Color(0, 0, 0));
-			UIManager.put("nimbusAlertYellow", new Color(255, 187, 0));
-			UIManager.put("nimbusDisabledText", new Color(128, 128, 128));
-			UIManager.put("nimbusFocus", new Color(115, 164, 209));
-			UIManager.put("nimbusLightBackground", new Color(50, 50, 50));
-			UIManager.put("nimbusSelectionBackground", new Color(100, 100, 100));
-			UIManager.put("text", new Color(255, 255, 255));
+			UIManager.put("control", ColorConstants.CHARCOAL);
+			UIManager.put("nimbusBase", ColorConstants.DARK_GRAY);
+			UIManager.put("nimbusAlertYellow", ColorConstants.GOLD);
+			UIManager.put("nimbusDisabledText", ColorConstants.SLATE_GRAY);
+			UIManager.put("nimbusFocus", ColorConstants.DEEP_BLUE);
+			UIManager.put("nimbusLightBackground", ColorConstants.DARK_GRAY);
+			UIManager.put("nimbusSelectionBackground", ColorConstants.LIGHT_GRAY);
+			UIManager.put("text", ColorConstants.WHITE);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -44,7 +45,7 @@ public class viewClass extends JFrame {
 		// create a panel with CardLayout
 		cardLayout = new CardLayout();
 		mainPanel = new JPanel(cardLayout);
-		mainPanel.setBackground(new Color(50, 50, 50));
+		mainPanel.setBackground(ColorConstants.DARK_GRAY);
 
 		// add the panel to the frame
 		add(mainPanel);
