@@ -2,8 +2,10 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -23,15 +25,17 @@ import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import model.ColorConstants;
+
 public class Login_Register_View extends JFrame {
 
 	private JButton signInButton;
 	private JButton registerButton;
 	private TitledTextField usernameSignIn;
-	private JPasswordField passwordSignIn;
+	private TitledPasswordField passwordSignIn;
 	private TitledTextField usernameRegister;
-	private JPasswordField passwordRegister;
-	private JPasswordField passwordRegisterConfirm;
+	private TitledPasswordField passwordRegister;
+	private TitledPasswordField passwordRegisterConfirm;
 	private TitledTextField pinRegister;
 	private JLabel passwordWarningLabel;
 
@@ -44,7 +48,7 @@ public class Login_Register_View extends JFrame {
 
 		// create a panel with a BorderLayout
 		JPanel panel = new JPanel(new BorderLayout());
-		panel.setBackground(new Color(50, 50, 50));
+		panel.setBackground(ColorConstants.CHARCOAL);
 
 		// add the panel to the frame
 		add(panel);
@@ -52,16 +56,16 @@ public class Login_Register_View extends JFrame {
 		// create a panel for the welcome messages
 		JPanel welcomePanel = new JPanel();
 		welcomePanel.setLayout(new BoxLayout(welcomePanel, BoxLayout.Y_AXIS));
-		welcomePanel.setBackground(new Color(50, 50, 50));
+		welcomePanel.setBackground(ColorConstants.DARK_GRAY);
 
 		// create a label for the welcome message
 		JLabel welcomeLabel = new JLabel("Welcome to Time Tracker Pro!", SwingConstants.CENTER);
-		welcomeLabel.setForeground(Color.GREEN);
+		welcomeLabel.setForeground(ColorConstants.GOLD);
 		welcomePanel.add(welcomeLabel);
 
 		// create a label for the sign-in message
 		JLabel signInLabel = new JLabel("Please sign in to continue :)", SwingConstants.CENTER);
-		signInLabel.setForeground(Color.GREEN);
+		signInLabel.setForeground(ColorConstants.GOLD);
 		welcomePanel.add(signInLabel);
 
 		// add the welcome panel to the NORTH region of the main panel
@@ -69,6 +73,8 @@ public class Login_Register_View extends JFrame {
 
 		// create a tabbed pane for sign-in and registration options
 		JTabbedPane tabbedPane = new JTabbedPane();
+		tabbedPane.setBackground(ColorConstants.DARK_GRAY);
+		tabbedPane.setForeground(ColorConstants.LIME_GREEN);
 
 		// create the sign-in panel
 		JPanel signInPanel = new JPanel(new GridBagLayout());
@@ -77,22 +83,20 @@ public class Login_Register_View extends JFrame {
 		c.gridy = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.insets = new java.awt.Insets(5, 5, 5, 5); // Add padding
-		signInPanel.add(new JLabel("Username:"), c);
-		c.gridy++;
+		signInPanel.setBackground(ColorConstants.CHARCOAL);
 
 		// Use TitledTextField for username
 		usernameSignIn = new TitledTextField("Username", "Enter your username", 20);
 		signInPanel.add(usernameSignIn, c);
 		c.gridy++;
-		signInPanel.add(new JLabel("Password:"), c);
-		c.gridy++;
 
 		// initialize password field with an empty string
-		passwordSignIn = new JPasswordField("", 20);
+		passwordSignIn = new TitledPasswordField("Password", "", 20);
 		signInPanel.add(passwordSignIn, c);
 		c.gridy++;
 
 		signInButton = new JButton("Sign In");
+		signInButton.setBackground(ColorConstants.SLATE_GRAY);
 		signInButton.setEnabled(false); // Initially disabled
 		signInPanel.add(signInButton, c);
 		tabbedPane.addTab("Sign In", signInPanel);
@@ -100,40 +104,42 @@ public class Login_Register_View extends JFrame {
 		// create the registration panel
 		JPanel registerPanel = new JPanel(new GridBagLayout());
 		c.gridy = 0;
-		registerPanel.add(new JLabel("Username:"), c);
-		c.gridy++;
+		c.gridx = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.insets = new java.awt.Insets(5, 5, 5, 5);
+		registerPanel.setBackground(ColorConstants.CHARCOAL);
 
 		// Use TitledTextField for username
 		usernameRegister = new TitledTextField("Username", "Enter your username", 20);
 		registerPanel.add(usernameRegister, c);
 		c.gridy++;
-		registerPanel.add(new JLabel("Password:"), c);
-		c.gridy++;
-		passwordRegister = new JPasswordField("", 20);
+
+		passwordRegister = new TitledPasswordField("Password", "Enter your password", 20);
 		registerPanel.add(passwordRegister, c);
 		c.gridy++;
-		registerPanel.add(new JLabel("Confirm Password:"), c);
-		c.gridy++;
-		passwordRegisterConfirm = new JPasswordField("", 20);
-		registerPanel.add(passwordRegisterConfirm, c);
-		c.gridy++;
-		registerPanel.add(new JLabel("PIN (last 4 digits of SSN):"), c);
-		c.gridy++;
 
-		// Use TitledTextField for PIN
-		pinRegister = new TitledTextField("PIN", "Enter your PIN", 20);
-		registerPanel.add(pinRegister, c);
-		c.gridy++;
-		registerButton = new JButton("Register");
-		registerButton.setEnabled(false); // Initially disabled
-		registerPanel.add(registerButton, c);
+		passwordRegisterConfirm = new TitledPasswordField("Password", "Enter your password", 20);
+		registerPanel.add(passwordRegisterConfirm, c);
 		c.gridy++;
 
 		// warning label for passwords
-		passwordWarningLabel = new JLabel("Passwords do not match!");
-		passwordWarningLabel.setForeground(Color.RED);
+		passwordWarningLabel = new JLabel("");
+		passwordWarningLabel.setForeground(ColorConstants.CRIMSON_RED);
+		passwordWarningLabel.setPreferredSize(new Dimension(200, 20));
 		passwordWarningLabel.setVisible(false);
 		registerPanel.add(passwordWarningLabel, c);
+		c.gridy++;
+
+		// Use TitledTextField for PIN
+		pinRegister = new TitledTextField("PIN(Last 4 of social)", "Enter your PIN", 20);
+		registerPanel.add(pinRegister, c);
+		c.gridy++;
+
+		registerButton = new JButton("Register");
+		registerButton.setEnabled(false); // Initially disabled
+		registerButton.setBackground(ColorConstants.SLATE_GRAY);
+		registerButton.setForeground(ColorConstants.CRIMSON_RED);
+		registerPanel.add(registerButton, c);
 		c.gridy++;
 
 		registerPanel.add(new JLabel(" "), c); // padding
@@ -148,6 +154,14 @@ public class Login_Register_View extends JFrame {
 
 		// center the frame on the screen
 		setLocationRelativeTo(null);
+
+		// focus listener for pin
+		pinRegister.getTextField().addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				checkRegisterFields();
+			}
+		});
 
 		// Add document listeners to enable/disable buttons based on input
 		DocumentListener documentListener = new DocumentListener() {
@@ -168,27 +182,40 @@ public class Login_Register_View extends JFrame {
 		};
 
 		usernameSignIn.getTextField().getDocument().addDocumentListener(documentListener);
-		passwordSignIn.getDocument().addDocumentListener(documentListener);
+		passwordSignIn.getPasswordField().getDocument().addDocumentListener(documentListener);
 		usernameRegister.getTextField().getDocument().addDocumentListener(documentListener);
-		passwordRegister.getDocument().addDocumentListener(documentListener);
-		passwordRegisterConfirm.getDocument().addDocumentListener(documentListener);
+		passwordRegister.getPasswordField().getDocument().addDocumentListener(documentListener);
+		passwordRegisterConfirm.getPasswordField().getDocument().addDocumentListener(documentListener);
 		pinRegister.getTextField().getDocument().addDocumentListener(documentListener);
 	}
 
 	private void checkSignInFields() {
-		boolean isSignInEnabled = !usernameSignIn.getText().trim().isEmpty() && passwordSignIn.getPassword().length > 0;
+		boolean isSignInEnabled = !usernameSignIn.getText().trim().isEmpty()
+				&& passwordSignIn.getPasswordField().getPassword().length > 0;
 		signInButton.setEnabled(isSignInEnabled);
+		
+		if(signInButton.isEnabled()) {
+			signInButton.setBackground(ColorConstants.DEEP_BLUE);
+			signInButton.setForeground(ColorConstants.LIME_GREEN);
+		}
 	}
 
 	private void checkRegisterFields() {
-		boolean passwordsMatch = new String(passwordRegister.getPassword())
-				.equals(new String(passwordRegisterConfirm.getPassword()));
+		boolean passwordsMatch = new String(passwordRegister.getPasswordField().getPassword())
+				.equals(new String(passwordRegisterConfirm.getPasswordField().getPassword()));
 		boolean isRegisterEnabled = !usernameRegister.getText().trim().isEmpty()
-				&& passwordRegister.getPassword().length > 0 && passwordRegisterConfirm.getPassword().length > 0
-				&& pinRegister.getText().matches("\\d{4}") && passwordsMatch;
+				&& passwordRegister.getPasswordField().getPassword().length > 0
+				&& passwordRegisterConfirm.getPasswordField().getPassword().length > 0
+				&& pinRegister.getText().matches("\\d{4}") && passwordsMatch; // Ensure passwords match before enabling
+																				// the register button
 		registerButton.setEnabled(isRegisterEnabled);
+		if (registerButton.isEnabled()) {
+			registerButton.setBackground(ColorConstants.DEEP_BLUE);
+			registerButton.setForeground(ColorConstants.ORANGE);
+		}
 
-		// Show or hide the password warning label
+		// Update the password warning label text and visibility
+		passwordWarningLabel.setText(passwordsMatch ? "" : "Passwords do not match!");
 		passwordWarningLabel.setVisible(!passwordsMatch);
 	}
 
@@ -214,7 +241,7 @@ public class Login_Register_View extends JFrame {
 	}
 
 	public String getPasswordSignIn() {
-		return new String(passwordSignIn.getPassword());
+		return new String(passwordSignIn.getPasswordField().getPassword());
 	}
 
 	public String getUsernameRegister() {
@@ -222,7 +249,7 @@ public class Login_Register_View extends JFrame {
 	}
 
 	public String getPasswordRegister() {
-		return new String(passwordRegister.getPassword());
+		return new String(passwordRegister.getPasswordField().getPassword());
 	}
 
 	public int getPinRegister() {
