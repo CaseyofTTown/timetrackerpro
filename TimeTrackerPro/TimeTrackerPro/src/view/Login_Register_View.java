@@ -154,6 +154,24 @@ public class Login_Register_View extends JFrame {
 
 		// center the frame on the screen
 		setLocationRelativeTo(null);
+		
+		//key listener for enter key to submit
+		KeyAdapter enterKeyListener = new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+					System.out.println("Enter key pressed");
+					int selectedIndex = tabbedPane.getSelectedIndex();
+					if(selectedIndex == 0) {
+						System.out.println("Sign In button clicked");
+						signInButton.doClick();
+					} else if (selectedIndex == 1) {
+						System.out.println("Register button clicked");
+						registerButton.doClick();
+					}
+				}
+			}
+		};
 
 		// focus listener for pin
 		pinRegister.getTextField().addFocusListener(new FocusAdapter() {
@@ -187,6 +205,8 @@ public class Login_Register_View extends JFrame {
 		passwordRegister.getPasswordField().getDocument().addDocumentListener(documentListener);
 		passwordRegisterConfirm.getPasswordField().getDocument().addDocumentListener(documentListener);
 		pinRegister.getTextField().getDocument().addDocumentListener(documentListener);
+		pinRegister.getTextField().addKeyListener(enterKeyListener);
+		passwordSignIn.getPasswordField().addKeyListener(enterKeyListener);
 	}
 
 	private void checkSignInFields() {
