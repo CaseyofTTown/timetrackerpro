@@ -8,6 +8,7 @@ import model.Employee;
 import model.Session;
 import model.UserAuth;
 import view.viewClass;
+import view.CustomAlertDialog;
 import view.Login_Register_View;
 
 public class TTController {
@@ -38,7 +39,29 @@ public class TTController {
 	}
 	
 	private void handleSignIn() {
+		String username = view.getUsernameSignIn();
+		String password = view.getPasswordSignIn();
 		
+		//authenticate user
+		boolean isAuthenticated = userAuth.authenticateUser(username, password);
+		
+		if(isAuthenticated) {
+			employeeId = db.getEmployeeIdByUsername(username);
+			Employee employee = db.getEmployeeById(employeeId);
+			
+			if(employee == null) {
+				//no entry in employees table, collect info
+				view.hideLoginRegisterView();
+				view.showNewEmployeeInfoView();
+			} else {
+				//entry exists, going to homescreen
+				view.hideLoginRegisterView();
+				view.showHomeView(employee.getName());
+			}
+		} else {
+			//handle auth failure
+			CustomAlertDialog.showDialog(view, "Invalid username or password", "Login Error");
+		}
 	}
 	
 	private void handleRegister() {
@@ -52,8 +75,6 @@ public class TTController {
 			employeeId = db.getEmployeeIdByUsername(username);
 			view.hideLoginRegisterView();
 			view.showNewEmployeeInfoView();
-			
-			//TODO: create and show new_employee_info_view
 			
 		}
 	}

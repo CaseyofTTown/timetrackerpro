@@ -24,9 +24,9 @@ public class DatabaseManager {
 	}
 
 	private void createTables() {
-		String sqlCreateEmployeesTable = "CREATE TABLE IF NOT EXISTS employees (\n"
-	            + " id integer PRIMARY KEY,\n" + " name text NOT NULL,\n" + " level text,\n"
-	            + " certificationNumber text,\n" + " certExpirationDate text\n" + ");";
+		String sqlCreateEmployeesTable = "CREATE TABLE IF NOT EXISTS employees (\n" + " id integer PRIMARY KEY,\n"
+				+ " name text NOT NULL,\n" + " level text,\n" + " certificationNumber text,\n"
+				+ " certExpirationDate text\n" + ");";
 
 		String sqlCreateTimeSheetsTable = "CREATE TABLE IF NOT EXISTS timesheets (\n"
 				+ " id integer PRIMARY KEY AUTOINCREMENT,\n" + " employeeId integer NOT NULL,\n"
@@ -34,8 +34,8 @@ public class DatabaseManager {
 				+ " shiftEndTime text,\n" + " FOREIGN KEY(employeeId) REFERENCES employees(id)\n" + ");";
 
 		String sqlCreateUsersTable = "CREATE TABLE IF NOT EXISTS users (\n " + " username text PRIMARY KEY, \n"
-				+ " hashedPassword text NOT NULL, \n" + " salt text NOT NULL, \n" + " employeeId integer, \n" + "pin integer, \n"
-				+ "FOREIGN KEY(employeeID) REFERENCES employees(id)\n" + ")";
+				+ " hashedPassword text NOT NULL, \n" + " salt text NOT NULL, \n" + " employeeId integer, \n"
+				+ "pin integer, \n" + "FOREIGN KEY(employeeID) REFERENCES employees(id)\n" + ")";
 
 		try (Statement stmt = connection.createStatement()) {
 			stmt.execute(sqlCreateEmployeesTable);
@@ -133,7 +133,7 @@ public class DatabaseManager {
 
 	public boolean registerUser(String username, String hashedPassword, String salt, int pin) {
 		String sql = "INSERT INTO users(username, hashedPassword, salt, employeeId, pin) VALUES(?,?,?,?,?)";
-		int result = 0; //number of rows affected to verify success
+		int result = 0; // number of rows affected to verify success
 		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 			pstmt.setString(1, username);
 			pstmt.setString(2, hashedPassword);
@@ -145,33 +145,34 @@ public class DatabaseManager {
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
-		return result > 0; //true if successful
+		return result > 0; // true if successful
 
 	}
-	//find highest employee id in database or start with 001
+
+	// find highest employee id in database or start with 001
 	private int generateEmployeeId() {
 		String sql = "SELECT MAX(employeeId) AS max_id FROM users";
-		
-		try(PreparedStatement pstmt = connection.prepareStatement(sql)){
+
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 			ResultSet rs = pstmt.executeQuery();
-			if(rs.next()) {
+			if (rs.next()) {
 				int maxId = rs.getInt("max_id");
 				return maxId > 0 ? maxId + 1 : 1;
 			}
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
-		//if error occurs return a defaul value
+		// if error occurs return a defaul value
 		System.out.println("Error in generateEmployeeID");
 		return 1;
 	}
-	
+
 	public int getEmployeeIdByUsername(String username) {
 		String sql = "SELECT employeeId FROM users WHERE username = ?";
-		try(PreparedStatement pstmt = connection.prepareStatement(sql)){
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 			pstmt.setString(1, username);
 			ResultSet rs = pstmt.executeQuery();
-			if(rs.next()) {
+			if (rs.next()) {
 				return rs.getInt("employeeId");
 			}
 		} catch (SQLException e) {
@@ -180,16 +181,36 @@ public class DatabaseManager {
 		return -1;
 	}
 
+	public Employee getEmployeeById(int employeeId) {
+		String sql = "SELECT * FROM employees WHERE employeeId = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, employeeId);
+			ResultSet rs = pstmt.executeQuery();
+			if (rs.next()) {
+				//user has an entry in employee table
+				return new Employee(rs.getInt("employeeId"), rs.getString("name"),
+						CertificationLevelenum.valueOf(rs.getString("certificationLevel")),
+						rs.getString("certificationNumber"), rs.getDate("expirationDate"));
+			}
+		} catch (SQLException e) {
+			//error occured
+			System.out.println(e.getMessage());
+		}
+		//user does not have an entry, will display new employee info gui
+		System.out.println("No entry in employee table for user");
+		return null;
+	}
+
 	public String[] getSaltAndHashedPassword(String username) {
 		String sql = "SELECT salt, hashedPassword FROM users WHERE username = ?";
 
 		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 			pstmt.setString(1, username);
 			ResultSet rs = pstmt.executeQuery();
-			if(rs.next()) {
+			if (rs.next()) {
 				String salt = rs.getString("salt");
 				String hashedPassword = rs.getString("hashedPassword");
-				return new String[] {salt, hashedPassword};
+				return new String[] { salt, hashedPassword };
 			}
 
 		} catch (SQLException e) {
@@ -198,7 +219,7 @@ public class DatabaseManager {
 		System.out.println("unknown error in getSaltAndHashedPassword db manager");
 		return null;
 	}
-	
+
 	public int getPin(String username) {
 		String sql = "SELECT pin FROM users WHERE username = ?";
 
@@ -215,11 +236,11 @@ public class DatabaseManager {
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 			throw new RuntimeException("Database error");
-			
+
 		}
 	}
-	
-	//if user resets password with pin, use this
+
+	// if user resets password with pin, use this
 	public void updatePasswordAndSalt(String username, String newHashedPassword, String newSalt) {
 		String sql = "UPDATE users SET hashedPassword = ?, salt = ? WHERE username = ?";
 
