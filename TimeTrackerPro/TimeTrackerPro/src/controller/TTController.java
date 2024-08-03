@@ -161,9 +161,14 @@ public class TTController {
 	    // Fetch time sheets within the date range
 	    List<TimeSheet> timeSheets = db.getTimeSheetsByDateRange(sqlStartDate, sqlEndDate);
 
+	    view.showHomeView(employee.getName());
+	    
 	    // Update the view with the fetched time sheets
 	    view.updateTimeSheetDisplay(timeSheets);
-	    view.showHomeView(employee.getName());
+	    view.setStartDate(new Date(sqlStartDate.getTime()));
+	    view.setEndDate(new Date(sqlEndDate.getTime()));
+	    
+	    
 	}
 	
 	private java.sql.Date[] calculateRecentDatesForTimeSheets() {

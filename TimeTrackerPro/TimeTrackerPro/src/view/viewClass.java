@@ -63,6 +63,10 @@ public class viewClass extends JFrame {
 		
 		timeSheetPanel = new TimeSheetPanel();
 		mainPanel.add(timeSheetPanel, "TimeSheetsPanel");
+		
+		homeView = new HomeView("");
+		homeView.setVisible(false);
+		mainPanel.add(homeView.getContentPane(), "HomeView");
 
 		// pack frame to fit contents @ preferred size
 		pack();
@@ -87,17 +91,10 @@ public class viewClass extends JFrame {
 		newEmployeeInfoView.setVisible(false);
 	}
 
-	// main view
 	public void showHomeView(String employeeName) {
-		if (homeView == null) {
-			homeView = new HomeView(employeeName);
-			mainPanel.add(homeView.getContentPane(), "HomeView");
-		} else {
-			System.out.println("homeview already initialized");
-		}
-		cardLayout.show(mainPanel, "HomeView");
-		//homeView.setVisible(true); 
-		homeView.setExtendedState(JFrame.MAXIMIZED_BOTH);
+	    //homeView.setVisible(true);
+	    homeView.setExtendedState(JFrame.MAXIMIZED_BOTH);
+	    cardLayout.show(mainPanel, "HomeView");
 	}
 
 	public void hideHomeView() {
@@ -163,6 +160,13 @@ public class viewClass extends JFrame {
 	//getters for buttons on HomePage, timeSheetPanel
 	public TimeSheetPanel getTimeSheetPanel() {
 		return timeSheetPanel;
+	}
+	public void setStartDate(Date date) {
+		homeView.setStartDate(date);
+		}
+
+	public void setEndDate(Date date) {
+		homeView.setEndDate(date);
 	}
 
 	public void showModifyTimeSheetView(TimeSheet timeSheet) {

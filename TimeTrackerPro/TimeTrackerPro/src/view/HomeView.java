@@ -5,11 +5,13 @@ import javax.swing.*;
 import model.ColorConstants;
 
 import java.awt.*;
+import java.util.Date;
 
 public class HomeView extends JFrame {
 
     private JLabel welcomeLabel;
     private JTabbedPane tabbedPane;
+    private TimeSheetPanel timeSheetPanel;
 
     public HomeView(String employeeName) {
         // Set the window title
@@ -65,7 +67,8 @@ public class HomeView extends JFrame {
 
     // Methods to create panels for each tab
     private JPanel createTimeSheetsPanel() {
-        TimeSheetPanel timeSheetPanel = new TimeSheetPanel();
+        timeSheetPanel = new TimeSheetPanel();
+        timeSheetPanel.setBackground(ColorConstants.CHARCOAL);
         return timeSheetPanel;
     }
 
@@ -88,5 +91,12 @@ public class HomeView extends JFrame {
         panel.setBackground(ColorConstants.CHARCOAL);
         // Add components specific to Reports
         return panel;
+    }
+    //methods to set the start and end dates on timesheetview
+    public void setStartDate(Date date) {
+    	timeSheetPanel.setStartDate(date);
+    }
+    public void setEndDate(Date date) {
+    	timeSheetPanel.setEndDate(date);
     }
 }

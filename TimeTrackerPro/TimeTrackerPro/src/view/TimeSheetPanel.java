@@ -6,6 +6,8 @@ import model.ColorConstants;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Calendar;
+import java.util.Date;
 
 public class TimeSheetPanel extends JPanel {
 
@@ -43,6 +45,7 @@ public class TimeSheetPanel extends JPanel {
 
         // TimeSheetDisplay Component
         timeSheetDisplay = new TimeSheetDisplay();
+        timeSheetDisplay.setBackground(ColorConstants.DARK_GRAY);
         add(new JScrollPane(timeSheetDisplay), BorderLayout.CENTER);
 
         // Buttons
@@ -136,5 +139,20 @@ public class TimeSheetPanel extends JPanel {
             return (int) timeSheetDisplay.getValueAt(selectedRow, 0);
         }
         return -1;
+    }
+    
+    
+    public void setStartDate(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        startDatePicker.getModel().setDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+        startDatePicker.getModel().setSelected(true);
+    }
+
+    public void setEndDate(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        endDatePicker.getModel().setDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+        endDatePicker.getModel().setSelected(true);
     }
 }
