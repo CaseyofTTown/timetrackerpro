@@ -207,6 +207,8 @@ public class Login_Register_View extends JFrame {
 		pinRegister.getTextField().getDocument().addDocumentListener(documentListener);
 		pinRegister.getTextField().addKeyListener(enterKeyListener);
 		passwordSignIn.getPasswordField().addKeyListener(enterKeyListener);
+		
+		System.out.println("Login_Register_View created");
 	}
 
 	private void checkSignInFields() {

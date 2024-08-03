@@ -24,7 +24,7 @@ public class TTController {
 	private Session session;
 	private int employeeId;
 	private DatabaseManager db;
-	
+
 	private Employee employee;
 
 	public TTController(DatabaseManager db, viewClass view) {
@@ -32,38 +32,38 @@ public class TTController {
 		this.view = view;
 		this.session = new Session(); // used for timing out user
 		this.db = db;
+
+		displayUserLoginRegisterUI();
+
+	}
+
+	private void displayUserLoginRegisterUI() {
+		view.showLoginRegisterView();
 		// add action listeners to the buttons in loginRegisterView
 		this.view.getSignInButton().addActionListener(e -> handleSignIn());
 		this.view.getRegisterButton().addActionListener(e -> handleRegister());
 
-		// listener for button in NewEmployeeInfoView
-		this.view.getSubmitEmployeeInfoButton().addActionListener(e -> handleNewEmployeeSubmit());
-
-		// listeners for timeSheetTab on HomeView
-		this.view.getTimeSheetPanel().getAddButton().addActionListener(e -> handleAddTimeSheet());
-		this.view.getTimeSheetPanel().getModifyButton().addActionListener(e -> handleModifyTimeSheet());
-		this.view.getTimeSheetPanel().getDeleteTimeSheetButton().addActionListener(e -> handleDeleteTimeSheet());
 	}
 
 	private void handleDeleteTimeSheet() {
-	    int selectedTimeSheetId = view.getTimeSheetPanel().getSelectedTimeSheetId();
-	    if (selectedTimeSheetId != -1) {
-	        // Delete the selected time sheet
-	        db.deleteTimeSheet(selectedTimeSheetId);
+		int selectedTimeSheetId = view.getTimeSheetPanel().getSelectedTimeSheetId();
+		if (selectedTimeSheetId != -1) {
+			// Delete the selected time sheet
+			db.deleteTimeSheet(selectedTimeSheetId);
 
-	        // Calculate date range
-	        java.sql.Date[] recentDates = calculateRecentDatesForTimeSheets();
-	        java.sql.Date sqlStartDate = recentDates[0];
-	        java.sql.Date sqlEndDate = recentDates[1];
+			// Calculate date range
+			java.sql.Date[] recentDates = calculateRecentDatesForTimeSheets();
+			java.sql.Date sqlStartDate = recentDates[0];
+			java.sql.Date sqlEndDate = recentDates[1];
 
-	        // Fetch the updated list of time sheets within the date range
-	        List<TimeSheet> updatedTimeSheets = db.getTimeSheetsByDateRange(sqlStartDate, sqlEndDate);
+			// Fetch the updated list of time sheets within the date range
+			List<TimeSheet> updatedTimeSheets = db.getTimeSheetsByDateRange(sqlStartDate, sqlEndDate);
 
-	        // Update the time sheet display with the new list
-	        view.updateTimeSheetDisplay(updatedTimeSheets);
-	    } else {
-	    	System.out.println("time sheet not found to delete...");
-	    }
+			// Update the time sheet display with the new list
+			view.updateTimeSheetDisplay(updatedTimeSheets);
+		} else {
+			System.out.println("time sheet not found to delete...");
+		}
 	}
 
 	private void handleModifyTimeSheet() {
@@ -102,8 +102,7 @@ public class TTController {
 				// entry exists, going to homescreen
 				view.hideLoginRegisterView();
 				handleHomeViewSetupAndNavigate();
-				
-				
+
 			}
 		} else {
 			// handle auth failure
@@ -124,6 +123,14 @@ public class TTController {
 			view.showNewEmployeeInfoView();
 
 		}
+	}
+
+	private void showNewEmployeeInfoUI() {
+		view.hideLoginRegisterView();
+		view.showNewEmployeeInfoView();
+		// listener for button in NewEmployeeInfoView
+		this.view.getSubmitEmployeeInfoButton().addActionListener(e -> handleNewEmployeeSubmit());
+
 	}
 
 	private void handleNewEmployeeSubmit() {
@@ -147,41 +154,46 @@ public class TTController {
 
 		if (isStored) {
 			view.hideNewEmployeeInfoView();
+			view.hideLoginRegisterView();
 			handleHomeViewSetupAndNavigate();
 		}
 
 	}
-	
+
 	private void handleHomeViewSetupAndNavigate() {
-	    // Calculate date range
-	    java.sql.Date[] recentDates = calculateRecentDatesForTimeSheets();
-	    java.sql.Date sqlStartDate = recentDates[0];
-	    java.sql.Date sqlEndDate = recentDates[1];
+		// Calculate date range
+		java.sql.Date[] recentDates = calculateRecentDatesForTimeSheets();
+		java.sql.Date sqlStartDate = recentDates[0];
+		java.sql.Date sqlEndDate = recentDates[1];
 
-	    // Fetch time sheets within the date range
-	    List<TimeSheet> timeSheets = db.getTimeSheetsByDateRange(sqlStartDate, sqlEndDate);
+		// Fetch time sheets within the date range
+		List<TimeSheet> timeSheets = db.getTimeSheetsByDateRange(sqlStartDate, sqlEndDate);
 
-	    view.showHomeView(employee.getName());
-	    
-	    // Update the view with the fetched time sheets
-	    view.updateTimeSheetDisplay(timeSheets);
-	    view.setStartDate(new Date(sqlStartDate.getTime()));
-	    view.setEndDate(new Date(sqlEndDate.getTime()));
-	    
-	    
+		view.showHomeView(employee.getName());
+
+		// Update the view with the fetched time sheets
+		view.updateTimeSheetDisplay(timeSheets);
+		view.setStartDate(new Date(sqlStartDate.getTime()));
+		view.setEndDate(new Date(sqlEndDate.getTime()));
+
+		// listeners for timeSheetTab on HomeView
+		this.view.getTimeSheetPanel().getAddButton().addActionListener(e -> handleAddTimeSheet());
+		this.view.getTimeSheetPanel().getModifyButton().addActionListener(e -> handleModifyTimeSheet());
+		this.view.getTimeSheetPanel().getDeleteTimeSheetButton().addActionListener(e -> handleDeleteTimeSheet());
+		System.out.println("listeners set for TimeSheetPanel");
 	}
-	
+
 	private java.sql.Date[] calculateRecentDatesForTimeSheets() {
-	    Calendar calendar = Calendar.getInstance();
-	    Date endDate = calendar.getTime();
-	    calendar.add(Calendar.MONTH, -1);
-	    Date startDate = calendar.getTime();
+		Calendar calendar = Calendar.getInstance();
+		Date endDate = calendar.getTime();
+		calendar.add(Calendar.MONTH, -1);
+		Date startDate = calendar.getTime();
 
-	    // Convert java.util.Date to java.sql.Date
-	    java.sql.Date sqlStartDate = new java.sql.Date(startDate.getTime());
-	    java.sql.Date sqlEndDate = new java.sql.Date(endDate.getTime());
+		// Convert java.util.Date to java.sql.Date
+		java.sql.Date sqlStartDate = new java.sql.Date(startDate.getTime());
+		java.sql.Date sqlEndDate = new java.sql.Date(endDate.getTime());
 
-	    return new java.sql.Date[]{sqlStartDate, sqlEndDate};
+		return new java.sql.Date[] { sqlStartDate, sqlEndDate };
 	}
 
 }

@@ -97,6 +97,8 @@ public class TimeSheetPanel extends JPanel {
             modifyButton.setEnabled(isSelected);
             deleteTimeSheetButton.setEnabled(isSelected);
         });
+        
+        System.out.println("TimeSheetPanel created");
     }
 
     private void styleButton(JButton button) {

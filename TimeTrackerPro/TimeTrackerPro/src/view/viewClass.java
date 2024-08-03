@@ -27,7 +27,7 @@ public class viewClass extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// set the size of the window
-		//setSize(800, 600);
+		setSize(800, 600);
 
 		// set a dark theme using UiManager
 		try {
@@ -53,6 +53,8 @@ public class viewClass extends JFrame {
 		// add the panel to the frame
 		add(mainPanel);
 
+		/*
+		 * moved to individual functions due to bugs, kept for reference
 		// create an instance of Login_Register_View
 		loginRegisterView = new Login_Register_View();
 		mainPanel.add(loginRegisterView.getContentPane(), "LoginRegisterView");
@@ -63,47 +65,79 @@ public class viewClass extends JFrame {
 		
 		timeSheetPanel = new TimeSheetPanel();
 		mainPanel.add(timeSheetPanel, "TimeSheetsPanel");
-		
+		*/
 
 		// pack frame to fit contents @ preferred size
-		pack();
+		//pack();
 
 		// Center frame on the screen
 		setLocationRelativeTo(null);
+		System.out.println("viewClass instance created");
 	}
 
 	public void showLoginRegisterView() {
-		cardLayout.show(mainPanel, "LoginRegisterView");
-	}
-
+        if (loginRegisterView == null) {
+            loginRegisterView = new Login_Register_View();
+            mainPanel.add(loginRegisterView.getContentPane(), "LoginRegisterView");
+        }
+        cardLayout.show(mainPanel, "LoginRegisterView");
+        updateWindowSize();
+    }
 	public void hideLoginRegisterView() {
-		loginRegisterView.setVisible(false);
-	}
+        if (loginRegisterView != null) {
+            loginRegisterView.setVisible(false);
+            mainPanel.remove(loginRegisterView.getContentPane());
+            loginRegisterView = null;
+            System.out.println("LoginRegisterView removed");
+            updateWindowSize();
+
+        }
+    }
 
 	public void showNewEmployeeInfoView() {
-		cardLayout.show(mainPanel, "NewEmployeeInfoView");
-	}
+        if (newEmployeeInfoView == null) {
+            newEmployeeInfoView = new NewEmployeeInfoView();
+            mainPanel.add(newEmployeeInfoView.getContentPane(), "NewEmployeeInfoView");
+            
+        }
+        cardLayout.show(mainPanel, "NewEmployeeInfoView");
+        updateWindowSize();
+
+    }
 
 	public void hideNewEmployeeInfoView() {
-		newEmployeeInfoView.setVisible(false);
-	}
+        if (newEmployeeInfoView != null) {
+            newEmployeeInfoView.setVisible(false);
+            mainPanel.remove(newEmployeeInfoView.getContentPane());
+            newEmployeeInfoView = null;
+            System.out.println("NewEmployeeInfoView removed");
+            updateWindowSize();
+
+        }
+    }
 
 	public void showHomeView(String employeeName) {
 	    if (homeView != null) {
-	        mainPanel.remove(homeView.getContentPane());
+	    	System.out.println("removing home view");
+	        mainPanel.remove(homeView);
 	    }
 	    homeView = new HomeView(employeeName);
-	    mainPanel.add(homeView.getContentPane(), "HomeView");
+	    
+	    mainPanel.add(homeView, "HomeView");
 	    homeView.setVisible(true);
-	    //homeView.setExtendedState(JFrame.MAXIMIZED_BOTH);
+	    
 	    cardLayout.show(mainPanel, "HomeView");
 	    System.out.println("HomeView shown with employee name: " + employeeName);
+        updateWindowSize();
+
 	}
 
 
 	public void hideHomeView() {
 		if (homeView != null) {
 			homeView.setVisible(false);
+	        updateWindowSize();
+
 		}
 	}
 
@@ -184,5 +218,14 @@ public class viewClass extends JFrame {
 		for(TimeSheet timeSheet : timeSheets) {
 			timeSheetDisplay.addTimeSheetEntry(timeSheet);
 		}
+        updateWindowSize();
+
 	}
+	
+	private void updateWindowSize() {
+        pack();
+        setExtendedState(JFrame.MAXIMIZED_BOTH); //for full screen
+        mainPanel.revalidate();
+        mainPanel.repaint();
+    }
 }

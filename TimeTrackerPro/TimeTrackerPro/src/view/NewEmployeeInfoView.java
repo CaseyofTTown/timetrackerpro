@@ -131,6 +131,8 @@ public class NewEmployeeInfoView extends JFrame {
 		certificationLevelComboBox.addItemListener(itemEvent -> checkFields());
 		expirationDateField.getJFormattedTextField().getDocument().addDocumentListener(documentListener);
 		
+		
+		System.out.println("NewEmployeeInfoView created");
 	}
 
 	private void checkFields() {
