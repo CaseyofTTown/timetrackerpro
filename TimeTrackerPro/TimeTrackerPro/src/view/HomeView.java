@@ -99,4 +99,7 @@ public class HomeView extends JFrame {
     public void setEndDate(Date date) {
     	timeSheetPanel.setEndDate(date);
     }
+    public void setEmployeeName(String name) {
+    	
+    }
 }

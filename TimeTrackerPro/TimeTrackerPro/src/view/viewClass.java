@@ -64,9 +64,6 @@ public class viewClass extends JFrame {
 		timeSheetPanel = new TimeSheetPanel();
 		mainPanel.add(timeSheetPanel, "TimeSheetsPanel");
 		
-		homeView = new HomeView("");
-		homeView.setVisible(false);
-		mainPanel.add(homeView.getContentPane(), "HomeView");
 
 		// pack frame to fit contents @ preferred size
 		pack();
@@ -92,10 +89,17 @@ public class viewClass extends JFrame {
 	}
 
 	public void showHomeView(String employeeName) {
-	    //homeView.setVisible(true);
-	    homeView.setExtendedState(JFrame.MAXIMIZED_BOTH);
+	    if (homeView != null) {
+	        mainPanel.remove(homeView.getContentPane());
+	    }
+	    homeView = new HomeView(employeeName);
+	    mainPanel.add(homeView.getContentPane(), "HomeView");
+	    homeView.setVisible(true);
+	    //homeView.setExtendedState(JFrame.MAXIMIZED_BOTH);
 	    cardLayout.show(mainPanel, "HomeView");
+	    System.out.println("HomeView shown with employee name: " + employeeName);
 	}
+
 
 	public void hideHomeView() {
 		if (homeView != null) {
