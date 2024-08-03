@@ -1,7 +1,9 @@
 package view;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 
 import model.ColorConstants;
 import model.TimeSheet;
@@ -30,9 +32,25 @@ public class TimeSheetDisplay extends JTable {
 		model.addColumn("Shift Start Time");
 		model.addColumn("Shift End Time");
 		model.addColumn("Hours Worked");
+        // Set custom cell renderer
+        setDefaultRenderer(Object.class, new CustomCellRenderer());
+    }
 
-	}
-
+    // Custom cell renderer class
+    private class CustomCellRenderer extends DefaultTableCellRenderer {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            if (isSelected) {
+                c.setBackground(ColorConstants.DEEP_BLUE);
+                c.setForeground(ColorConstants.GOLD);
+            } else {
+                c.setBackground(ColorConstants.CHARCOAL);
+                c.setForeground(ColorConstants.LIME_GREEN);
+            }
+            return c;
+        }
+    }
 	  // Method to add a new time sheet entry
     public void addTimeSheetEntry(TimeSheet timesheet) {
         model.addRow(new Object[]{
