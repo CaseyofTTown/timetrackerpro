@@ -52,9 +52,7 @@ public class HomeView extends JPanel {
 		// Add the tabbed pane to the panel
 		add(tabbedPane, BorderLayout.CENTER);
 
-		// Pack the frame, which will take into account the preferred size of its
-		// contents
-		// pack();
+		
 
 		// Center the frame on the screen
 
@@ -64,6 +62,7 @@ public class HomeView extends JPanel {
 
 	// Methods to create panels for each tab
 	private JPanel createTimeSheetsPanel() {
+		System.out.println("creating time sheet panel");
 		timeSheetPanel = new TimeSheetPanel();
 		timeSheetPanel.setBackground(ColorConstants.CHARCOAL);
 		return timeSheetPanel;
@@ -102,4 +101,8 @@ public class HomeView extends JPanel {
 	public void setEmployeeName(String name) {
 
 	}
+	public TimeSheetPanel getTimeSheetPanel() {
+		return this.timeSheetPanel;
+	}
+
 }

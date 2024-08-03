@@ -197,7 +197,8 @@ public class viewClass extends JFrame {
 
 	//getters for buttons on HomePage, timeSheetPanel
 	public TimeSheetPanel getTimeSheetPanel() {
-		return timeSheetPanel;
+		
+		return homeView.getTimeSheetPanel();
 	}
 	public void setStartDate(Date date) {
 		homeView.setStartDate(date);
