@@ -55,13 +55,12 @@ public class HomeView extends JFrame {
         panel.add(tabbedPane, BorderLayout.CENTER);
 
         // Pack the frame, which will take into account the preferred size of its contents
-        pack();
+       // pack();
 
         // Center the frame on the screen
         setLocationRelativeTo(null);
         
-        //set window to maximized state
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+       
     }
 
     // Methods to create panels for each tab

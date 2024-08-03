@@ -27,7 +27,7 @@ public class viewClass extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// set the size of the window
-		setSize(800, 600);
+		//setSize(800, 600);
 
 		// set a dark theme using UiManager
 		try {
@@ -92,8 +92,12 @@ public class viewClass extends JFrame {
 		if (homeView == null) {
 			homeView = new HomeView(employeeName);
 			mainPanel.add(homeView.getContentPane(), "HomeView");
+		} else {
+			System.out.println("homeview already initialized");
 		}
 		cardLayout.show(mainPanel, "HomeView");
+		//homeView.setVisible(true); 
+		homeView.setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 
 	public void hideHomeView() {
