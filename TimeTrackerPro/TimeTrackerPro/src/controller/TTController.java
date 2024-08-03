@@ -1,109 +1,182 @@
 package controller;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import model.CertificationLevelenum;
 import model.DatabaseManager;
 import model.Employee;
 import model.Session;
+import model.TimeSheet;
 import model.UserAuth;
 import view.viewClass;
 import view.CustomAlertDialog;
 import view.Login_Register_View;
 
 public class TTController {
-	
-	//private DatabaseManager db;
+
+	// private DatabaseManager db;
 	private viewClass view;
-	//used to handle the actual registration/sign in
+	// used to handle the actual registration/sign in
 	private UserAuth userAuth;
-	//used to automatically sign a user out after 2 hours 
+	// used to automatically sign a user out after 2 hours
 	private Session session;
 	private int employeeId;
 	private DatabaseManager db;
 	
-	
+	private Employee employee;
+
 	public TTController(DatabaseManager db, viewClass view) {
 		this.userAuth = new UserAuth(db);
 		this.view = view;
-		this.session = new Session(); //used for timing out user
+		this.session = new Session(); // used for timing out user
 		this.db = db;
-		//add action listeners to the buttons in loginRegisterView
+		// add action listeners to the buttons in loginRegisterView
 		this.view.getSignInButton().addActionListener(e -> handleSignIn());
 		this.view.getRegisterButton().addActionListener(e -> handleRegister());
-		
-		//listener for button in NewEmployeeInfoView
+
+		// listener for button in NewEmployeeInfoView
 		this.view.getSubmitEmployeeInfoButton().addActionListener(e -> handleNewEmployeeSubmit());
-		
-		
+
+		// listeners for timeSheetTab on HomeView
+		this.view.getTimeSheetPanel().getAddButton().addActionListener(e -> handleAddTimeSheet());
+		this.view.getTimeSheetPanel().getModifyButton().addActionListener(e -> handleModifyTimeSheet());
+		this.view.getTimeSheetPanel().getDeleteTimeSheetButton().addActionListener(e -> handleDeleteTimeSheet());
 	}
-	
+
+	private void handleDeleteTimeSheet() {
+	    int selectedTimeSheetId = view.getTimeSheetPanel().getSelectedTimeSheetId();
+	    if (selectedTimeSheetId != -1) {
+	        // Delete the selected time sheet
+	        db.deleteTimeSheet(selectedTimeSheetId);
+
+	        // Calculate date range
+	        java.sql.Date[] recentDates = calculateRecentDatesForTimeSheets();
+	        java.sql.Date sqlStartDate = recentDates[0];
+	        java.sql.Date sqlEndDate = recentDates[1];
+
+	        // Fetch the updated list of time sheets within the date range
+	        List<TimeSheet> updatedTimeSheets = db.getTimeSheetsByDateRange(sqlStartDate, sqlEndDate);
+
+	        // Update the time sheet display with the new list
+	        view.updateTimeSheetDisplay(updatedTimeSheets);
+	    } else {
+	    	System.out.println("time sheet not found to delete...");
+	    }
+	}
+
+	private void handleModifyTimeSheet() {
+		int selectedTimeSheetId = view.getTimeSheetPanel().getSelectedTimeSheetId();
+		if (selectedTimeSheetId != -1) {
+			// fetch data for selected time sheet
+
+			TimeSheet timeSheet = db.getTimeSheetById(selectedTimeSheetId);
+			view.showModifyTimeSheetView(timeSheet);
+		} else {
+			System.out.println("Time sheet with id: " + selectedTimeSheetId + " was not found");
+		}
+
+	}
+
+	private Object handleAddTimeSheet() {
+		return null;
+	}
+
 	private void handleSignIn() {
 		String username = view.getUsernameSignIn();
 		String password = view.getPasswordSignIn();
-		
-		//authenticate user
+
+		// authenticate user
 		boolean isAuthenticated = userAuth.authenticateUser(username, password);
-		
-		if(isAuthenticated) {
+
+		if (isAuthenticated) {
 			employeeId = db.getEmployeeIdByUsername(username);
-			Employee employee = db.getEmployeeById(employeeId);
-			
-			if(employee == null) {
-				//no entry in employees table, collect info
+			employee = db.getEmployeeById(employeeId);
+
+			if (employee == null) {
+				// no entry in employees table, collect info
 				view.hideLoginRegisterView();
 				view.showNewEmployeeInfoView();
 			} else {
-				//entry exists, going to homescreen
+				// entry exists, going to homescreen
 				view.hideLoginRegisterView();
-				view.showHomeView(employee.getName());
+				handleHomeViewSetupAndNavigate();
+				
+				
 			}
 		} else {
-			//handle auth failure
+			// handle auth failure
 			CustomAlertDialog.showDialog(view, "Invalid username or password", "Please try again");
 		}
 	}
-	
+
 	private void handleRegister() {
 		String username = view.getUsernameRegister();
 		String password = view.getPasswordRegister();
 		int pin = view.getPinRegister();
-		//if registration = success, close login_register, open new employee info
+		// if registration = success, close login_register, open new employee info
 		boolean isRegistered = userAuth.registerUser(username, password, pin);
-		
-		if(isRegistered) {
+
+		if (isRegistered) {
 			employeeId = db.getEmployeeIdByUsername(username);
 			view.hideLoginRegisterView();
 			view.showNewEmployeeInfoView();
-			
+
 		}
 	}
+
 	private void handleNewEmployeeSubmit() {
 		String name = view.getEmployeeName();
 		String isEmsCertified = view.getIsEmsCertified();
 		CertificationLevelenum certificationLevel;
 		String certificationNumber = null;
 		Date expirationDate = null;
-		
-		if(isEmsCertified.equals("Yes")) {
+
+		if (isEmsCertified.equals("Yes")) {
 			certificationLevel = view.getCertificationLevel();
 			certificationNumber = view.getEmsCertificationNumber();
 			expirationDate = new Date(view.getExpirationDate().getTime());
 		} else {
 			certificationLevel = CertificationLevelenum.DRIVER;
 		}
-		
-		Employee employee = new Employee(employeeId, name, certificationLevel, certificationNumber, expirationDate);
-		
+
+		employee = new Employee(employeeId, name, certificationLevel, certificationNumber, expirationDate);
+
 		boolean isStored = db.addEmployee(employee);
-		
+
 		if (isStored) {
 			view.hideNewEmployeeInfoView();
-			view.showHomeView(employee.getName());
+			handleHomeViewSetupAndNavigate();
 		}
-		
-		
-		
+
+	}
+	
+	private void handleHomeViewSetupAndNavigate() {
+	    // Calculate date range
+	    java.sql.Date[] recentDates = calculateRecentDatesForTimeSheets();
+	    java.sql.Date sqlStartDate = recentDates[0];
+	    java.sql.Date sqlEndDate = recentDates[1];
+
+	    // Fetch time sheets within the date range
+	    List<TimeSheet> timeSheets = db.getTimeSheetsByDateRange(sqlStartDate, sqlEndDate);
+
+	    // Update the view with the fetched time sheets
+	    view.updateTimeSheetDisplay(timeSheets);
+	    view.showHomeView(employee.getName());
+	}
+	
+	private java.sql.Date[] calculateRecentDatesForTimeSheets() {
+	    Calendar calendar = Calendar.getInstance();
+	    Date endDate = calendar.getTime();
+	    calendar.add(Calendar.MONTH, -1);
+	    Date startDate = calendar.getTime();
+
+	    // Convert java.util.Date to java.sql.Date
+	    java.sql.Date sqlStartDate = new java.sql.Date(startDate.getTime());
+	    java.sql.Date sqlEndDate = new java.sql.Date(endDate.getTime());
+
+	    return new java.sql.Date[]{sqlStartDate, sqlEndDate};
 	}
 
 }

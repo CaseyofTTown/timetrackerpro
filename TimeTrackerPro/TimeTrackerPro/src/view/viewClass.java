@@ -1,9 +1,11 @@
 package view;
 
 import javax.swing.*;
+import java.util.List;
 
 import model.CertificationLevelenum;
 import model.ColorConstants;
+import model.TimeSheet;
 
 import java.awt.*;
 import java.util.Date;
@@ -12,6 +14,7 @@ public class viewClass extends JFrame {
 
 	private Login_Register_View loginRegisterView;
 	private NewEmployeeInfoView newEmployeeInfoView;
+	private TimeSheetPanel timeSheetPanel;
 	private HomeView homeView;
 	private CardLayout cardLayout;
 	private JPanel mainPanel;
@@ -57,6 +60,9 @@ public class viewClass extends JFrame {
 		// create an instance of NewEmployeeInfoView
 		newEmployeeInfoView = new NewEmployeeInfoView();
 		mainPanel.add(newEmployeeInfoView.getContentPane(), "NewEmployeeInfoView");
+		
+		timeSheetPanel = new TimeSheetPanel();
+		mainPanel.add(timeSheetPanel, "TimeSheetsPanel");
 
 		// pack frame to fit contents @ preferred size
 		pack();
@@ -148,5 +154,23 @@ public class viewClass extends JFrame {
 
 	public JButton getSubmitEmployeeInfoButton() {
 		return newEmployeeInfoView.getSubmitNewEmployeeButton();
+	}
+
+	//getters for buttons on HomePage, timeSheetPanel
+	public TimeSheetPanel getTimeSheetPanel() {
+		return timeSheetPanel;
+	}
+
+	public void showModifyTimeSheetView(TimeSheet timeSheet) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void updateTimeSheetDisplay(List<TimeSheet> timeSheets) {
+		TimeSheetDisplay timeSheetDisplay = getTimeSheetPanel().getTimeSheetDisplay();
+		timeSheetDisplay.clearAllEntries();
+		for(TimeSheet timeSheet : timeSheets) {
+			timeSheetDisplay.addTimeSheetEntry(timeSheet);
+		}
 	}
 }

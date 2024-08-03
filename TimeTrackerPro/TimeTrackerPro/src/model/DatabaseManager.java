@@ -99,6 +99,30 @@ public class DatabaseManager {
 		}
 	}
 
+	public List<TimeSheet> getTimeSheetsByDateRange(Date startDate, Date endDate) {
+		List<TimeSheet> timeSheets = new ArrayList<>();
+		String sql = "SELECT timesheets.id, employees.name, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime "
+				+ "FROM timesheets " + "JOIN employees ON timesheets.employeeId = employees.id "
+				+ "WHERE shiftStartDate >= ? AND shiftEndDate <= ?";
+
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setDate(1, new java.sql.Date(startDate.getTime()));
+			pstmt.setDate(2, new java.sql.Date(endDate.getTime()));
+			ResultSet rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+				TimeSheet timeSheet = new TimeSheet(rs.getInt("id"), rs.getInt("employeeId"), rs.getString("name"),
+						rs.getDate("shiftStartDate"), rs.getDate("shiftEndDate"), rs.getDate("shiftStartTime"),
+						rs.getDate("shiftEndTime"));
+				timeSheets.add(timeSheet);
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+
+		return timeSheets;
+	}
+
 	public List<TimeSheet> getRecentTimeSheetsForEmployee(int id) {
 		List<TimeSheet> timeSheets = new ArrayList<TimeSheet>();
 
@@ -132,6 +156,39 @@ public class DatabaseManager {
 		}
 
 		return timeSheets;
+	}
+
+	public void deleteTimeSheet(int timeSheetId) {
+		String sql = "DELETE FROM timesheets WHERE id = ?";
+
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, timeSheetId);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+
+	}
+
+	public TimeSheet getTimeSheetById(int timeSheetId) {
+		String sql = "SELECT timesheets.id, employees.name, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime "
+				+ "FROM timesheets " + "JOIN employees ON timesheets.employeeId = employees.id "
+				+ "WHERE timesheets.id = ?";
+
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, timeSheetId);
+			ResultSet rs = pstmt.executeQuery();
+
+			if (rs.next()) {
+				return new TimeSheet(rs.getInt("id"), rs.getInt("employeeId"), rs.getString("name"),
+						rs.getDate("shiftStartDate"), rs.getDate("shiftEndDate"), rs.getDate("shiftStartTime"),
+						rs.getDate("shiftEndTime"));
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+
+		return null; // Return null if no time sheet is found
 	}
 
 	public boolean registerUser(String username, String hashedPassword, String salt, int pin) {
@@ -185,24 +242,24 @@ public class DatabaseManager {
 	}
 
 	public Employee getEmployeeById(int employeeId) {
-        String sql = "SELECT * FROM employees WHERE id = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, employeeId);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                // User has an entry in employee table
-                return new Employee(rs.getInt("id"), rs.getString("name"),
-                        CertificationLevelenum.valueOf(rs.getString("level")),
-                        rs.getString("certificationNumber"), new java.util.Date(rs.getLong("certExpirationDate"))); 
-                }
-        } catch (SQLException e) {
-            // Error occurred
-            System.out.println(e.getMessage());
-        }
-        // User does not have an entry, will display new employee info GUI
-        System.out.println("No entry in employee table for user");
-        return null;
-    }
+		String sql = "SELECT * FROM employees WHERE id = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, employeeId);
+			ResultSet rs = pstmt.executeQuery();
+			if (rs.next()) {
+				// User has an entry in employee table
+				return new Employee(rs.getInt("id"), rs.getString("name"),
+						CertificationLevelenum.valueOf(rs.getString("level")), rs.getString("certificationNumber"),
+						new java.util.Date(rs.getLong("certExpirationDate")));
+			}
+		} catch (SQLException e) {
+			// Error occurred
+			System.out.println(e.getMessage());
+		}
+		// User does not have an entry, will display new employee info GUI
+		System.out.println("No entry in employee table for user");
+		return null;
+	}
 
 	public String[] getSaltAndHashedPassword(String username) {
 		String sql = "SELECT salt, hashedPassword FROM users WHERE username = ?";
@@ -263,22 +320,21 @@ public class DatabaseManager {
 			throw new RuntimeException("Database error");
 		}
 	}
-	
+
 	private String formatDate(java.util.Date date) {
-	    SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-	    return sdf.format(date);
+		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+		return sdf.format(date);
 	}
 
 	private java.util.Date parseDate(String date) {
-	    SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-	    try {
-	        return sdf.parse(date);
-	    } catch (ParseException e) {
-	        System.out.println("Error parsing date: " + e.getMessage());
-	        return null;
-	    }
+		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+		try {
+			return sdf.parse(date);
+		} catch (ParseException e) {
+			System.out.println("Error parsing date: " + e.getMessage());
+			return null;
+		}
 	}
-
 
 	public void close() {
 		try {

@@ -1,5 +1,6 @@
 package model;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class TimeSheet {
 	private String employeeName;
@@ -9,6 +10,7 @@ public class TimeSheet {
 	private Date shiftEndDate;
 	private Date shiftStartTime;
 	private Date shiftEndTime;
+	private long hoursWorked;
 	
 	//create a new time sheet, doesnt have the ID, will be created by sqlite
 	public TimeSheet(String employeeName, int employeeId, Date shiftStartDate, Date shiftEndDate, Date shiftStartTime, Date shiftEndTime) {
@@ -19,6 +21,7 @@ public class TimeSheet {
 		this.shiftStartTime = shiftStartTime;
 		this.shiftEndTime = shiftEndTime;
 		this.timeSheetId = -1;
+		this.hoursWorked = calculateHoursWorked();
 	}
 	
 	//create a time sheet in memory from db, will have an ID
@@ -30,6 +33,7 @@ public class TimeSheet {
 		this.shiftEndDate = shiftEndDate;
 		this.shiftStartTime = shiftStartTime;
 		this.shiftEndTime = shiftEndTime;
+		this.hoursWorked = calculateHoursWorked();
 	}
 	
 	public String getEmployeeName() {
@@ -71,6 +75,17 @@ public class TimeSheet {
 		if(this.shiftEndTime != null);
 		this.shiftEndTime = shiftEndTime;
 	}
+
+	
+	
+	public long getHoursWorked() {
+		return this.hoursWorked;
+	}
+	public long calculateHoursWorked() {
+		long durationInMillis = shiftEndTime.getTime() -shiftStartTime.getTime();
+		return TimeUnit.MILLISECONDS.toHours(durationInMillis);
+	}
+	
 	
 	
 
