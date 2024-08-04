@@ -34,7 +34,8 @@ public class DatabaseManager {
 		String sqlCreateTimeSheetsTable = "CREATE TABLE IF NOT EXISTS timesheets (\n"
 				+ " id integer PRIMARY KEY AUTOINCREMENT,\n" + " employeeId integer NOT NULL,\n"
 				+ " shiftStartDate text,\n" + " shiftEndDate text,\n" + " shiftStartTime text,\n"
-				+ " shiftEndTime text,\n" + " FOREIGN KEY(employeeId) REFERENCES employees(id)\n" + ");";
+				+ " shiftEndTime text,\n" + " overtimeComment text, \n"
+				+ " FOREIGN KEY(employeeId) REFERENCES employees(id)\n" + ");";
 
 		String sqlCreateUsersTable = "CREATE TABLE IF NOT EXISTS users (\n " + " username text PRIMARY KEY, \n"
 				+ " hashedPassword text NOT NULL, \n" + " salt text NOT NULL, \n" + " employeeId integer, \n"
@@ -79,23 +80,20 @@ public class DatabaseManager {
 
 	// add a time sheet entry to the database
 	public void addTimeSheet(TimeSheet timeSheet) {
-		String sql = "INSERT INTO timesheets(employeeId, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime) VALUES(?,?,?,?,?)";
+		String sql = "INSERT INTO timesheets(employeeId, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime, overtimeComment) VALUES(?,?,?,?,?,?)";
 
-		PreparedStatement pstmt = null;
-		try {
-			pstmt = connection.prepareStatement(sql);
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
 			pstmt.setInt(1, timeSheet.getEmployeeId());
-			// rest of your code...
+	        pstmt.setString(2, formatDate(timeSheet.getShiftStartDate()));
+	        pstmt.setString(3, formatDate(timeSheet.getShiftEndDate()));
+	        pstmt.setString(4, formatDate(timeSheet.getShiftStartTime()));
+	        pstmt.setString(5, formatDate(timeSheet.getShiftEndTime()));
+	        pstmt.setString(6, timeSheet.getOvertimeComment()); // This can be null
+	        pstmt.executeUpdate();
+			
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
-		} finally {
-			if (pstmt != null) {
-				try {
-					pstmt.close();
-				} catch (SQLException e) {
-					System.out.println(e.getMessage());
-				}
-			}
 		}
 	}
 
@@ -320,6 +318,8 @@ public class DatabaseManager {
 			throw new RuntimeException("Database error");
 		}
 	}
+	
+	//helper methods for date formatting and parsing
 
 	private String formatDate(java.util.Date date) {
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);

@@ -96,8 +96,7 @@ public class TTController {
 
 			if (employee == null) {
 				// no entry in employees table, collect info
-				view.hideLoginRegisterView();
-				view.showNewEmployeeInfoView();
+				showNewEmployeeInfoUI();
 			} else {
 				// entry exists, going to homescreen
 				view.hideLoginRegisterView();
@@ -119,8 +118,7 @@ public class TTController {
 
 		if (isRegistered) {
 			employeeId = db.getEmployeeIdByUsername(username);
-			view.hideLoginRegisterView();
-			view.showNewEmployeeInfoView();
+			showNewEmployeeInfoUI();
 
 		}
 	}
@@ -129,6 +127,7 @@ public class TTController {
 		view.hideLoginRegisterView();
 		view.showNewEmployeeInfoView();
 		// listener for button in NewEmployeeInfoView
+		System.out.println("Subtmit new employee info button listener set from controller");
 		this.view.getSubmitEmployeeInfoButton().addActionListener(e -> handleNewEmployeeSubmit());
 
 	}
@@ -150,9 +149,17 @@ public class TTController {
 
 		employee = new Employee(employeeId, name, certificationLevel, certificationNumber, expirationDate);
 
-		boolean isStored = db.addEmployee(employee);
+		boolean isStored = false;
+		try {
+		isStored = db.addEmployee(employee);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		
+	
 
 		if (isStored) {
+			System.out.print("Employee added to db");
 			view.hideNewEmployeeInfoView();
 			view.hideLoginRegisterView();
 			handleHomeViewSetupAndNavigate();

@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.util.Date;
@@ -36,14 +37,14 @@ public class NewEmployeeInfoView extends JFrame {
 		c.gridx = 0;
 		c.gridy = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
-		c.insets = new Insets(5,5,5,5); //padding
-		
+		c.insets = new Insets(5, 5, 5, 5); // padding
+
 		JLabel topLabel = new JLabel("Additional Information", SwingConstants.CENTER);
 		topLabel.setForeground(ColorConstants.GOLD);
 		panel.add(topLabel, c);
 		c.gridy++;
 
-		nameField = new TitledTextField("Full Name","First and Last", 20);
+		nameField = new TitledTextField("Full Name", "First and Last", 20);
 		nameField.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
@@ -58,8 +59,6 @@ public class NewEmployeeInfoView extends JFrame {
 		panel.add(emsProviderLabel, c);
 		c.gridy++;
 
-		
-		
 		emsCertifiedComboBox = new JComboBox<>(new String[] { "Please select", "Yes", "No" });
 		emsCertifiedComboBox.setBackground(ColorConstants.CHARCOAL);
 		emsCertifiedComboBox.setForeground(ColorConstants.GOLD);
@@ -69,7 +68,7 @@ public class NewEmployeeInfoView extends JFrame {
 			certificationLevelComboBox.setEnabled(isCertified);
 			certificationNumberField.setEnabled(isCertified);
 			expirationDateField.setEnabled(isCertified);
-			submitNewEmployeeButton.setEnabled(isAnswered); //forces a selection to continue
+			submitNewEmployeeButton.setEnabled(isAnswered); // forces a selection to continue
 			checkFields();
 		});
 		panel.add(emsCertifiedComboBox, c);
@@ -87,8 +86,7 @@ public class NewEmployeeInfoView extends JFrame {
 		panel.add(certificationLevelComboBox, c);
 		c.gridy++;
 
-
-		certificationNumberField = new TitledTextField("Certification Number", "Include letter",20);
+		certificationNumberField = new TitledTextField("Certification Number", "Include letter", 20);
 		certificationNumberField.setEnabled(false);
 		panel.add(certificationNumberField, c);
 		c.gridy++;
@@ -105,7 +103,6 @@ public class NewEmployeeInfoView extends JFrame {
 		expirationDateField.setEnabled(false);
 		panel.add(expirationDateField, c);
 		c.gridy++;
-
 
 		submitNewEmployeeButton = new JButton("Submit");
 		submitNewEmployeeButton.setEnabled(false);
@@ -130,43 +127,43 @@ public class NewEmployeeInfoView extends JFrame {
 		emsCertifiedComboBox.addItemListener(itemEvent -> checkFields());
 		certificationLevelComboBox.addItemListener(itemEvent -> checkFields());
 		expirationDateField.getJFormattedTextField().getDocument().addDocumentListener(documentListener);
-		
-		
+
 		System.out.println("NewEmployeeInfoView created");
 	}
 
 	private void checkFields() {
-	    boolean isCertified = emsCertifiedComboBox.getSelectedItem().equals("Yes");
-	    boolean isAnswered = !emsCertifiedComboBox.getSelectedItem().equals("Please select");
+		boolean isCertified = emsCertifiedComboBox.getSelectedItem().equals("Yes");
+		boolean isAnswered = !emsCertifiedComboBox.getSelectedItem().equals("Please select");
 
-	    if (isAnswered && (nameField.getText().trim().isEmpty() || (isCertified && (certificationNumberField.getText().trim().isEmpty()
-	            || certificationLevelComboBox.getSelectedItem() == null
-	            || expirationDateField.getJFormattedTextField().getText().trim().isEmpty())))) {
-	        submitNewEmployeeButton.setEnabled(false);
-	    } else {
-	        submitNewEmployeeButton.setEnabled(true);
-	        submitNewEmployeeButton.setBackground(ColorConstants.DEEP_BLUE);
-	        submitNewEmployeeButton.setForeground(ColorConstants.LIME_GREEN);
-	    }
+		if (isAnswered && (nameField.getText().trim().isEmpty()
+				|| (isCertified && (certificationNumberField.getText().trim().isEmpty()
+						|| certificationLevelComboBox.getSelectedItem() == null
+						|| expirationDateField.getJFormattedTextField().getText().trim().isEmpty())))) {
+			submitNewEmployeeButton.setEnabled(false);
+		} else {
+			submitNewEmployeeButton.setEnabled(true);
+			submitNewEmployeeButton.setBackground(ColorConstants.DEEP_BLUE);
+			submitNewEmployeeButton.setForeground(ColorConstants.LIME_GREEN);
+		}
 	}
-	//getters for the data so view and controller can use it
-	
+	// getters for the data so view and controller can use it
+
 	public String getName() {
 		return this.nameField.getText();
 	}
-	
+
 	public String getEmsCertified() {
 		return (String) this.emsCertifiedComboBox.getSelectedItem();
 	}
-	
+
 	public CertificationLevelenum getCertificationLevel() {
 		return (CertificationLevelenum) this.certificationLevelComboBox.getSelectedItem();
 	}
-	
+
 	public String getCertificationNumber() {
 		return this.certificationNumberField.getText();
 	}
-	
+
 	public Date getExpirationDate() {
 		try {
 			return (Date) this.expirationDateField.getModel().getValue();
@@ -175,9 +172,13 @@ public class NewEmployeeInfoView extends JFrame {
 			return null;
 		}
 	}
+
 	public JButton getSubmitNewEmployeeButton() {
 		return submitNewEmployeeButton;
 	}
+	public void addSubmitEmployeeInfoButtonListener(ActionListener listenForSubmitButton) {
+		System.out.println("listener added to submit employee button");
+		submitNewEmployeeButton.addActionListener(listenForSubmitButton);
+	}
 
-	
 }
