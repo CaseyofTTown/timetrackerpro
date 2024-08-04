@@ -21,6 +21,7 @@ public class TimeSheetPanel extends JPanel {
     private JDatePickerImpl endDatePicker;
     private TimeSheetEntryPanel timeSheetEntryPanel;
     private List<String> employeeNames;
+    private JSplitPane splitPane;
 
     public TimeSheetPanel() {
 		employeeNames = new ArrayList<>();
@@ -52,12 +53,19 @@ public class TimeSheetPanel extends JPanel {
         // TimeSheetDisplay Component
         timeSheetDisplay = new TimeSheetDisplay();
         timeSheetDisplay.setBackground(ColorConstants.DARK_GRAY);
-        add(new JScrollPane(timeSheetDisplay), BorderLayout.CENTER);
+        //add(new JScrollPane(timeSheetDisplay), BorderLayout.CENTER);
         
         //TimeSheetEntryPanel (initially hidden)
         timeSheetEntryPanel = new TimeSheetEntryPanel(employeeNames);
         timeSheetEntryPanel.setVisible(false);
-        add(timeSheetEntryPanel, BorderLayout.EAST);
+        //add(timeSheetEntryPanel, BorderLayout.EAST);
+        
+        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+        		new JScrollPane(timeSheetDisplay), timeSheetEntryPanel);
+        splitPane.setResizeWeight(0.8);//adjust size weight
+        splitPane.setOneTouchExpandable(true);
+        splitPane.setDividerLocation(300);
+        add(splitPane, BorderLayout.CENTER);
 
         // Buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -172,6 +180,7 @@ public class TimeSheetPanel extends JPanel {
     	this.employeeNames = employeeNames;
     }
     public void showAddNewTimeSheetPanel() {
+    	splitPane.setDividerLocation(0.5);
     	timeSheetEntryPanel.setVisible(true);
     }
   
