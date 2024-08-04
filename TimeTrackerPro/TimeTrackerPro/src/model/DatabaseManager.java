@@ -85,13 +85,13 @@ public class DatabaseManager {
 		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 
 			pstmt.setInt(1, timeSheet.getEmployeeId());
-	        pstmt.setString(2, formatDate(timeSheet.getShiftStartDate()));
-	        pstmt.setString(3, formatDate(timeSheet.getShiftEndDate()));
-	        pstmt.setString(4, formatDate(timeSheet.getShiftStartTime()));
-	        pstmt.setString(5, formatDate(timeSheet.getShiftEndTime()));
-	        pstmt.setString(6, timeSheet.getOvertimeComment()); // This can be null
-	        pstmt.executeUpdate();
-			
+			pstmt.setString(2, formatDate(timeSheet.getShiftStartDate()));
+			pstmt.setString(3, formatDate(timeSheet.getShiftEndDate()));
+			pstmt.setString(4, formatDate(timeSheet.getShiftStartTime()));
+			pstmt.setString(5, formatDate(timeSheet.getShiftEndTime()));
+			pstmt.setString(6, timeSheet.getOvertimeComment()); // This can be null
+			pstmt.executeUpdate();
+
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
@@ -259,6 +259,22 @@ public class DatabaseManager {
 		return null;
 	}
 
+	public List<String> getAllEmployeeNames() {
+		List<String> employeeNames = new ArrayList<>();
+		String sql = "SELECT name FROM employees";
+		int numOfNames = 0;
+		try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+			while (rs.next()) {
+				employeeNames.add(rs.getString("name"));
+				numOfNames++;
+			}
+			System.out.println("getAllEmployeeNames returned with: " + numOfNames + " names");
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		return employeeNames;
+	}
+
 	public String[] getSaltAndHashedPassword(String username) {
 		String sql = "SELECT salt, hashedPassword FROM users WHERE username = ?";
 
@@ -318,8 +334,8 @@ public class DatabaseManager {
 			throw new RuntimeException("Database error");
 		}
 	}
-	
-	//helper methods for date formatting and parsing
+
+	// helper methods for date formatting and parsing
 
 	private String formatDate(java.util.Date date) {
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);

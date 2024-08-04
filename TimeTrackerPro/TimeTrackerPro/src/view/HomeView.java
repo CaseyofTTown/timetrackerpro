@@ -1,10 +1,12 @@
 package view;
+import java.util.List;
 
 import javax.swing.*;
 
 import model.ColorConstants;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class HomeView extends JPanel {
@@ -12,9 +14,12 @@ public class HomeView extends JPanel {
 	private JLabel welcomeLabel;
 	private JTabbedPane tabbedPane;
 	private TimeSheetPanel timeSheetPanel;
+	private List<String> employeeNames;
 
 	public HomeView(String employeeName) {
 
+		employeeNames = new ArrayList<>();
+	
 		// panel with BorderLayout
 		setLayout(new BorderLayout());
 		setBackground(ColorConstants.CHARCOAL);
@@ -52,11 +57,11 @@ public class HomeView extends JPanel {
 		// Add the tabbed pane to the panel
 		add(tabbedPane, BorderLayout.CENTER);
 
-		
-
 		// Center the frame on the screen
 
 		System.out.println("homeView created");
+		revalidate();
+		repaint();
 
 	}
 
@@ -98,11 +103,15 @@ public class HomeView extends JPanel {
 		timeSheetPanel.setEndDate(date);
 	}
 
-	public void setEmployeeName(String name) {
-
+	public void setEmployeeNameList(List<String> employeeNames) {
+		this.employeeNames = employeeNames;
 	}
 	public TimeSheetPanel getTimeSheetPanel() {
 		return this.timeSheetPanel;
+	}
+	
+	public void showAddNewTimeSheetUI() {
+		timeSheetPanel.showAddNewTimeSheetPanel();
 	}
 
 }

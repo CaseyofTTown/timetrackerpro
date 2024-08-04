@@ -1,11 +1,13 @@
 package view;
 
 import javax.swing.*;
+import java.util.List;
 import org.jdatepicker.impl.JDatePickerImpl;
 import model.ColorConstants;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -17,8 +19,12 @@ public class TimeSheetPanel extends JPanel {
     private TimeSheetDisplay timeSheetDisplay;
     private JDatePickerImpl startDatePicker;
     private JDatePickerImpl endDatePicker;
+    private TimeSheetEntryPanel timeSheetEntryPanel;
+    private List<String> employeeNames;
 
     public TimeSheetPanel() {
+		employeeNames = new ArrayList<>();
+
         setLayout(new BorderLayout());
         setBackground(ColorConstants.CHARCOAL);
 
@@ -47,6 +53,11 @@ public class TimeSheetPanel extends JPanel {
         timeSheetDisplay = new TimeSheetDisplay();
         timeSheetDisplay.setBackground(ColorConstants.DARK_GRAY);
         add(new JScrollPane(timeSheetDisplay), BorderLayout.CENTER);
+        
+        //TimeSheetEntryPanel (initially hidden)
+        timeSheetEntryPanel = new TimeSheetEntryPanel(employeeNames);
+        timeSheetEntryPanel.setVisible(false);
+        add(timeSheetEntryPanel, BorderLayout.EAST);
 
         // Buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -70,28 +81,7 @@ public class TimeSheetPanel extends JPanel {
         modifyButton.setEnabled(false);
         deleteTimeSheetButton.setEnabled(false);
 
-        // Add action listeners for buttons
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Handle add new time sheet action
-            }
-        });
-
-        modifyButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Handle modify time sheet action
-            }
-        });
-
-        deleteTimeSheetButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // handle delete time sheet action
-            }
-        });
-
+       
         timeSheetDisplay.getSelectionModel().addListSelectionListener(e -> {
             boolean isSelected = timeSheetDisplay.getSelectedRow() != -1;
             modifyButton.setEnabled(isSelected);
@@ -99,9 +89,29 @@ public class TimeSheetPanel extends JPanel {
         });
         
         System.out.println("TimeSheetPanel created");
+        revalidate();
+        repaint();
+        
+        //added for debugging graphics on TimeSheetDisplay
+        SwingUtilities.invokeLater(() -> {
+            Graphics g = timeSheetDisplay.getGraphics();
+            if (g != null) {
+                System.out.println("calling graphics on timesheetDisplay from panel class");
+                try{
+                	timeSheetDisplay.paintComponent(g);
+                	System.out.println("timeSheetDisplay.paint()");
+                } catch(Exception e) {
+                	System.out.println(e.getMessage());
+                }
+            } else {
+                System.out.println("timeSheetDisplay graphics were null");
+            }
+        });
     }
 
-    private void styleButton(JButton button) {
+   
+
+	private void styleButton(JButton button) {
         button.setBackground(ColorConstants.DEEP_BLUE);
         button.setForeground(ColorConstants.LIME_GREEN);
         button.setFont(new Font("Arial", Font.BOLD, 12));
@@ -157,4 +167,12 @@ public class TimeSheetPanel extends JPanel {
         endDatePicker.getModel().setDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
         endDatePicker.getModel().setSelected(true);
     }
+    
+    public void setEmployeeNameList(List<String> employeeNames) {
+    	this.employeeNames = employeeNames;
+    }
+    public void showAddNewTimeSheetPanel() {
+    	timeSheetEntryPanel.setVisible(true);
+    }
+  
 }

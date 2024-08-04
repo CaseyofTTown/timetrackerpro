@@ -74,6 +74,8 @@ public class viewClass extends JFrame {
 		// Center frame on the screen
 		setLocationRelativeTo(null);
 		System.out.println("viewClass instance created");
+		revalidate();
+		repaint();
 	}
 
 	public void showLoginRegisterView() {
@@ -127,13 +129,19 @@ public class viewClass extends JFrame {
 		}
 		homeView = new HomeView(employeeName);
 
+		homeView.setEmployeeNameList(null);
 		mainPanel.add(homeView, "HomeView");
 		homeView.setVisible(true);
 
 		cardLayout.show(mainPanel, "HomeView");
 		System.out.println("HomeView shown with employee name: " + employeeName);
 		updateWindowSize();
+		revalidate();
+		repaint();
 
+	}
+	public void sendEmployeeListToHomeView(List<String> employeeNameList) {
+		
 	}
 
 	public void hideHomeView() {
@@ -216,6 +224,13 @@ public class viewClass extends JFrame {
 	public void showModifyTimeSheetView(TimeSheet timeSheet) {
 		// TODO Auto-generated method stub
 
+	}
+	public void showNewTimeSheetUI() {
+		homeView.showAddNewTimeSheetUI();
+	}
+	//used to set the employee name list on TimeSheetPanel
+	public void setEmployeeNameList(List<String> employeeNames) {
+		homeView.setEmployeeNameList(employeeNames);
 	}
 
 	public void updateTimeSheetDisplay(List<TimeSheet> timeSheets) {

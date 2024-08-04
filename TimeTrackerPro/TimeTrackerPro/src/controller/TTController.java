@@ -78,6 +78,11 @@ public class TTController {
 		}
 
 	}
+	
+	private void showCreateNewTimeSheetUI() {
+		System.out.println("getting user interface for new time sheet");
+		view.showNewTimeSheetUI();
+	}
 
 	private Object handleAddTimeSheet() {
 		return null;
@@ -175,8 +180,10 @@ public class TTController {
 
 		// Fetch time sheets within the date range
 		List<TimeSheet> timeSheets = db.getTimeSheetsByDateRange(sqlStartDate, sqlEndDate);
+		List<String> employeeNames = db.getAllEmployeeNames();
 
 		view.showHomeView(employee.getName());
+		view.setEmployeeNameList(employeeNames);
 
 		// Update the view with the fetched time sheets
 		view.updateTimeSheetDisplay(timeSheets);
@@ -184,10 +191,12 @@ public class TTController {
 		view.setEndDate(new Date(sqlEndDate.getTime()));
 
 		// listeners for timeSheetTab on HomeView
-		this.view.getTimeSheetPanel().getAddButton().addActionListener(e -> handleAddTimeSheet());
+		this.view.getTimeSheetPanel().getAddButton().addActionListener(e -> showCreateNewTimeSheetUI());
 		this.view.getTimeSheetPanel().getModifyButton().addActionListener(e -> handleModifyTimeSheet());
 		this.view.getTimeSheetPanel().getDeleteTimeSheetButton().addActionListener(e -> handleDeleteTimeSheet());
 		System.out.println("listeners set for TimeSheetPanel");
+		
+	
 	}
 
 	private java.sql.Date[] calculateRecentDatesForTimeSheets() {
