@@ -33,6 +33,8 @@ public class TTController {
 		this.session = new Session(); // used for timing out user
 		this.db = db;
 		
+	
+		
 		// was used to update after db was created db.addHoursWorkedColumn();
 
 		displayUserLoginRegisterUI();
