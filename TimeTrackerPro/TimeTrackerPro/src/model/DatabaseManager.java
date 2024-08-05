@@ -262,13 +262,11 @@ public class DatabaseManager {
 	public List<String> getAllEmployeeNames() {
 		List<String> employeeNames = new ArrayList<>();
 		String sql = "SELECT name FROM employees";
-		int numOfNames = 0;
 		try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
 			while (rs.next()) {
 				employeeNames.add(rs.getString("name"));
-				numOfNames++;
 			}
-			System.out.println("getAllEmployeeNames returned with: " + numOfNames + " names");
+			System.out.println("getAllEmployeeNames returned with: " +employeeNames.size() + " names");
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}

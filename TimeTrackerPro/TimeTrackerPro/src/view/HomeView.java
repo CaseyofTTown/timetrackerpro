@@ -1,4 +1,5 @@
 package view;
+
 import java.util.List;
 
 import javax.swing.*;
@@ -18,8 +19,10 @@ public class HomeView extends JPanel {
 
 	public HomeView(String employeeName) {
 
-		employeeNames = new ArrayList<>();
-	
+		if (employeeNames == null) {
+			employeeNames = new ArrayList<>();
+		}
+
 		// panel with BorderLayout
 		setLayout(new BorderLayout());
 		setBackground(ColorConstants.CHARCOAL);
@@ -105,11 +108,17 @@ public class HomeView extends JPanel {
 
 	public void setEmployeeNameList(List<String> employeeNames) {
 		this.employeeNames = employeeNames;
+		// pass name list to time sheet panel
+		timeSheetPanel.setEmployeeNameList(employeeNames);
+		timeSheetPanel.revalidate();
+		timeSheetPanel.repaint();
+		System.out.println("names passed to time sheet panel = " + employeeNames.size());
 	}
+
 	public TimeSheetPanel getTimeSheetPanel() {
 		return this.timeSheetPanel;
 	}
-	
+
 	public void showAddNewTimeSheetUI() {
 		timeSheetPanel.showAddNewTimeSheetPanel();
 	}

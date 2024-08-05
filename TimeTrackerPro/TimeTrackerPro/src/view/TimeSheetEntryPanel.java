@@ -1,83 +1,152 @@
 package view;
 
 import javax.swing.*;
-
-import model.TimeSheet;
-
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import org.jdatepicker.impl.JDatePickerImpl;
+import model.ColorConstants;
+import model.TimeSheet;
 
 public class TimeSheetEntryPanel extends JPanel {
     private JComboBox<String> employeeNameComboBox;
-    private JSpinner shiftStartDatePicker;
-    private JSpinner shiftEndDatePicker;
+    private JDatePickerImpl shiftStartDatePicker;
+    private JDatePickerImpl shiftEndDatePicker;
     private JSpinner shiftStartTimePicker;
     private JSpinner shiftEndTimePicker;
     private TitledTextField overtimeCommentField;
     private JButton submitButton;
+    private JButton startTimeButton;
+    private JButton endTimeButton;
+    private JButton cancelButton;
+    private List<String> employeeNames;
 
     public TimeSheetEntryPanel(List<String> employeeNames) {
-        setLayout(new GridLayout(2, 1));
+    	
+    	if (employeeNames == null) {
+			employeeNames = new ArrayList<>();
+		}
+    	this.employeeNames = employeeNames;
+    	
+        setLayout(new GridBagLayout());
+        setBackground(ColorConstants.CHARCOAL);
+        
+        System.out.println("Employee Names: " + employeeNames);
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(10,10,10,10); //spacing of columns 
 
         // Employee Name Dropdown
         employeeNameComboBox = new JComboBox<>(employeeNames.toArray(new String[0]));
+        employeeNameComboBox.setBackground(ColorConstants.CHARCOAL);
+        employeeNameComboBox.setForeground(ColorConstants.GOLD);
+        addComponent("Employee Name", employeeNameComboBox, c, 0, 0);
 
-        // Date Pickers
-        shiftStartDatePicker = new JSpinner(new SpinnerDateModel());
-        shiftEndDatePicker = new JSpinner(new SpinnerDateModel());
+        // Shift Start Date Picker
+        DatePicker startDatePicker = new DatePicker();
+        shiftStartDatePicker = startDatePicker.getDatePicker();
+        shiftStartDatePicker.getJFormattedTextField().setBackground(ColorConstants.DARK_GRAY);
+        shiftStartDatePicker.getJFormattedTextField().setForeground(ColorConstants.GOLD);
+        addComponent("Shift Start Date", shiftStartDatePicker, c, 0, 1);
+
+        // Shift End Date Picker
+        DatePicker endDatePicker = new DatePicker();
+        shiftEndDatePicker = endDatePicker.getDatePicker();
+        shiftEndDatePicker.getJFormattedTextField().setBackground(ColorConstants.DARK_GRAY);
+        shiftEndDatePicker.getJFormattedTextField().setForeground(ColorConstants.GOLD);
+        addComponent("Shift End Date", shiftEndDatePicker, c, 0, 2);
+
+        // Shift Start Time Picker
         shiftStartTimePicker = new JSpinner(new SpinnerDateModel());
-        shiftEndTimePicker = new JSpinner(new SpinnerDateModel());
-
-        // Set date editors
-        JSpinner.DateEditor startDateEditor = new JSpinner.DateEditor(shiftStartDatePicker, "yyyy-MM-dd");
-        JSpinner.DateEditor endDateEditor = new JSpinner.DateEditor(shiftEndDatePicker, "yyyy-MM-dd");
-        JSpinner.DateEditor startTimeEditor = new JSpinner.DateEditor(shiftStartTimePicker, "HH:mm:ss");
-        JSpinner.DateEditor endTimeEditor = new JSpinner.DateEditor(shiftEndTimePicker, "HH:mm:ss");
-
-        shiftStartDatePicker.setEditor(startDateEditor);
-        shiftEndDatePicker.setEditor(endDateEditor);
+        JSpinner.DateEditor startTimeEditor = new JSpinner.DateEditor(shiftStartTimePicker, "HH:mm");
         shiftStartTimePicker.setEditor(startTimeEditor);
+        shiftStartTimePicker.getEditor().getComponent(0).setBackground(ColorConstants.DARK_GRAY);
+        shiftStartTimePicker.getEditor().getComponent(0).setForeground(ColorConstants.GOLD);
+        addComponent("Shift Start Time", shiftStartTimePicker, c, 0, 3);
+
+        // Quick Set Button for Shift Start Time
+        startTimeButton = new JButton("0800");
+        startTimeButton.setBackground(ColorConstants.DEEP_BLUE);
+        startTimeButton.setForeground(ColorConstants.LIME_GREEN);
+        startTimeButton.addActionListener(e -> {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY, 8);
+            calendar.set(Calendar.MINUTE, 0);
+            shiftStartTimePicker.setValue(calendar.getTime());
+        });
+        addComponent("", startTimeButton, c, 1, 3);
+
+        // Shift End Time Picker
+        shiftEndTimePicker = new JSpinner(new SpinnerDateModel());
+        JSpinner.DateEditor endTimeEditor = new JSpinner.DateEditor(shiftEndTimePicker, "HH:mm");
         shiftEndTimePicker.setEditor(endTimeEditor);
+        shiftEndTimePicker.getEditor().getComponent(0).setBackground(ColorConstants.DARK_GRAY);
+        shiftEndTimePicker.getEditor().getComponent(0).setForeground(ColorConstants.GOLD);
+        addComponent("Shift End Time", shiftEndTimePicker, c, 0, 4);
+
+        // Quick Set Button for Shift End Time
+        endTimeButton = new JButton("0800");
+        endTimeButton.setBackground(ColorConstants.DEEP_BLUE);
+        endTimeButton.setForeground(ColorConstants.LIME_GREEN);
+        endTimeButton.addActionListener(e -> {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY, 8);
+            calendar.set(Calendar.MINUTE, 0);
+            shiftEndTimePicker.setValue(calendar.getTime());
+        });
+        addComponent("", endTimeButton, c, 1, 4);
 
         // Overtime Comment Field
-        overtimeCommentField = new TitledTextField("Overtime Comment", "Enter comment", 20);
+        overtimeCommentField = new TitledTextField("Overtime Comment", "", 20);
+        addComponent("Reason for Overtime", overtimeCommentField, c, 0, 5);
 
         // Submit Button
         submitButton = new JButton("Submit");
-        submitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Handle submission logic here
-                String employeeName = (String) employeeNameComboBox.getSelectedItem();
-                Date shiftStartDate = (Date) shiftStartDatePicker.getValue();
-                Date shiftEndDate = (Date) shiftEndDatePicker.getValue();
-                Date shiftStartTime = (Date) shiftStartTimePicker.getValue();
-                Date shiftEndTime = (Date) shiftEndTimePicker.getValue();
-                String overtimeComment = overtimeCommentField.getText();
+        submitButton.setBackground(ColorConstants.DEEP_BLUE);
+        submitButton.setForeground(ColorConstants.LIME_GREEN);
+        addComponent("", submitButton, c, 0, 6);
 
-                // Create TimeSheet object and handle database insertion
-                TimeSheet timeSheet = new TimeSheet(employeeName, -1, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime, overtimeComment);
-                // Add your database insertion logic here
-            }
-        });
+        // Cancel Button
+        cancelButton = new JButton("Cancel");
+        cancelButton.setBackground(ColorConstants.CRIMSON_RED);
+        cancelButton.setForeground(ColorConstants.WHITE);
+        addComponent("", cancelButton, c, 1, 6);
 
-        // Add components to panel
-        add(createFieldPanel("Employee Name", employeeNameComboBox));
-        add(createFieldPanel("Shift Start Date", shiftStartDatePicker));
-        add(createFieldPanel("Shift End Date", shiftEndDatePicker));
-        add(createFieldPanel("Shift Start Time", shiftStartTimePicker));
-        add(createFieldPanel("Shift End Time", shiftEndTimePicker));
-        add(overtimeCommentField);
-        add(submitButton);
+        System.out.println("TimeSheetEntryPanel created");
     }
 
-    private JPanel createFieldPanel(String label, JComponent component) {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(new JLabel(label), BorderLayout.WEST);
-        panel.add(component, BorderLayout.CENTER);
-        return panel;
+    private void addComponent(String label, JComponent component, GridBagConstraints c, int row, int col) {
+        c.gridx = col;
+        c.gridy = row;
+        if (!label.isEmpty()) {
+            JLabel jLabel = new JLabel(label);
+            jLabel.setForeground(ColorConstants.GOLD);
+            add(jLabel, c);
+        }
+        c.gridy++;
+        add(component, c);
+    }
+    
+    public JButton getSubmitTimeSheetButton() {
+    	return this.submitButton;
+    }
+    
+    public JButton getCancelTimeSheetButton() {
+    	return this.cancelButton;
+    }
+    
+    public JComboBox getEmployeeComboBox() {
+    	return this.employeeNameComboBox;
+    }
+    
+    public void setEmployeeNameList(List<String> employeeNames) {
+    	this.employeeNames = employeeNames;
+    	employeeNameComboBox.setModel(new DefaultComboBoxModel<>(employeeNames.toArray(new String[0])));
+    	revalidate();
+    	repaint();
     }
 }

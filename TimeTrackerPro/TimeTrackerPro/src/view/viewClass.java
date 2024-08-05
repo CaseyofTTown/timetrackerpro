@@ -15,7 +15,6 @@ public class viewClass extends JFrame {
 
 	private Login_Register_View loginRegisterView;
 	private NewEmployeeInfoView newEmployeeInfoView;
-	private TimeSheetPanel timeSheetPanel;
 	private HomeView homeView;
 	private CardLayout cardLayout;
 	private JPanel mainPanel;
@@ -129,7 +128,6 @@ public class viewClass extends JFrame {
 		}
 		homeView = new HomeView(employeeName);
 
-		homeView.setEmployeeNameList(null);
 		mainPanel.add(homeView, "HomeView");
 		homeView.setVisible(true);
 
@@ -140,9 +138,7 @@ public class viewClass extends JFrame {
 		repaint();
 
 	}
-	public void sendEmployeeListToHomeView(List<String> employeeNameList) {
-		
-	}
+	
 
 	public void hideHomeView() {
 		if (homeView != null) {
@@ -230,6 +226,7 @@ public class viewClass extends JFrame {
 	}
 	//used to set the employee name list on TimeSheetPanel
 	public void setEmployeeNameList(List<String> employeeNames) {
+		System.out.println("passing " + employeeNames.size() + "to homeView");
 		homeView.setEmployeeNameList(employeeNames);
 	}
 

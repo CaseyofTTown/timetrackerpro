@@ -24,7 +24,10 @@ public class TimeSheetPanel extends JPanel {
     private JSplitPane splitPane;
 
     public TimeSheetPanel() {
-		employeeNames = new ArrayList<>();
+    	
+    	if (employeeNames == null) {
+			employeeNames = new ArrayList<>();
+		}
 
         setLayout(new BorderLayout());
         setBackground(ColorConstants.CHARCOAL);
@@ -178,6 +181,7 @@ public class TimeSheetPanel extends JPanel {
     
     public void setEmployeeNameList(List<String> employeeNames) {
     	this.employeeNames = employeeNames;
+    	this.timeSheetEntryPanel.setEmployeeNameList(employeeNames);
     }
     public void showAddNewTimeSheetPanel() {
     	splitPane.setDividerLocation(0.5);
