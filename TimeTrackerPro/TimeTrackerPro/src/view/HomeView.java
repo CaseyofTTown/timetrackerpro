@@ -123,4 +123,34 @@ public class HomeView extends JPanel {
 		timeSheetPanel.showAddNewTimeSheetPanel();
 	}
 
+	//getters to provide fields for a new time sheet entry on time sheet panel
+	public String getSelectedEmployeeName() {
+		return timeSheetPanel.getSelectedEmployeeName();
+	}
+	
+	public Date getShiftStartDate() {
+        return timeSheetPanel.getShiftStartDate();
+    }
+
+    public Date getShiftEndDate() {
+        return timeSheetPanel.getShiftEndDate();
+    }
+
+    public Date getShiftStartTime() {
+        return timeSheetPanel.getShiftStartTime();
+    }
+
+    public Date getShiftEndTime() {
+        return timeSheetPanel.getShiftEndTime();
+    }
+
+    public String getOvertimeComment() {
+        return timeSheetPanel.getOvertimeComment();
+    }
+    public JButton getTimeSheetSubmitButton() {
+    	return timeSheetPanel.getSubmitTimeSheetButton();
+    }
+    public JButton getCancelTimeSheetSubmissionButton() {
+    	return timeSheetPanel.getCancelTimeSheetButton();
+    }
 }

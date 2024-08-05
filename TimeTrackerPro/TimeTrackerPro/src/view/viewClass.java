@@ -246,4 +246,30 @@ public class viewClass extends JFrame {
 		mainPanel.revalidate();
 		mainPanel.repaint();
 	}
+	
+	//getters so controller can create a new time sheet from homeView-TimesheetPanel-timesheetentryPanel
+	public String getSelectedEmployeeOnTimeSheet() {
+		return homeView.getSelectedEmployeeName();
+	}
+	public Date getShiftStartDateOnTs() {
+		return homeView.getShiftStartDate();
+	}
+	public Date getShiftEndDateOnTs() {
+		return homeView.getShiftEndDate();
+	}
+	public Date getShiftStartTimeOnTs() {
+		return homeView.getShiftStartTime();
+	}
+	public Date getShiftEndTimeOnTs() {
+		return homeView.getShiftEndTime();
+	}
+	public String getOvertimeCommentsOnTs() {
+		return homeView.getOvertimeComment();
+	}
+	public JButton getSubmitTimeSheetButton() {
+		return homeView.getTimeSheetSubmitButton();
+	}
+	public JButton getCancelTimeSheetButton() {
+		return homeView.getCancelTimeSheetSubmissionButton();
+	}
 }

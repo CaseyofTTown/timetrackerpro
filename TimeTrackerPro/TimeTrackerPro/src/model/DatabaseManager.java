@@ -34,7 +34,7 @@ public class DatabaseManager {
 		String sqlCreateTimeSheetsTable = "CREATE TABLE IF NOT EXISTS timesheets (\n"
 				+ " id integer PRIMARY KEY AUTOINCREMENT,\n" + " employeeId integer NOT NULL,\n"
 				+ " shiftStartDate text,\n" + " shiftEndDate text,\n" + " shiftStartTime text,\n"
-				+ " shiftEndTime text,\n" + " overtimeComment text, \n"
+				+ " shiftEndTime text,\n" + " overtimeComment text, \n" + " hoursWorked INTEGER, \n"
 				+ " FOREIGN KEY(employeeId) REFERENCES employees(id)\n" + ");";
 
 		String sqlCreateUsersTable = "CREATE TABLE IF NOT EXISTS users (\n " + " username text PRIMARY KEY, \n"
@@ -80,7 +80,7 @@ public class DatabaseManager {
 
 	// add a time sheet entry to the database
 	public void addTimeSheet(TimeSheet timeSheet) {
-		String sql = "INSERT INTO timesheets(employeeId, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime, overtimeComment) VALUES(?,?,?,?,?,?)";
+		String sql = "INSERT INTO timesheets(employeeId, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime, overtimeComment, hoursWorked) VALUES(?,?,?,?,?,?,?)";
 
 		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 
@@ -89,7 +89,8 @@ public class DatabaseManager {
 			pstmt.setString(3, formatDate(timeSheet.getShiftEndDate()));
 			pstmt.setString(4, formatDate(timeSheet.getShiftStartTime()));
 			pstmt.setString(5, formatDate(timeSheet.getShiftEndTime()));
-			pstmt.setString(6, timeSheet.getOvertimeComment()); // This can be null
+			pstmt.setString(6, timeSheet.getOvertimeComment());
+			pstmt.setLong(7, timeSheet.getHoursWorked());// This can be null
 			pstmt.executeUpdate();
 
 		} catch (SQLException e) {
@@ -98,63 +99,56 @@ public class DatabaseManager {
 	}
 
 	public List<TimeSheet> getTimeSheetsByDateRange(Date startDate, Date endDate) {
-		List<TimeSheet> timeSheets = new ArrayList<>();
-		String sql = "SELECT timesheets.id, employees.name, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime "
-				+ "FROM timesheets " + "JOIN employees ON timesheets.employeeId = employees.id "
-				+ "WHERE shiftStartDate >= ? AND shiftEndDate <= ?";
+	    List<TimeSheet> timeSheets = new ArrayList<>();
+	    String sql = "SELECT timesheets.id, employees.name, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime, hoursWorked "
+	               + "FROM timesheets "
+	               + "JOIN employees ON timesheets.employeeId = employees.id "
+	               + "WHERE shiftStartDate >= ? AND shiftEndDate <= ?";
 
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setDate(1, new java.sql.Date(startDate.getTime()));
-			pstmt.setDate(2, new java.sql.Date(endDate.getTime()));
-			ResultSet rs = pstmt.executeQuery();
+	    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+	        pstmt.setDate(1, new java.sql.Date(startDate.getTime()));
+	        pstmt.setDate(2, new java.sql.Date(endDate.getTime()));
+	        ResultSet rs = pstmt.executeQuery();
 
-			while (rs.next()) {
-				TimeSheet timeSheet = new TimeSheet(rs.getInt("id"), rs.getInt("employeeId"), rs.getString("name"),
-						rs.getDate("shiftStartDate"), rs.getDate("shiftEndDate"), rs.getDate("shiftStartTime"),
-						rs.getDate("shiftEndTime"));
-				timeSheets.add(timeSheet);
-			}
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
+	        while (rs.next()) {
+	            TimeSheet timeSheet = new TimeSheet(rs.getInt("id"), rs.getInt("employeeId"), rs.getString("name"),
+	                                                rs.getDate("shiftStartDate"), rs.getDate("shiftEndDate"), rs.getDate("shiftStartTime"),
+	                                                rs.getDate("shiftEndTime"), rs.getString("overtimeComment"), rs.getLong("hoursWorked"));
+	            timeSheets.add(timeSheet);
+	        }
+	    } catch (SQLException e) {
+	        System.out.println(e.getMessage());
+	    }
 
-		return timeSheets;
+	    return timeSheets;
 	}
+
 
 	public List<TimeSheet> getRecentTimeSheetsForEmployee(int id) {
-		List<TimeSheet> timeSheets = new ArrayList<TimeSheet>();
+	    List<TimeSheet> timeSheets = new ArrayList<>();
 
-		PreparedStatement pstmt = null;
-		try {
-			String sql = "SELECT timesheets.id, employees.name, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime "
-					+ "FROM timesheets " + "JOIN employees ON timesheets.employeeId = employees.id "
-					+ "WHERE employeeId = ? AND shiftStartDate >= datetime('now', '-1 month')";
+	    String sql = "SELECT timesheets.id, employees.name, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime, overtimeComment, hoursWorked "
+	               + "FROM timesheets "
+	               + "JOIN employees ON timesheets.employeeId = employees.id "
+	               + "WHERE employeeId = ? AND shiftStartDate >= datetime('now', '-1 month')";
 
-			pstmt = connection.prepareStatement(sql);
-			pstmt.setInt(1, id);
-			ResultSet rs = pstmt.executeQuery();
+	    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+	        pstmt.setInt(1, id);
+	        ResultSet rs = pstmt.executeQuery();
 
-			while (rs.next()) {
-				TimeSheet timeSheet = new TimeSheet(rs.getInt("id"), id, rs.getString("name"),
-						rs.getDate("shiftStartDate"), rs.getDate("shiftEndDate"), rs.getDate("shiftStartTime"),
-						rs.getDate("shiftEndTime"));
-				timeSheets.add(timeSheet);
-			}
+	        while (rs.next()) {
+	            TimeSheet timeSheet = new TimeSheet(rs.getInt("id"), id, rs.getString("name"),
+	                                                rs.getDate("shiftStartDate"), rs.getDate("shiftEndDate"), rs.getDate("shiftStartTime"),
+	                                                rs.getDate("shiftEndTime"), rs.getString("overtimeComment"), rs.getLong("hoursWorked"));
+	            timeSheets.add(timeSheet);
+	        }
+	    } catch (SQLException e) {
+	        System.out.println(e.getMessage());
+	    }
 
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		} finally {
-			if (pstmt != null) {
-				try {
-					pstmt.close();
-				} catch (SQLException e) {
-					System.out.println(e.getMessage());
-				}
-			}
-		}
-
-		return timeSheets;
+	    return timeSheets;
 	}
+
 
 	public void deleteTimeSheet(int timeSheetId) {
 		String sql = "DELETE FROM timesheets WHERE id = ?";
@@ -169,25 +163,42 @@ public class DatabaseManager {
 	}
 
 	public TimeSheet getTimeSheetById(int timeSheetId) {
-		String sql = "SELECT timesheets.id, employees.name, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime "
-				+ "FROM timesheets " + "JOIN employees ON timesheets.employeeId = employees.id "
-				+ "WHERE timesheets.id = ?";
+	    String sql = "SELECT timesheets.id, employees.name, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime, overtimeComment, hoursWorked "
+	               + "FROM timesheets "
+	               + "JOIN employees ON timesheets.employeeId = employees.id "
+	               + "WHERE timesheets.id = ?";
 
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, timeSheetId);
-			ResultSet rs = pstmt.executeQuery();
+	    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+	        pstmt.setInt(1, timeSheetId);
+	        ResultSet rs = pstmt.executeQuery();
 
-			if (rs.next()) {
-				return new TimeSheet(rs.getInt("id"), rs.getInt("employeeId"), rs.getString("name"),
-						rs.getDate("shiftStartDate"), rs.getDate("shiftEndDate"), rs.getDate("shiftStartTime"),
-						rs.getDate("shiftEndTime"));
-			}
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
+	        if (rs.next()) {
+	            return new TimeSheet(rs.getInt("id"), rs.getInt("employeeId"), rs.getString("name"),
+	                                 rs.getDate("shiftStartDate"), rs.getDate("shiftEndDate"), rs.getDate("shiftStartTime"),
+	                                 rs.getDate("shiftEndTime"), rs.getString("overtimeComment"), rs.getLong("hoursWorked"));
+	        }
+	    } catch (SQLException e) {
+	        System.out.println(e.getMessage());
+	    }
 
-		return null; // Return null if no time sheet is found
+	    return null; // Return null if no time sheet is found
 	}
+
+
+	public int getEmployeeIdByName(String employeeName) {
+	    String sql = "SELECT id FROM employees WHERE name = ?";
+	    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+	        pstmt.setString(1, employeeName);
+	        ResultSet rs = pstmt.executeQuery();
+	        if (rs.next()) {
+	            return rs.getInt("id");
+	        }
+	    } catch (SQLException e) {
+	        System.out.println(e.getMessage());
+	    }
+	    return -1; // Return -1 if not found
+	}
+
 
 	public boolean registerUser(String username, String hashedPassword, String salt, int pin) {
 		String sql = "INSERT INTO users(username, hashedPassword, salt, employeeId, pin) VALUES(?,?,?,?,?)";
@@ -358,6 +369,23 @@ public class DatabaseManager {
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
+	}
+	
+	//TODO delete this later: 
+	public void addHoursWorkedColumn() {
+	    String sql = "ALTER TABLE timesheets ADD COLUMN hoursWorked REAL";
+
+	    try (Statement stmt = connection.createStatement()) {
+	        stmt.execute(sql);
+	        System.out.println("hoursWorked column added to timesheets table");
+	    } catch (SQLException e) {
+	        // Check if the error is because the column already exists
+	        if (e.getMessage().contains("duplicate column name")) {
+	            System.out.println("hoursWorked column already exists in timesheets table");
+	        } else {
+	            System.out.println(e.getMessage());
+	        }
+	    }
 	}
 
 }

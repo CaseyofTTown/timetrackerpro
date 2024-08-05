@@ -139,7 +139,7 @@ public class TimeSheetEntryPanel extends JPanel {
     	return this.cancelButton;
     }
     
-    public JComboBox getEmployeeComboBox() {
+    public JComboBox<String> getEmployeeComboBox() {
     	return this.employeeNameComboBox;
     }
     
@@ -149,4 +149,24 @@ public class TimeSheetEntryPanel extends JPanel {
     	revalidate();
     	repaint();
     }
+    //getters to provide data up the chain back to controller
+    public String getSelectedEmployeeName() {
+    	return (String) employeeNameComboBox.getSelectedItem();
+    }
+    public Date getShiftStartDate() {
+    	return (Date) shiftStartDatePicker.getModel().getValue();
+    }
+    public Date getShiftEndDate() {
+    	return (Date) shiftEndDatePicker.getModel().getValue();
+    }
+    public Date getShiftStartTime() {
+    	return (Date) shiftStartTimePicker.getValue();
+    }
+    public Date getShiftEndTime() {
+    	return (Date) shiftEndTimePicker.getValue();
+    }
+    public String getOverTimeComment() {
+    	return overtimeCommentField.getText();
+    }
+    
 }
