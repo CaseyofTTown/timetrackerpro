@@ -1,5 +1,6 @@
 package model;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -119,9 +120,29 @@ public class TimeSheet {
 	}
 
 	public long calculateHoursWorked() {
-		long durationInMillis = shiftEndTime.getTime() - shiftStartTime.getTime();
-		return TimeUnit.MILLISECONDS.toHours(durationInMillis);
+	    // Combine shiftStartDate and shiftStartTime
+	    Calendar startCalendar = Calendar.getInstance();
+	    startCalendar.setTime(shiftStartDate);
+	    Calendar startTimeCalendar = Calendar.getInstance();
+	    startTimeCalendar.setTime(shiftStartTime);
+	    startCalendar.set(Calendar.HOUR_OF_DAY, startTimeCalendar.get(Calendar.HOUR_OF_DAY));
+	    startCalendar.set(Calendar.MINUTE, startTimeCalendar.get(Calendar.MINUTE));
+	    startCalendar.set(Calendar.SECOND, startTimeCalendar.get(Calendar.SECOND));
+
+	    // Combine shiftEndDate and shiftEndTime
+	    Calendar endCalendar = Calendar.getInstance();
+	    endCalendar.setTime(shiftEndDate);
+	    Calendar endTimeCalendar = Calendar.getInstance();
+	    endTimeCalendar.setTime(shiftEndTime);
+	    endCalendar.set(Calendar.HOUR_OF_DAY, endTimeCalendar.get(Calendar.HOUR_OF_DAY));
+	    endCalendar.set(Calendar.MINUTE, endTimeCalendar.get(Calendar.MINUTE));
+	    endCalendar.set(Calendar.SECOND, endTimeCalendar.get(Calendar.SECOND));
+
+	    // Calculate the duration in milliseconds
+	    long durationInMillis = endCalendar.getTimeInMillis() - startCalendar.getTimeInMillis();
+	    return TimeUnit.MILLISECONDS.toHours(durationInMillis);
 	}
+
 
 	public String getOvertimeComment() {
 		return this.overtimeComment;
@@ -129,6 +150,21 @@ public class TimeSheet {
 
 	public void setOvertimeComment(String overtimeComment) {
 		this.overtimeComment = overtimeComment;
+	}
+	
+	@Override
+	public String toString() {
+	    return "TimeSheet{" +
+	            "employeeName='" + employeeName + '\'' +
+	            ", timeSheetId=" + timeSheetId +
+	            ", employeeId=" + employeeId +
+	            ", shiftStartDate=" + shiftStartDate +
+	            ", shiftEndDate=" + shiftEndDate +
+	            ", shiftStartTime=" + shiftStartTime +
+	            ", shiftEndTime=" + shiftEndTime +
+	            ", hoursWorked=" + hoursWorked +
+	            ", overtimeComment='" + overtimeComment + '\'' +
+	            '}';
 	}
 
 }

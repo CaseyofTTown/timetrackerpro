@@ -99,6 +99,7 @@ public class DatabaseManager {
 	    }
 	}
 
+	//ensure proper time format storage for db.
 	public String formatTime(java.util.Date time) {
 	    if (time instanceof java.util.Date) {
 	        return TIME_FORMAT.format(new java.sql.Time(time.getTime()));

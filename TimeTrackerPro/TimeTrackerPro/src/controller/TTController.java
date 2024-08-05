@@ -32,9 +32,7 @@ public class TTController {
 		this.view = view;
 		this.session = new Session(); // used for timing out user
 		this.db = db;
-		
-	
-		
+
 		// was used to update after db was created db.addHoursWorkedColumn();
 
 		displayUserLoginRegisterUI();
@@ -82,44 +80,44 @@ public class TTController {
 		}
 
 	}
-	
+
 	private void showCreateNewTimeSheetUI() {
 		System.out.println("getting user interface for new time sheet");
 		view.showNewTimeSheetUI();
-		
-		//action listeners for buttons 
+
+		// action listeners for buttons
 		this.view.getSubmitTimeSheetButton().addActionListener(e -> handleSubmitTimeSheetToDb());
-		//default function for now may update later TODO
+		// default function for now may update later TODO
 		this.view.getCancelTimeSheetButton().addActionListener(e -> handleHomeViewSetupAndNavigate());
 	}
 
 	private void handleSubmitTimeSheetToDb() {
-	    // Retrieve values from the view
-	    String employeeName = view.getSelectedEmployeeOnTimeSheet();
-	    Date shiftStartDate = view.getShiftStartDateOnTs();
-	    Date shiftEndDate = view.getShiftEndDateOnTs();
-	    Date shiftStartTime = view.getShiftStartTimeOnTs();
-	    Date shiftEndTime = view.getShiftEndTimeOnTs();
-	    String overtimeComment = view.getOvertimeCommentsOnTs();
+		// Retrieve values from the view
+		String employeeName = view.getSelectedEmployeeOnTimeSheet();
+		Date shiftStartDate = view.getShiftStartDateOnTs();
+		Date shiftEndDate = view.getShiftEndDateOnTs();
+		Date shiftStartTime = view.getShiftStartTimeOnTs();
+		Date shiftEndTime = view.getShiftEndTimeOnTs();
+		String overtimeComment = view.getOvertimeCommentsOnTs();
 
-	    // Get employee ID using the employee name
-	    int employeeId = db.getEmployeeIdByName(employeeName);
-	    if (employeeId == -1) {
-	        System.out.println("Employee not found: " + employeeName);
-	        return;
-	    }
+		// Get employee ID using the employee name
+		int employeeId = db.getEmployeeIdByName(employeeName);
+		if (employeeId == -1) {
+			System.out.println("Employee not found: " + employeeName);
+			return;
+		}
 
-	    // Create a TimeSheet object
-	    TimeSheet timeSheet = new TimeSheet(employeeName, employeeId, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime, overtimeComment);
+		// Create a TimeSheet object
+		TimeSheet timeSheet = new TimeSheet(employeeName, employeeId, shiftStartDate, shiftEndDate, shiftStartTime,
+				shiftEndTime, overtimeComment);
+		System.out.println(timeSheet);
 
-	    // Insert the TimeSheet object into the database
-	    db.addTimeSheet(timeSheet);
+		// Insert the TimeSheet object into the database
+		db.addTimeSheet(timeSheet);
 
-	    // Optionally, reset the view or navigate back to the home screen
-	    handleHomeViewSetupAndNavigate();
+		// Optionally, reset the view or navigate back to the home screen
+		handleHomeViewSetupAndNavigate();
 	}
-
-
 
 	private void handleSignIn() {
 		String username = view.getUsernameSignIn();
@@ -189,12 +187,10 @@ public class TTController {
 
 		boolean isStored = false;
 		try {
-		isStored = db.addEmployee(employee);
+			isStored = db.addEmployee(employee);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
-		
-	
 
 		if (isStored) {
 			System.out.print("Employee added to db");
@@ -228,8 +224,7 @@ public class TTController {
 		this.view.getTimeSheetPanel().getModifyButton().addActionListener(e -> handleModifyTimeSheet());
 		this.view.getTimeSheetPanel().getDeleteTimeSheetButton().addActionListener(e -> handleDeleteTimeSheet());
 		System.out.println("listeners set for TimeSheetPanel");
-		
-	
+
 	}
 
 	private java.sql.Date[] calculateRecentDatesForTimeSheets() {
