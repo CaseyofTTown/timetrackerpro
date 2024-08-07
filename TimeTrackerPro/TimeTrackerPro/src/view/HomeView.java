@@ -5,6 +5,7 @@ import java.util.List;
 import javax.swing.*;
 
 import model.ColorConstants;
+import model.TimeSheet;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -106,6 +107,11 @@ public class HomeView extends JPanel {
 		timeSheetPanel.setEndDate(date);
 	}
 
+	// getters/setters to update timeSheetDisplay
+	public void addAllTimeSheetsToDisplay(List<TimeSheet> timeSheets) {
+		timeSheetPanel.addAllTimeSheetsToDisplay(timeSheets);
+	}
+
 	public void setEmployeeNameList(List<String> employeeNames) {
 		this.employeeNames = employeeNames;
 		// pass name list to time sheet panel
@@ -123,34 +129,36 @@ public class HomeView extends JPanel {
 		timeSheetPanel.showAddNewTimeSheetPanel();
 	}
 
-	//getters to provide fields for a new time sheet entry on time sheet panel
+	// getters to provide fields for a new time sheet entry on time sheet panel
 	public String getSelectedEmployeeName() {
 		return timeSheetPanel.getSelectedEmployeeName();
 	}
-	
+
 	public Date getShiftStartDate() {
-        return timeSheetPanel.getShiftStartDate();
-    }
+		return timeSheetPanel.getShiftStartDate();
+	}
 
-    public Date getShiftEndDate() {
-        return timeSheetPanel.getShiftEndDate();
-    }
+	public Date getShiftEndDate() {
+		return timeSheetPanel.getShiftEndDate();
+	}
 
-    public Date getShiftStartTime() {
-        return timeSheetPanel.getShiftStartTime();
-    }
+	public Date getShiftStartTime() {
+		return timeSheetPanel.getShiftStartTime();
+	}
 
-    public Date getShiftEndTime() {
-        return timeSheetPanel.getShiftEndTime();
-    }
+	public Date getShiftEndTime() {
+		return timeSheetPanel.getShiftEndTime();
+	}
 
-    public String getOvertimeComment() {
-        return timeSheetPanel.getOvertimeComment();
-    }
-    public JButton getTimeSheetSubmitButton() {
-    	return timeSheetPanel.getSubmitTimeSheetButton();
-    }
-    public JButton getCancelTimeSheetSubmissionButton() {
-    	return timeSheetPanel.getCancelTimeSheetButton();
-    }
+	public String getOvertimeComment() {
+		return timeSheetPanel.getOvertimeComment();
+	}
+
+	public JButton getTimeSheetSubmitButton() {
+		return timeSheetPanel.getSubmitTimeSheetButton();
+	}
+
+	public JButton getCancelTimeSheetSubmissionButton() {
+		return timeSheetPanel.getCancelTimeSheetButton();
+	}
 }

@@ -224,6 +224,7 @@ public class TTController {
 		this.view.getTimeSheetPanel().getModifyButton().addActionListener(e -> handleModifyTimeSheet());
 		this.view.getTimeSheetPanel().getDeleteTimeSheetButton().addActionListener(e -> handleDeleteTimeSheet());
 		System.out.println("listeners set for TimeSheetPanel");
+		System.out.println(timeSheets.size() +" timesheets fetched from db");
 
 	}
 

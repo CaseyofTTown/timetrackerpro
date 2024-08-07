@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+import java.util.List;
 
 import model.ColorConstants;
 import model.TimeSheet;
@@ -87,6 +88,22 @@ public class TimeSheetDisplay extends JTable {
 				timesheet.getShiftEndDate(), timesheet.getShiftStartTime(), timesheet.getShiftEndTime(),
 				timesheet.getHoursWorked(), timesheet.getOvertimeComment() });
 		repaint();
+	}
+
+	// Method to add all time sheet entries
+	public void addAllTimeSheetsToDisplay(List<TimeSheet> timesheets) {
+	    for (TimeSheet timesheet : timesheets) {
+	        model.addRow(new Object[] { 
+	            timesheet.getEmployeeName(), 
+	            timesheet.getShiftStartDate(),
+	            timesheet.getShiftEndDate(), 
+	            timesheet.getShiftStartTime(), 
+	            timesheet.getShiftEndTime(),
+	            timesheet.getHoursWorked(), 
+	            timesheet.getOvertimeComment() 
+	        });
+	    }
+	    repaint();
 	}
 
 	// Method to update an existing time sheet entry

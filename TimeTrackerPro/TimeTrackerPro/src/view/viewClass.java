@@ -107,8 +107,6 @@ public class viewClass extends JFrame {
 		updateWindowSize();
 
 	}
-	
-	
 
 	public void hideNewEmployeeInfoView() {
 		if (newEmployeeInfoView != null) {
@@ -138,7 +136,6 @@ public class viewClass extends JFrame {
 		repaint();
 
 	}
-	
 
 	public void hideHomeView() {
 		if (homeView != null) {
@@ -201,8 +198,6 @@ public class viewClass extends JFrame {
 	public JButton getSubmitEmployeeInfoButton() {
 		return newEmployeeInfoView.getSubmitNewEmployeeButton();
 	}
-	
-	
 
 	// getters for buttons on HomePage, timeSheetPanel
 	public TimeSheetPanel getTimeSheetPanel() {
@@ -221,10 +216,12 @@ public class viewClass extends JFrame {
 		// TODO Auto-generated method stub
 
 	}
+
 	public void showNewTimeSheetUI() {
 		homeView.showAddNewTimeSheetUI();
 	}
-	//used to set the employee name list on TimeSheetPanel
+
+	// used to set the employee name list on TimeSheetPanel
 	public void setEmployeeNameList(List<String> employeeNames) {
 		System.out.println("passing " + employeeNames.size() + "to homeView");
 		homeView.setEmployeeNameList(employeeNames);
@@ -233,9 +230,12 @@ public class viewClass extends JFrame {
 	public void updateTimeSheetDisplay(List<TimeSheet> timeSheets) {
 		TimeSheetDisplay timeSheetDisplay = getTimeSheetPanel().getTimeSheetDisplay();
 		timeSheetDisplay.clearAllEntries();
+		System.out.println(timeSheets.size() + " time sheets passed to timeSheetDisplayPannel");
 		for (TimeSheet timeSheet : timeSheets) {
 			timeSheetDisplay.addTimeSheetEntry(timeSheet);
 		}
+		revalidate();
+		repaint();
 		updateWindowSize();
 
 	}
@@ -246,30 +246,43 @@ public class viewClass extends JFrame {
 		mainPanel.revalidate();
 		mainPanel.repaint();
 	}
-	
-	//getters so controller can create a new time sheet from homeView-TimesheetPanel-timesheetentryPanel
+
+	// getters so controller can create a new time sheet from
+	// homeView-TimesheetPanel-timesheetentryPanel
 	public String getSelectedEmployeeOnTimeSheet() {
 		return homeView.getSelectedEmployeeName();
 	}
+
 	public Date getShiftStartDateOnTs() {
 		return homeView.getShiftStartDate();
 	}
+
 	public Date getShiftEndDateOnTs() {
 		return homeView.getShiftEndDate();
 	}
+
 	public Date getShiftStartTimeOnTs() {
 		return homeView.getShiftStartTime();
 	}
+
 	public Date getShiftEndTimeOnTs() {
 		return homeView.getShiftEndTime();
 	}
+
 	public String getOvertimeCommentsOnTs() {
 		return homeView.getOvertimeComment();
 	}
+
 	public JButton getSubmitTimeSheetButton() {
 		return homeView.getTimeSheetSubmitButton();
 	}
+
 	public JButton getCancelTimeSheetButton() {
 		return homeView.getCancelTimeSheetSubmissionButton();
+	}
+
+	// getters/setters to update timeSheetDisplay
+	public void addAllTimeSheetsToDisplay(List<TimeSheet> timeSheets) {
+		homeView.addAllTimeSheetsToDisplay(timeSheets);
 	}
 }

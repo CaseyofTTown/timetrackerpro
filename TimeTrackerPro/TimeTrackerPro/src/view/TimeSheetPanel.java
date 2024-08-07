@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.util.List;
 import org.jdatepicker.impl.JDatePickerImpl;
 import model.ColorConstants;
+import model.TimeSheet;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -211,7 +213,10 @@ public class TimeSheetPanel extends JPanel {
 		return timeSheetEntryPanel.getCancelTimeSheetButton();
 	}
 	
-	
+	//getters/setters to update timeSheetDisplay
+	public void addAllTimeSheetsToDisplay(List<TimeSheet> timeSheets) {
+		timeSheetDisplay.addAllTimeSheetsToDisplay(timeSheets);
+	}
 	
 	
 	

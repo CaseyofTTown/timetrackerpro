@@ -7,7 +7,7 @@ import java.time.Instant;
 public class Session {
 	private String loggedInUser;
 	private Instant lastActivity;
-	private static final Duration SESSION_TIMEOUT = Duration.ofHours(2);
+	private static final Duration SESSION_TIMEOUT = Duration.ofHours(25);
 
 	public Session() {
 
