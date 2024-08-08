@@ -78,6 +78,9 @@ public class TTController {
 		} else {
 			System.out.println("Time sheet with id: " + selectedTimeSheetId + " was not found");
 		}
+		//listeners for when modifying a time sheet entry 
+		this.view.getSubmitTimeSheetButton().addActionListener(e -> handleSubmitTimeSheetToDb());
+		this.view.getCancelTimeSheetButton().addActionListener(e -> handleHomeViewSetupAndNavigate());
 
 	}
 

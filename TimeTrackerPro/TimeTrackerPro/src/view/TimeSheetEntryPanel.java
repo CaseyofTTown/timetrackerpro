@@ -16,6 +16,7 @@ import org.jdatepicker.impl.UtilDateModel;
 import model.ColorConstants;
 import model.TimeFormatter;
 import model.TimeSheet;
+import model.ValidationListener;
 
 public class TimeSheetEntryPanel extends JPanel {
     private JComboBox<String> employeeNameComboBox;
@@ -71,6 +72,7 @@ public class TimeSheetEntryPanel extends JPanel {
         shiftStartTimePicker.setColumns(4);
         shiftStartTimePicker.setBackground(ColorConstants.DARK_GRAY);
         shiftStartTimePicker.setForeground(ColorConstants.GOLD);
+        shiftStartTimePicker.setCaretColor(ColorConstants.GOLD);
         addComponent("Shift Start Time", shiftStartTimePicker, c, 0, 3);
 
         // Quick Set Button for Shift Start Time
@@ -90,6 +92,8 @@ public class TimeSheetEntryPanel extends JPanel {
         shiftEndTimePicker.setColumns(4);
         shiftEndTimePicker.setBackground(ColorConstants.DARK_GRAY);
         shiftEndTimePicker.setForeground(ColorConstants.GOLD);
+        shiftEndTimePicker.setCaretColor(ColorConstants.GOLD);
+
         addComponent("Shift End Time", shiftEndTimePicker, c, 0, 4);
         
         
@@ -113,6 +117,7 @@ public class TimeSheetEntryPanel extends JPanel {
         submitButton = new JButton("Submit");
         submitButton.setBackground(ColorConstants.DEEP_BLUE);
         submitButton.setForeground(ColorConstants.LIME_GREEN);
+        submitButton.setEnabled(false);
         addComponent("", submitButton, c, 0, 6);
 
         // Cancel Button
@@ -122,7 +127,14 @@ public class TimeSheetEntryPanel extends JPanel {
         addComponent("", cancelButton, c, 1, 6);
 
         System.out.println("TimeSheetEntryPanel created");
-    }
+        
+        //document listeners for validation
+        shiftStartDatePicker.getJFormattedTextField().getDocument().addDocumentListener(new ValidationListener(this::validateFields));
+        shiftEndDatePicker.getJFormattedTextField().getDocument().addDocumentListener(new ValidationListener(this::validateFields));
+        shiftStartTimePicker.getDocument().addDocumentListener(new ValidationListener(this::validateFields));
+        shiftEndTimePicker.getDocument().addDocumentListener(new ValidationListener(this::validateFields));
+        validateFields();
+ }
 
     private void addComponent(String label, JComponent component, GridBagConstraints c, int row, int col) {
         c.gridx = col;
@@ -165,26 +177,17 @@ public class TimeSheetEntryPanel extends JPanel {
     	return (Date) shiftEndDatePicker.getModel().getValue();
     }
     public Time getShiftStartTime() {
-        return new Time(((Date) shiftStartTimePicker.getValue()).getTime());
+        Date date = (Date) shiftStartTimePicker.getValue();
+        return date != null ? new Time(date.getTime()) : null;
     }
     public Time getShiftEndTime() {
-        return new Time(((Date) shiftEndTimePicker.getValue()).getTime());
+        Date date = (Date) shiftEndTimePicker.getValue();
+        return date != null ? new Time(date.getTime()) : null;
     }
     public String getOverTimeComment() {
     	return overtimeCommentField.getText();
     }
- // Custom method to parse time input in "HHmm" format
-    private Time parseTime(String timeStr) {
-        SimpleDateFormat timeFormat = new SimpleDateFormat("HHmm");
-        try {
-            Date date = timeFormat.parse(timeStr);
-            return new Time(date.getTime());
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-    //setters for modifying a time sheet
+ //setters for modifying a time sheet
     public void setSelectedEmployeeName(String employeeName) {
     	employeeNameComboBox.setSelectedItem(employeeName);
     }
@@ -213,5 +216,42 @@ public class TimeSheetEntryPanel extends JPanel {
     public void setOverTimeComment(String overtimeComment) {
     	overtimeCommentField.setText(overtimeComment);
     }
+    private void validateFields() {
+        Date shiftStartDate = getShiftStartDate();
+        Date shiftEndDate = getShiftEndDate();
+        Time shiftStartTime = getShiftStartTime();
+        Time shiftEndTime = getShiftEndTime();
+
+        boolean isValid = ValidationListener.validateFields(shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime);
+        submitButton.setEnabled(isValid);
+
+        if (!isValid) {
+            showTemporaryDialog("Invalid entries detected. Please check the dates and times.", "Validation Error");
+        }
+    }
+
+    private void showTemporaryDialog(String message, String title) {
+        JDialog dialog = new JDialog((JFrame) SwingUtilities.getWindowAncestor(this), title, true);
+        dialog.setSize(500, 150);
+        dialog.setLocationRelativeTo(this);
+
+        JPanel panel = new JPanel();
+        panel.setBackground(ColorConstants.CHARCOAL);
+        panel.setLayout(new BorderLayout());
+
+        JLabel messageLabel = new JLabel(message, SwingConstants.CENTER);
+        messageLabel.setForeground(ColorConstants.GOLD);
+        panel.add(messageLabel, BorderLayout.CENTER);
+
+        dialog.add(panel);
+        dialog.setVisible(true);
+
+        // Close the dialog after 3 seconds
+        Timer timer = new Timer(3000, e -> dialog.dispose());
+        timer.setRepeats(false);
+        timer.start();
+    }
+
+
     
 }
