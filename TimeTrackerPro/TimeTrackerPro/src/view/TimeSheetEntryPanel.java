@@ -3,20 +3,24 @@ package view;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import org.jdatepicker.impl.JDatePickerImpl;
 import model.ColorConstants;
+import model.TimeFormatter;
 import model.TimeSheet;
 
 public class TimeSheetEntryPanel extends JPanel {
     private JComboBox<String> employeeNameComboBox;
     private JDatePickerImpl shiftStartDatePicker;
     private JDatePickerImpl shiftEndDatePicker;
-    private JSpinner shiftStartTimePicker;
-    private JSpinner shiftEndTimePicker;
+    private JFormattedTextField shiftStartTimePicker;
+    private JFormattedTextField shiftEndTimePicker;
     private TitledTextField overtimeCommentField;
     private JButton submitButton;
     private JButton startTimeButton;
@@ -60,12 +64,11 @@ public class TimeSheetEntryPanel extends JPanel {
         shiftEndDatePicker.getJFormattedTextField().setForeground(ColorConstants.GOLD);
         addComponent("Shift End Date", shiftEndDatePicker, c, 0, 2);
 
-        // Shift Start Time Picker
-        shiftStartTimePicker = new JSpinner(new SpinnerDateModel());
-        JSpinner.DateEditor startTimeEditor = new JSpinner.DateEditor(shiftStartTimePicker, "HH:mm");
-        shiftStartTimePicker.setEditor(startTimeEditor);
-        shiftStartTimePicker.getEditor().getComponent(0).setBackground(ColorConstants.DARK_GRAY);
-        shiftStartTimePicker.getEditor().getComponent(0).setForeground(ColorConstants.GOLD);
+     // Shift Start Time Field
+        shiftStartTimePicker = new JFormattedTextField(new TimeFormatter());
+        shiftStartTimePicker.setColumns(4);
+        shiftStartTimePicker.setBackground(ColorConstants.DARK_GRAY);
+        shiftStartTimePicker.setForeground(ColorConstants.GOLD);
         addComponent("Shift Start Time", shiftStartTimePicker, c, 0, 3);
 
         // Quick Set Button for Shift Start Time
@@ -80,14 +83,14 @@ public class TimeSheetEntryPanel extends JPanel {
         });
         addComponent("", startTimeButton, c, 1, 3);
 
-        // Shift End Time Picker
-        shiftEndTimePicker = new JSpinner(new SpinnerDateModel());
-        JSpinner.DateEditor endTimeEditor = new JSpinner.DateEditor(shiftEndTimePicker, "HH:mm");
-        shiftEndTimePicker.setEditor(endTimeEditor);
-        shiftEndTimePicker.getEditor().getComponent(0).setBackground(ColorConstants.DARK_GRAY);
-        shiftEndTimePicker.getEditor().getComponent(0).setForeground(ColorConstants.GOLD);
+     // Shift End Time Field
+        shiftEndTimePicker = new JFormattedTextField(new TimeFormatter());
+        shiftEndTimePicker.setColumns(4);
+        shiftEndTimePicker.setBackground(ColorConstants.DARK_GRAY);
+        shiftEndTimePicker.setForeground(ColorConstants.GOLD);
         addComponent("Shift End Time", shiftEndTimePicker, c, 0, 4);
-
+        
+        
         // Quick Set Button for Shift End Time
         endTimeButton = new JButton("0800");
         endTimeButton.setBackground(ColorConstants.DEEP_BLUE);
@@ -159,14 +162,27 @@ public class TimeSheetEntryPanel extends JPanel {
     public Date getShiftEndDate() {
     	return (Date) shiftEndDatePicker.getModel().getValue();
     }
-    public Date getShiftStartTime() {
-    	return (Date) shiftStartTimePicker.getValue();
+    public Time getShiftStartTime() {
+        return new Time(((Date) shiftStartTimePicker.getValue()).getTime());
     }
-    public Date getShiftEndTime() {
-    	return (Date) shiftEndTimePicker.getValue();
+    public Time getShiftEndTime() {
+        return new Time(((Date) shiftEndTimePicker.getValue()).getTime());
     }
     public String getOverTimeComment() {
     	return overtimeCommentField.getText();
     }
+ // Custom method to parse time input in "HHmm" format
+    private Time parseTime(String timeStr) {
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HHmm");
+        try {
+            Date date = timeFormat.parse(timeStr);
+            return new Time(date.getTime());
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    
     
 }

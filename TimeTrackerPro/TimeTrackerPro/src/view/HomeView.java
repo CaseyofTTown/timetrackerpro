@@ -8,6 +8,7 @@ import model.ColorConstants;
 import model.TimeSheet;
 
 import java.awt.*;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -142,11 +143,11 @@ public class HomeView extends JPanel {
 		return timeSheetPanel.getShiftEndDate();
 	}
 
-	public Date getShiftStartTime() {
+	public Time getShiftStartTime() {
 		return timeSheetPanel.getShiftStartTime();
 	}
 
-	public Date getShiftEndTime() {
+	public Time getShiftEndTime() {
 		return timeSheetPanel.getShiftEndTime();
 	}
 

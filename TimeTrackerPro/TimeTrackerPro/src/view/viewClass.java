@@ -9,6 +9,7 @@ import model.TimeSheet;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.sql.Time;
 import java.util.Date;
 
 public class viewClass extends JFrame {
@@ -261,11 +262,11 @@ public class viewClass extends JFrame {
 		return homeView.getShiftEndDate();
 	}
 
-	public Date getShiftStartTimeOnTs() {
+	public Time getShiftStartTimeOnTs() {
 		return homeView.getShiftStartTime();
 	}
 
-	public Date getShiftEndTimeOnTs() {
+	public Time getShiftEndTimeOnTs() {
 		return homeView.getShiftEndTime();
 	}
 

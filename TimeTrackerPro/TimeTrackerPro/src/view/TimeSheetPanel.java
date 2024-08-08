@@ -9,6 +9,7 @@ import model.TimeSheet;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -197,10 +198,10 @@ public class TimeSheetPanel extends JPanel {
 	public Date getShiftEndDate() {
 		return timeSheetEntryPanel.getShiftEndDate();
 	}
-	public Date getShiftStartTime() {
+	public Time getShiftStartTime() {
 		return timeSheetEntryPanel.getShiftStartTime();
 	}
-	public Date getShiftEndTime() {
+	public Time getShiftEndTime() {
 		return timeSheetEntryPanel.getShiftEndTime();
 	}
 	public String getOvertimeComment() {

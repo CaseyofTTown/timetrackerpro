@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class DatabaseManager {
 
 	private Connection connection;
 	private static final String DATE_FORMAT = "yyyy-MM-dd";
-	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH-mm");
+	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm");
 
 	public DatabaseManager(String dbUrl) {
 		try {
@@ -102,59 +103,51 @@ public class DatabaseManager {
 	    }
 	}
 
-	//ensure proper time format storage for db.
-	public String formatTime(java.util.Date time) {
-	    if (time instanceof java.util.Date) {
-	        return TIME_FORMAT.format(new java.sql.Time(time.getTime()));
-	    } else {
-	        return TIME_FORMAT.format(time);
-	    }
-	}
-
-
-
+	
 	public List<TimeSheet> getTimeSheetsByDateRange(Date startDate, Date endDate) {
 	    List<TimeSheet> timeSheets = new ArrayList<>();
-	    String sql = "SELECT timesheets.id, employees.name, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime, overtimeComment, hoursWorked "
-	               + "FROM timesheets "
-	               + "JOIN employees ON timesheets.employeeId = employees.id "
-	               + "WHERE shiftStartDate >= ? AND shiftEndDate <= ?";
+	    String sql = "SELECT timesheets.id, timesheets.employeeId, employees.name, timesheets.shiftStartDate, timesheets.shiftEndDate, timesheets.shiftStartTime, timesheets.shiftEndTime, timesheets.overtimeComment, timesheets.hoursWorked " +
+	                 "FROM timesheets " +
+	                 "JOIN employees ON timesheets.employeeId = employees.id " +
+	                 "WHERE timesheets.shiftStartDate >= ? AND timesheets.shiftEndDate <= ?";
 
 	    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-	        pstmt.setDate(1, new java.sql.Date(startDate.getTime()));
-	        pstmt.setDate(2, new java.sql.Date(endDate.getTime()));
-	        
-	        // Debug statements
+	        pstmt.setString(1, formatDate(startDate));
+	        pstmt.setString(2, formatDate(endDate));
+
+	        System.out.println("Executing query: " + sql);
 	        System.out.println("Start Date: " + formatDate(startDate));
 	        System.out.println("End Date: " + formatDate(endDate));
 
 	        ResultSet rs = pstmt.executeQuery();
-	        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
 
 	        while (rs.next()) {
-	            Date shiftStartTime = null;
-	            Date shiftEndTime = null;
-	            try {
-	                shiftStartTime = (Date) timeFormat.parse(rs.getString("shiftStartTime"));
-	                shiftEndTime = (Date) timeFormat.parse(rs.getString("shiftEndTime"));
-	            } catch (ParseException e) {
-	                e.printStackTrace();
+	            int timeSheetId = rs.getInt("id");
+	            int employeeId = rs.getInt("employeeId");
+	            String employeeName = rs.getString("name");
+	            java.util.Date shiftStartDate = parseDate(rs.getString("shiftStartDate"));
+	            java.util.Date shiftEndDate = parseDate(rs.getString("shiftEndDate"));
+	            Time shiftStartTime = parseTime(rs.getString("shiftStartTime"));
+	            Time shiftEndTime = parseTime(rs.getString("shiftEndTime"));
+	            String overtimeComment = rs.getString("overtimeComment");
+	            long hoursWorked = rs.getLong("hoursWorked");
+
+	            System.out.println("Processing TimeSheet ID: " + timeSheetId);
+
+	            TimeSheet timeSheet;
+	            if (overtimeComment != null && !overtimeComment.isEmpty()) {
+	                timeSheet = new TimeSheet(timeSheetId, employeeId, employeeName, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime, overtimeComment, hoursWorked);
+	            } else {
+	                timeSheet = new TimeSheet(timeSheetId, employeeId, employeeName, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime, hoursWorked);
 	            }
 
-	            TimeSheet timeSheet = new TimeSheet(
-	                rs.getInt("id"),
-	                rs.getInt("employeeId"),
-	                rs.getString("name"),
-	                rs.getDate("shiftStartDate"),
-	                rs.getDate("shiftEndDate"),
-	                shiftStartTime,
-	                shiftEndTime,
-	                rs.getString("overtimeComment"),
-	                rs.getLong("hoursWorked")
-	            );
 	            timeSheets.add(timeSheet);
 	        }
 	    } catch (SQLException e) {
+	        System.out.println("SQL Exception: " + e.getMessage());
+	        e.printStackTrace();
+	    } catch (Exception e) {
+	        System.out.println("General Exception: " + e.getMessage());
 	        e.printStackTrace();
 	    }
 
@@ -164,62 +157,74 @@ public class DatabaseManager {
 
 
 
+
+
+
+
 	public List<TimeSheet> getRecentTimeSheetsForEmployee(int id) {
-		List<TimeSheet> timeSheets = new ArrayList<>();
+	    List<TimeSheet> timeSheets = new ArrayList<>();
 
-		String sql = "SELECT timesheets.id, employees.name, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime, overtimeComment, hoursWorked "
-				+ "FROM timesheets " + "JOIN employees ON timesheets.employeeId = employees.id "
-				+ "WHERE employeeId = ? AND shiftStartDate >= datetime('now', '-1 month')";
+	    String sql = "SELECT timesheets.id, employees.name, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime, overtimeComment, hoursWorked "
+	               + "FROM timesheets "
+	               + "JOIN employees ON timesheets.employeeId = employees.id "
+	               + "WHERE employeeId = ? AND shiftStartDate >= datetime('now', '-1 month')";
 
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, id);
-			ResultSet rs = pstmt.executeQuery();
+	    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+	        pstmt.setInt(1, id);
+	        ResultSet rs = pstmt.executeQuery();
 
-			while (rs.next()) {
-				TimeSheet timeSheet = new TimeSheet(rs.getInt("id"), id, rs.getString("name"),
-						rs.getDate("shiftStartDate"), rs.getDate("shiftEndDate"), rs.getDate("shiftStartTime"),
-						rs.getDate("shiftEndTime"), rs.getString("overtimeComment"), rs.getLong("hoursWorked"));
-				timeSheets.add(timeSheet);
-			}
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
+	        while (rs.next()) {
+	            TimeSheet timeSheet = new TimeSheet(
+	                rs.getInt("id"),
+	                id,
+	                rs.getString("name"),
+	                rs.getDate("shiftStartDate"),
+	                rs.getDate("shiftEndDate"),
+	                rs.getTime("shiftStartTime"), // Change to getTime
+	                rs.getTime("shiftEndTime"), // Change to getTime
+	                rs.getString("overtimeComment"),
+	                rs.getLong("hoursWorked")
+	            );
+	            timeSheets.add(timeSheet);
+	        }
+	    } catch (SQLException e) {
+	        System.out.println(e.getMessage());
+	    }
 
-		return timeSheets;
+	    return timeSheets;
 	}
 
-	public void deleteTimeSheet(int timeSheetId) {
-		String sql = "DELETE FROM timesheets WHERE id = ?";
-
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, timeSheetId);
-			pstmt.executeUpdate();
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
-
-	}
 
 	public TimeSheet getTimeSheetById(int timeSheetId) {
-		String sql = "SELECT timesheets.id, employees.name, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime, overtimeComment, hoursWorked "
-				+ "FROM timesheets " + "JOIN employees ON timesheets.employeeId = employees.id "
-				+ "WHERE timesheets.id = ?";
+	    String sql = "SELECT timesheets.id, employees.name, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime, overtimeComment, hoursWorked "
+	               + "FROM timesheets "
+	               + "JOIN employees ON timesheets.employeeId = employees.id "
+	               + "WHERE timesheets.id = ?";
 
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, timeSheetId);
-			ResultSet rs = pstmt.executeQuery();
+	    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+	        pstmt.setInt(1, timeSheetId);
+	        ResultSet rs = pstmt.executeQuery();
 
-			if (rs.next()) {
-				return new TimeSheet(rs.getInt("id"), rs.getInt("employeeId"), rs.getString("name"),
-						rs.getDate("shiftStartDate"), rs.getDate("shiftEndDate"), rs.getDate("shiftStartTime"),
-						rs.getDate("shiftEndTime"), rs.getString("overtimeComment"), rs.getLong("hoursWorked"));
-			}
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
-
-		return null; // Return null if no time sheet is found
+	        if (rs.next()) {
+	            return new TimeSheet(
+	                rs.getInt("id"),
+	                rs.getInt("employeeId"),
+	                rs.getString("name"),
+	                rs.getDate("shiftStartDate"),
+	                rs.getDate("shiftEndDate"),
+	                rs.getTime("shiftStartTime"), // Change to getTime
+	                rs.getTime("shiftEndTime"), // Change to getTime
+	                rs.getString("overtimeComment"),
+	                rs.getLong("hoursWorked")
+	            );
+	        }
+	    } catch (SQLException e) {
+	        System.out.println(e.getMessage());
+	    }
+	    
+	    return null; // Return null if no time sheet is found
 	}
+
 
 	public int getEmployeeIdByName(String employeeName) {
 		String sql = "SELECT id FROM employees WHERE name = ?";
@@ -395,6 +400,22 @@ public class DatabaseManager {
 			return null;
 		}
 	}
+	//ensure proper time format storage for db.
+		public String formatTime(java.util.Date time) {
+		    if (time instanceof java.util.Date) {
+		        return TIME_FORMAT.format(new java.sql.Time(time.getTime()));
+		    } else {
+		        return TIME_FORMAT.format(time);
+		    }
+		}
+		private java.sql.Time parseTime(String time) {
+		    try {
+		        return (Time) TIME_FORMAT.parse(time);
+		    } catch (ParseException e) {
+		        System.out.println("Error parsing time: " + e.getMessage());
+		        return null;
+		    }
+		}
 
 	
 	public void close() {
@@ -418,5 +439,7 @@ public class DatabaseManager {
 			System.out.println(e.getMessage());
 		}
 	}
+
+	
 
 }

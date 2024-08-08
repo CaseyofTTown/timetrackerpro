@@ -1,5 +1,6 @@
 package controller;
 
+import java.sql.Time;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -47,27 +48,26 @@ public class TTController {
 
 	}
 
-	private void handleDeleteTimeSheet() {
-		int selectedTimeSheetId = view.getTimeSheetPanel().getSelectedTimeSheetId();
-		if (selectedTimeSheetId != -1) {
-			// Delete the selected time sheet
-			db.deleteTimeSheet(selectedTimeSheetId);
-
-			// Calculate date range
-			java.sql.Date[] recentDates = calculateRecentDatesForTimeSheets();
-			java.sql.Date sqlStartDate = recentDates[0];
-			java.sql.Date sqlEndDate = recentDates[1];
-
-			// Fetch the updated list of time sheets within the date range
-			List<TimeSheet> updatedTimeSheets = db.getTimeSheetsByDateRange(sqlStartDate, sqlEndDate);
-
-			// Update the time sheet display with the new list
-			view.updateTimeSheetDisplay(updatedTimeSheets);
-		} else {
-			System.out.println("time sheet not found to delete...");
-		}
-	}
-
+	/*
+	 * 
+	 * private void handleDeleteTimeSheet() { int selectedTimeSheetId =
+	 * view.getTimeSheetPanel().getSelectedTimeSheetId(); if (selectedTimeSheetId !=
+	 * -1) { // Delete the selected time sheet
+	 * db.deleteTimeSheet(selectedTimeSheetId);
+	 * 
+	 * // Calculate date range java.sql.Date[] recentDates =
+	 * calculateRecentDatesForTimeSheets(); java.sql.Date sqlStartDate =
+	 * recentDates[0]; java.sql.Date sqlEndDate = recentDates[1];
+	 * 
+	 * // Fetch the updated list of time sheets within the date range
+	 * List<TimeSheet> updatedTimeSheets = db.getTimeSheetsByDateRange(sqlStartDate,
+	 * sqlEndDate);
+	 * 
+	 * // Update the time sheet display with the new list
+	 * view.updateTimeSheetDisplay(updatedTimeSheets); } else {
+	 * System.out.println("time sheet not found to delete..."); } }
+	 * 
+	 */
 	private void handleModifyTimeSheet() {
 		int selectedTimeSheetId = view.getTimeSheetPanel().getSelectedTimeSheetId();
 		if (selectedTimeSheetId != -1) {
@@ -96,8 +96,8 @@ public class TTController {
 		String employeeName = view.getSelectedEmployeeOnTimeSheet();
 		Date shiftStartDate = view.getShiftStartDateOnTs();
 		Date shiftEndDate = view.getShiftEndDateOnTs();
-		Date shiftStartTime = view.getShiftStartTimeOnTs();
-		Date shiftEndTime = view.getShiftEndTimeOnTs();
+		Time shiftStartTime = view.getShiftStartTimeOnTs();
+		Time shiftEndTime = view.getShiftEndTimeOnTs();
 		String overtimeComment = view.getOvertimeCommentsOnTs();
 
 		// Get employee ID using the employee name
@@ -202,31 +202,38 @@ public class TTController {
 	}
 
 	private void handleHomeViewSetupAndNavigate() {
-		// Calculate date range
-		java.sql.Date[] recentDates = calculateRecentDatesForTimeSheets();
-		java.sql.Date sqlStartDate = recentDates[0];
-		java.sql.Date sqlEndDate = recentDates[1];
+	    // Calculate date range
+	    java.sql.Date[] recentDates = calculateRecentDatesForTimeSheets();
+	    java.sql.Date sqlStartDate = recentDates[0];
+	    java.sql.Date sqlEndDate = recentDates[1];
 
-		// Fetch time sheets within the date range
-		List<TimeSheet> timeSheets = db.getTimeSheetsByDateRange(sqlStartDate, sqlEndDate);
-		List<String> employeeNames = db.getAllEmployeeNames();
+	    // Debug statements
+	    System.out.println("Calculated Start Date: " + sqlStartDate);
+	    System.out.println("Calculated End Date: " + sqlEndDate);
 
-		view.showHomeView(employee.getName());
-		view.setEmployeeNameList(employeeNames);
+	    // Fetch time sheets within the date range
+	    List<TimeSheet> timeSheets = db.getTimeSheetsByDateRange(sqlStartDate, sqlEndDate);
+	    List<String> employeeNames = db.getAllEmployeeNames();
 
-		// Update the view with the fetched time sheets
-		view.updateTimeSheetDisplay(timeSheets);
-		view.setStartDate(new Date(sqlStartDate.getTime()));
-		view.setEndDate(new Date(sqlEndDate.getTime()));
+	    // Debug statements
+	    System.out.println("Fetched " + timeSheets.size() + " time sheets from the database.");
+	    System.out.println("Fetched " + employeeNames.size() + " employee names from the database.");
 
-		// listeners for timeSheetTab on HomeView
-		this.view.getTimeSheetPanel().getAddButton().addActionListener(e -> showCreateNewTimeSheetUI());
-		this.view.getTimeSheetPanel().getModifyButton().addActionListener(e -> handleModifyTimeSheet());
-		this.view.getTimeSheetPanel().getDeleteTimeSheetButton().addActionListener(e -> handleDeleteTimeSheet());
-		System.out.println("listeners set for TimeSheetPanel");
-		System.out.println(timeSheets.size() +" timesheets fetched from db");
+	    view.showHomeView(employee.getName());
+	    view.setEmployeeNameList(employeeNames);
 
+	    // Update the view with the fetched time sheets
+	    view.updateTimeSheetDisplay(timeSheets);
+	    view.setStartDate(new Date(sqlStartDate.getTime()));
+	    view.setEndDate(new Date(sqlEndDate.getTime()));
+
+	    // listeners for timeSheetTab on HomeView
+	    this.view.getTimeSheetPanel().getAddButton().addActionListener(e -> showCreateNewTimeSheetUI());
+	    this.view.getTimeSheetPanel().getModifyButton().addActionListener(e -> handleModifyTimeSheet());
+	    //this.view.getTimeSheetPanel().getDeleteTimeSheetButton().addActionListener(e -> handleDeleteTimeSheet());
+	    System.out.println("Listeners set for TimeSheetPanel");
 	}
+
 
 	private java.sql.Date[] calculateRecentDatesForTimeSheets() {
 		Calendar calendar = Calendar.getInstance();
