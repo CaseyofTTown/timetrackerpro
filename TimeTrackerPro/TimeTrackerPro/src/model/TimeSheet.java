@@ -87,11 +87,11 @@ public class TimeSheet {
 		return this.shiftEndDate;
 	}
 
-	public Date getShiftStartTime() {
+	public Time getShiftStartTime() {
 		return this.shiftStartTime;
 	}
 
-	public Date getShiftEndTime() {
+	public Time getShiftEndTime() {
 		return this.shiftEndTime;
 	}
 
@@ -155,6 +155,9 @@ public class TimeSheet {
 
 	public String getOvertimeComment() {
 		return this.overtimeComment;
+	}
+	public int getTimeSheetId() {
+		return this.timeSheetId;
 	}
 
 	public void setOvertimeComment(String overtimeComment) {

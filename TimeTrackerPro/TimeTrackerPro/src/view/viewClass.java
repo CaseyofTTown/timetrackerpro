@@ -214,7 +214,16 @@ public class viewClass extends JFrame {
 	}
 
 	public void showModifyTimeSheetView(TimeSheet timeSheet) {
-		// TODO Auto-generated method stub
+		homeView.showAddNewTimeSheetUI();
+		homeView.setEmployeeNameOnTS(timeSheet.getEmployeeName());
+		homeView.setShiftStartDateOnModTs(timeSheet.getShiftStartDate());
+		homeView.setShiftEndDateOnModTs(timeSheet.getShiftEndDate());
+		homeView.setShiftStartTimeOnModTs(timeSheet.getShiftStartTime());
+		homeView.setShiftEndTimeOnModTs(timeSheet.getShiftEndTime());
+		homeView.setOverTimeCommentOnModTs(timeSheet.getOvertimeComment());
+		revalidate();
+		repaint();
+		
 
 	}
 
@@ -252,6 +261,10 @@ public class viewClass extends JFrame {
 	// homeView-TimesheetPanel-timesheetentryPanel
 	public String getSelectedEmployeeOnTimeSheet() {
 		return homeView.getSelectedEmployeeName();
+	}
+	//method so controller can modify an existing time sheet
+	public int getSelectedTimeSheetId() {
+		return homeView.getSelectedTimeSheetId();
 	}
 
 	public Date getShiftStartDateOnTs() {

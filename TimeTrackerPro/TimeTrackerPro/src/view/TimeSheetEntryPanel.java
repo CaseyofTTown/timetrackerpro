@@ -11,6 +11,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
+
 import model.ColorConstants;
 import model.TimeFormatter;
 import model.TimeSheet;
@@ -182,7 +184,34 @@ public class TimeSheetEntryPanel extends JPanel {
             return null;
         }
     }
-    
-    
+    //setters for modifying a time sheet
+    public void setSelectedEmployeeName(String employeeName) {
+    	employeeNameComboBox.setSelectedItem(employeeName);
+    }
+    public void setShiftStartDate(Date shiftStartDate) {
+        UtilDateModel model = (UtilDateModel) shiftStartDatePicker.getModel();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(shiftStartDate);
+        model.setValue(calendar.getTime());
+        model.setSelected(true);
+    }
+
+    public void setShiftEndDate(Date shiftEndDate) {
+        UtilDateModel model = (UtilDateModel) shiftEndDatePicker.getModel();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(shiftEndDate);
+        model.setValue(calendar.getTime());
+        model.setSelected(true);
+    }
+    public void setShiftStartTime(Time shiftStartTime) {
+    	shiftStartTimePicker.setValue(shiftStartTime);
+    }
+    public void setShiftEndTime(Time shiftEndTime) {
+    	shiftEndTimePicker.setValue(shiftEndTime);
+    }
+
+    public void setOverTimeComment(String overtimeComment) {
+    	overtimeCommentField.setText(overtimeComment);
+    }
     
 }

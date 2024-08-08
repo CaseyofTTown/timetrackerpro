@@ -162,4 +162,28 @@ public class HomeView extends JPanel {
 	public JButton getCancelTimeSheetSubmissionButton() {
 		return timeSheetPanel.getCancelTimeSheetButton();
 	}
+	
+	public int getSelectedTimeSheetId() {
+		return timeSheetPanel.getSelectedTimeSheetId();
+	}
+	
+	//setters for addnewTimeSheet to allow modifying existing one
+	public void setEmployeeNameOnTS(String employeeName) {
+		timeSheetPanel.setEmployeeNameOnModTs(employeeName);
+	}
+	public void setShiftStartDateOnModTs(Date shiftStartDate) {
+		timeSheetPanel.setShiftStartDateOnModTs(shiftStartDate);
+	}
+	public void setShiftEndDateOnModTs(Date shiftEndDate) {
+		timeSheetPanel.setShiftEndDateOnModTs(shiftEndDate);
+	}
+	public void setShiftStartTimeOnModTs(Time shiftStartTime) {
+		timeSheetPanel.setShiftStartTimeOnModTs(shiftStartTime);
+	}
+	public void setShiftEndTimeOnModTs(Time shiftEndTime) {
+		timeSheetPanel.setShiftEndTimeOnModTs(shiftEndTime);
+	}
+	public void setOverTimeCommentOnModTs(String overtimeComment) {
+		timeSheetPanel.setOverTimeCommentOnModTs(overtimeComment);
+	}
 }

@@ -196,34 +196,45 @@ public class DatabaseManager {
 
 
 	public TimeSheet getTimeSheetById(int timeSheetId) {
-	    String sql = "SELECT timesheets.id, employees.name, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime, overtimeComment, hoursWorked "
+	    String sql = "SELECT timesheets.id, timesheets.employeeId, employees.name, timesheets.shiftStartDate, timesheets.shiftEndDate, timesheets.shiftStartTime, timesheets.shiftEndTime, timesheets.overtimeComment, timesheets.hoursWorked "
 	               + "FROM timesheets "
 	               + "JOIN employees ON timesheets.employeeId = employees.id "
 	               + "WHERE timesheets.id = ?";
 
 	    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 	        pstmt.setInt(1, timeSheetId);
+
+	        System.out.println("Executing query: " + sql);
+	        System.out.println("TimeSheet ID: " + timeSheetId);
+
 	        ResultSet rs = pstmt.executeQuery();
 
 	        if (rs.next()) {
-	            return new TimeSheet(
-	                rs.getInt("id"),
-	                rs.getInt("employeeId"),
-	                rs.getString("name"),
-	                rs.getDate("shiftStartDate"),
-	                rs.getDate("shiftEndDate"),
-	                rs.getTime("shiftStartTime"), // Change to getTime
-	                rs.getTime("shiftEndTime"), // Change to getTime
-	                rs.getString("overtimeComment"),
-	                rs.getLong("hoursWorked")
-	            );
+	            int id = rs.getInt("id");
+	            int employeeId = rs.getInt("employeeId");
+	            String employeeName = rs.getString("name");
+	            java.util.Date shiftStartDate = parseDate(rs.getString("shiftStartDate"));
+	            java.util.Date shiftEndDate = parseDate(rs.getString("shiftEndDate"));
+	            Time shiftStartTime = parseTime(rs.getString("shiftStartTime"));
+	            Time shiftEndTime = parseTime(rs.getString("shiftEndTime"));
+	            String overtimeComment = rs.getString("overtimeComment");
+	            long hoursWorked = rs.getLong("hoursWorked");
+
+	            System.out.println("Processing TimeSheet ID: " + id);
+
+	            return new TimeSheet(id, employeeId, employeeName, shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime, overtimeComment, hoursWorked);
 	        }
 	    } catch (SQLException e) {
-	        System.out.println(e.getMessage());
+	        System.out.println("SQL Exception: " + e.getMessage());
+	        e.printStackTrace();
+	    } catch (Exception e) {
+	        System.out.println("General Exception: " + e.getMessage());
+	        e.printStackTrace();
 	    }
-	    
+
 	    return null; // Return null if no time sheet is found
 	}
+
 
 
 	public int getEmployeeIdByName(String employeeName) {

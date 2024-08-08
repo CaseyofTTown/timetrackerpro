@@ -69,7 +69,7 @@ public class TTController {
 	 * 
 	 */
 	private void handleModifyTimeSheet() {
-		int selectedTimeSheetId = view.getTimeSheetPanel().getSelectedTimeSheetId();
+		int selectedTimeSheetId = view.getSelectedTimeSheetId();
 		if (selectedTimeSheetId != -1) {
 			// fetch data for selected time sheet
 

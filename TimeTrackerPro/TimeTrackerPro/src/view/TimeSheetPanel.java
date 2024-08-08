@@ -154,12 +154,7 @@ public class TimeSheetPanel extends JPanel {
 	}
 
 	public int getSelectedTimeSheetId() {
-		int selectedRow = timeSheetDisplay.getSelectedRow();
-		if (selectedRow != -1) {
-			System.out.println("getting time sheet from row: " + selectedRow);
-			return (int) timeSheetDisplay.getValueAt(selectedRow, 0);
-		}
-		return -1;
+		return timeSheetDisplay.getSelectedTimeSheetId();
 	}
 
 	public void setStartDate(Date date) {
@@ -219,7 +214,25 @@ public class TimeSheetPanel extends JPanel {
 		timeSheetDisplay.addAllTimeSheetsToDisplay(timeSheets);
 	}
 	
-	
+	//setters to modify a time sheet
+	public void setEmployeeNameOnModTs(String employeeName) {
+		timeSheetEntryPanel.setSelectedEmployeeName(employeeName);
+	}
+	public void setShiftStartDateOnModTs(Date shiftStartDate) {
+		timeSheetEntryPanel.setShiftStartDate(shiftStartDate);
+	}
+	public void setShiftEndDateOnModTs(Date shiftEndDate) {
+		timeSheetEntryPanel.setShiftEndDate(shiftEndDate);
+	}
+	public void setShiftStartTimeOnModTs(Time shiftStartTime) {
+		timeSheetEntryPanel.setShiftStartTime(shiftStartTime);
+	}
+	public void setShiftEndTimeOnModTs(Time shiftEndTime) {
+		timeSheetEntryPanel.setShiftEndTime(shiftEndTime);
+	}
+	public void setOverTimeCommentOnModTs(String overtimeComment) {
+		timeSheetEntryPanel.setOverTimeComment(overtimeComment);
+	}
 	
 
 }
