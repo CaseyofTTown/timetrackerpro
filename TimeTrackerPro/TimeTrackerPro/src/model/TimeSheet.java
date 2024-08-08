@@ -141,8 +141,16 @@ public class TimeSheet {
 
 	    // Calculate the duration in milliseconds
 	    long durationInMillis = endCalendar.getTimeInMillis() - startCalendar.getTimeInMillis();
-	    return TimeUnit.MILLISECONDS.toHours(durationInMillis);
+	    return durationInMillis;
 	}
+
+	public String getFormattedHoursWorked() {
+	    long durationInMillis = calculateHoursWorked();
+	    long hours = TimeUnit.MILLISECONDS.toHours(durationInMillis);
+	    long minutes = TimeUnit.MILLISECONDS.toMinutes(durationInMillis) % 60;
+	    return String.format("%d hours %d minutes", hours, minutes);
+	}
+
 
 
 	public String getOvertimeComment() {

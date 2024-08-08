@@ -410,12 +410,16 @@ public class DatabaseManager {
 		}
 		private java.sql.Time parseTime(String time) {
 		    try {
-		        return (Time) TIME_FORMAT.parse(time);
+		        // Replace "-" with ":" to match the expected format
+		        time = time.replace("-", ":");
+		        java.util.Date parsedDate = TIME_FORMAT.parse(time);
+		        return new java.sql.Time(parsedDate.getTime());
 		    } catch (ParseException e) {
 		        System.out.println("Error parsing time: " + e.getMessage());
 		        return null;
 		    }
 		}
+
 
 	
 	public void close() {
