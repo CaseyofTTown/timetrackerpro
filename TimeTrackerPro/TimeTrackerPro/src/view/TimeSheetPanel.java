@@ -208,6 +208,9 @@ public class TimeSheetPanel extends JPanel {
 	public JButton getCancelTimeSheetButton() {
 		return timeSheetEntryPanel.getCancelTimeSheetButton();
 	}
+	public JPanel getTimeSheetEntryPanel() {
+		return timeSheetEntryPanel;
+	}
 	
 	//getters/setters to update timeSheetDisplay
 	public void addAllTimeSheetsToDisplay(List<TimeSheet> timeSheets) {

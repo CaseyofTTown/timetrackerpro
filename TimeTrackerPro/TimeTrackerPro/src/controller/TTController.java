@@ -117,6 +117,7 @@ public class TTController {
 
 		// Insert the TimeSheet object into the database
 		db.addTimeSheet(timeSheet);
+		view.getSubmitTimeSheetButton().setEnabled(false);
 
 		// Optionally, reset the view or navigate back to the home screen
 		handleHomeViewSetupAndNavigate();

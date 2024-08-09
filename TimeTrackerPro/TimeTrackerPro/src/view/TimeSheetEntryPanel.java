@@ -29,6 +29,8 @@ public class TimeSheetEntryPanel extends JPanel {
     private JButton startTimeButton;
     private JButton endTimeButton;
     private JButton cancelButton;
+    private JLabel warningLabel;
+
     private List<String> employeeNames;
 
     public TimeSheetEntryPanel(List<String> employeeNames) {
@@ -112,19 +114,25 @@ public class TimeSheetEntryPanel extends JPanel {
         // Overtime Comment Field
         overtimeCommentField = new TitledTextField("Overtime Comment", "", 20);
         addComponent("Reason for Overtime", overtimeCommentField, c, 0, 5);
+        
+        // Warning Label
+        warningLabel = new JLabel("Invalid entries detected. Please check all fields.");
+        warningLabel.setForeground(ColorConstants.CRIMSON_RED);
+        warningLabel.setVisible(false);
+        addComponent("", warningLabel, c, 0, 6);
 
         // Submit Button
         submitButton = new JButton("Submit");
         submitButton.setBackground(ColorConstants.DEEP_BLUE);
         submitButton.setForeground(ColorConstants.LIME_GREEN);
         submitButton.setEnabled(false);
-        addComponent("", submitButton, c, 0, 6);
+        addComponent("", submitButton, c, 0, 7);
 
         // Cancel Button
         cancelButton = new JButton("Cancel");
         cancelButton.setBackground(ColorConstants.CRIMSON_RED);
         cancelButton.setForeground(ColorConstants.WHITE);
-        addComponent("", cancelButton, c, 1, 6);
+        addComponent("", cancelButton, c, 1, 7);
 
         System.out.println("TimeSheetEntryPanel created");
         
@@ -216,42 +224,28 @@ public class TimeSheetEntryPanel extends JPanel {
     public void setOverTimeComment(String overtimeComment) {
     	overtimeCommentField.setText(overtimeComment);
     }
-    private void validateFields() {
+    private boolean validateFields() {
         Date shiftStartDate = getShiftStartDate();
         Date shiftEndDate = getShiftEndDate();
         Time shiftStartTime = getShiftStartTime();
         Time shiftEndTime = getShiftEndTime();
 
+        boolean allFieldsEntered = shiftStartDate != null && shiftEndDate != null && shiftStartTime != null && shiftEndTime != null;
         boolean isValid = ValidationListener.validateFields(shiftStartDate, shiftEndDate, shiftStartTime, shiftEndTime);
-        submitButton.setEnabled(isValid);
 
-        if (!isValid) {
-            showTemporaryDialog("Invalid entries detected. Please check the dates and times.", "Validation Error");
+        if (allFieldsEntered) {
+            submitButton.setEnabled(isValid);
+            warningLabel.setVisible(!isValid);
+        } else {
+            submitButton.setEnabled(false);
+            warningLabel.setVisible(false);
         }
+
+        return isValid;
     }
 
-    private void showTemporaryDialog(String message, String title) {
-        JDialog dialog = new JDialog((JFrame) SwingUtilities.getWindowAncestor(this), title, true);
-        dialog.setSize(500, 150);
-        dialog.setLocationRelativeTo(this);
 
-        JPanel panel = new JPanel();
-        panel.setBackground(ColorConstants.CHARCOAL);
-        panel.setLayout(new BorderLayout());
-
-        JLabel messageLabel = new JLabel(message, SwingConstants.CENTER);
-        messageLabel.setForeground(ColorConstants.GOLD);
-        panel.add(messageLabel, BorderLayout.CENTER);
-
-        dialog.add(panel);
-        dialog.setVisible(true);
-
-        // Close the dialog after 3 seconds
-        Timer timer = new Timer(3000, e -> dialog.dispose());
-        timer.setRepeats(false);
-        timer.start();
-    }
-
+  
 
     
 }
