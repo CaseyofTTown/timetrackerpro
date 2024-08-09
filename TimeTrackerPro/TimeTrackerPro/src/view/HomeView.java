@@ -9,6 +9,7 @@ import model.TimeSheet;
 
 import java.awt.*;
 import java.sql.Time;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -125,6 +126,17 @@ public class HomeView extends JPanel {
 	public TimeSheetPanel getTimeSheetPanel() {
 		return this.timeSheetPanel;
 	}
+	//getters for date range above time sheet display
+	public JButton getUpdateDateRangeButton() {
+		return timeSheetPanel.getUpdateDateRangeButton();
+	}
+	
+	public Date getStartDateRangeForTs() {
+		return timeSheetPanel.getStartDate();
+	}
+	public Date getEndDateRangeForTs() {
+		return timeSheetPanel.getEndDate();
+	}
 
 	public void showAddNewTimeSheetUI() {
 		timeSheetPanel.showAddNewTimeSheetPanel();
@@ -143,11 +155,11 @@ public class HomeView extends JPanel {
 		return timeSheetPanel.getShiftEndDate();
 	}
 
-	public Time getShiftStartTime() {
+	public LocalTime getShiftStartTime() {
 		return timeSheetPanel.getShiftStartTime();
 	}
 
-	public Time getShiftEndTime() {
+	public LocalTime getShiftEndTime() {
 		return timeSheetPanel.getShiftEndTime();
 	}
 
@@ -177,10 +189,10 @@ public class HomeView extends JPanel {
 	public void setShiftEndDateOnModTs(Date shiftEndDate) {
 		timeSheetPanel.setShiftEndDateOnModTs(shiftEndDate);
 	}
-	public void setShiftStartTimeOnModTs(Time shiftStartTime) {
+	public void setShiftStartTimeOnModTs(LocalTime shiftStartTime) {
 		timeSheetPanel.setShiftStartTimeOnModTs(shiftStartTime);
 	}
-	public void setShiftEndTimeOnModTs(Time shiftEndTime) {
+	public void setShiftEndTimeOnModTs(LocalTime shiftEndTime) {
 		timeSheetPanel.setShiftEndTimeOnModTs(shiftEndTime);
 	}
 	public void setOverTimeCommentOnModTs(String overtimeComment) {

@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Time;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -19,6 +20,7 @@ public class TimeSheetPanel extends JPanel {
 	private JButton addButton;
 	private JButton modifyButton;
 	private JButton deleteTimeSheetButton;
+	private JButton updateTimeSheetDisplayDateRanges;
 	private TimeSheetDisplay timeSheetDisplay;
 	private JDatePickerImpl startDatePicker;
 	private JDatePickerImpl endDatePicker;
@@ -49,9 +51,16 @@ public class TimeSheetPanel extends JPanel {
 		startDatePicker = startDatePickerComponent.getDatePicker();
 		DatePicker endDatePickerComponent = new DatePicker();
 		endDatePicker = endDatePickerComponent.getDatePicker();
+		
+		//update button
+		updateTimeSheetDisplayDateRanges = new JButton("Update Date Range");
+		updateTimeSheetDisplayDateRanges.setBackground(ColorConstants.SLATE_GRAY);
+		updateTimeSheetDisplayDateRanges.setForeground(ColorConstants.GOLD);
+		updateTimeSheetDisplayDateRanges.setFont(new Font("Arial", Font.BOLD, 14));
 
 		datePanel.add(startDatePicker);
 		datePanel.add(endDatePicker);
+		datePanel.add(updateTimeSheetDisplayDateRanges);
 
 		add(datePanel, BorderLayout.NORTH);
 
@@ -144,6 +153,26 @@ public class TimeSheetPanel extends JPanel {
 	public TimeSheetDisplay getTimeSheetDisplay() {
 		return timeSheetDisplay;
 	}
+	//getters for date fields for time sheet display range
+	public Date getStartDate() {
+	    Calendar calendar = Calendar.getInstance();
+	    calendar.set(startDatePicker.getModel().getYear(), startDatePicker.getModel().getMonth(),
+	            startDatePicker.getModel().getDay());
+	    return calendar.getTime();
+	}
+
+	public Date getEndDate() {
+	    Calendar calendar = Calendar.getInstance();
+	    calendar.set(endDatePicker.getModel().getYear(), endDatePicker.getModel().getMonth(),
+	            endDatePicker.getModel().getDay());
+	    return calendar.getTime();
+	}
+	//getter for update date range button
+	public JButton getUpdateDateRangeButton() {
+	    return updateTimeSheetDisplayDateRanges;
+	}
+
+
 
 	public JDatePickerImpl getStartdatePicker() {
 		return startDatePicker;
@@ -193,10 +222,10 @@ public class TimeSheetPanel extends JPanel {
 	public Date getShiftEndDate() {
 		return timeSheetEntryPanel.getShiftEndDate();
 	}
-	public Time getShiftStartTime() {
+	public LocalTime getShiftStartTime() {
 		return timeSheetEntryPanel.getShiftStartTime();
 	}
-	public Time getShiftEndTime() {
+	public LocalTime getShiftEndTime() {
 		return timeSheetEntryPanel.getShiftEndTime();
 	}
 	public String getOvertimeComment() {
@@ -227,10 +256,10 @@ public class TimeSheetPanel extends JPanel {
 	public void setShiftEndDateOnModTs(Date shiftEndDate) {
 		timeSheetEntryPanel.setShiftEndDate(shiftEndDate);
 	}
-	public void setShiftStartTimeOnModTs(Time shiftStartTime) {
+	public void setShiftStartTimeOnModTs(LocalTime shiftStartTime) {
 		timeSheetEntryPanel.setShiftStartTime(shiftStartTime);
 	}
-	public void setShiftEndTimeOnModTs(Time shiftEndTime) {
+	public void setShiftEndTimeOnModTs(LocalTime shiftEndTime) {
 		timeSheetEntryPanel.setShiftEndTime(shiftEndTime);
 	}
 	public void setOverTimeCommentOnModTs(String overtimeComment) {

@@ -35,10 +35,7 @@ public class Employee {
 
 	
 
-	// call this method to get recent (not all) time sheets from db
-	public void loadTimeSheetsFromDatabase(DatabaseManager dbManager) {
-		this.timeSheetList = dbManager.getRecentTimeSheetsForEmployee(id);
-	}
+	
 
 	public String getName() {
 		return this.name;

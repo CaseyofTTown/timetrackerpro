@@ -31,7 +31,7 @@ public class ValidationListener implements DocumentListener {
         validationCallback.run();
     }
 
-    public static boolean validateFields(Date shiftStartDate, Date shiftEndDate, Time shiftStartTime, Time shiftEndTime) {
+    public static boolean validateFields(Date shiftStartDate, Date shiftEndDate, LocalTime shiftStartTime, LocalTime shiftEndTime) {
         System.out.println("Validating fields:");
         System.out.println("Shift Start Date: " + shiftStartDate);
         System.out.println("Shift End Date: " + shiftEndDate);
@@ -54,13 +54,9 @@ public class ValidationListener implements DocumentListener {
             return false;
         }
 
-        // Extract hours and minutes from Time objects, ignoring seconds
-        LocalTime startLocalTime = shiftStartTime.toLocalTime().withSecond(0).withNano(0);
-        LocalTime endLocalTime = shiftEndTime.toLocalTime().withSecond(0).withNano(0);
-
         // Convert LocalTime to total minutes since midnight
-        int startTotalMinutes = startLocalTime.getHour() * 60 + startLocalTime.getMinute();
-        int endTotalMinutes = endLocalTime.getHour() * 60 + endLocalTime.getMinute();
+        int startTotalMinutes = shiftStartTime.getHour() * 60 + shiftStartTime.getMinute();
+        int endTotalMinutes = shiftEndTime.getHour() * 60 + shiftEndTime.getMinute();
 
         // Print total minutes for debugging
         System.out.println("Start Total Minutes: " + startTotalMinutes);
@@ -75,4 +71,5 @@ public class ValidationListener implements DocumentListener {
         System.out.println("Validation passed.");
         return true;
     }
+
 }

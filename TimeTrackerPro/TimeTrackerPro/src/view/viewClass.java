@@ -10,6 +10,7 @@ import model.TimeSheet;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.sql.Time;
+import java.time.LocalTime;
 import java.util.Date;
 
 public class viewClass extends JFrame {
@@ -226,6 +227,17 @@ public class viewClass extends JFrame {
 		
 
 	}
+	//getters for date range above time sheet display
+		public JButton getUpdateDateRangeButton() {
+			return homeView.getUpdateDateRangeButton();
+		}
+		
+		public Date getStartDateRangeForTs() {
+			return homeView.getStartDateRangeForTs();
+		}
+		public Date getEndDateRangeForTs() {
+			return homeView.getEndDateRangeForTs();
+		}
 
 	public void showNewTimeSheetUI() {
 		homeView.showAddNewTimeSheetUI();
@@ -275,11 +287,11 @@ public class viewClass extends JFrame {
 		return homeView.getShiftEndDate();
 	}
 
-	public Time getShiftStartTimeOnTs() {
+	public LocalTime getShiftStartTimeOnTs() {
 		return homeView.getShiftStartTime();
 	}
 
-	public Time getShiftEndTimeOnTs() {
+	public LocalTime getShiftEndTimeOnTs() {
 		return homeView.getShiftEndTime();
 	}
 
