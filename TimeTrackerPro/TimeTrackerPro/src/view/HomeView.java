@@ -3,7 +3,10 @@ package view;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
+import controller.TTController;
 import model.ColorConstants;
 import model.TimeSheet;
 
@@ -18,10 +21,13 @@ public class HomeView extends JPanel {
 	private JLabel welcomeLabel;
 	private JTabbedPane tabbedPane;
 	private TimeSheetPanel timeSheetPanel;
+	private DailyCallLogPanel dailyCallLogPanel;
 	private List<String> employeeNames;
+	private TTController controller;
 
-	public HomeView(String employeeName) {
+	public HomeView(String employeeName, TTController controller) {
 
+		this.controller = controller;
 		if (employeeNames == null) {
 			employeeNames = new ArrayList<>();
 		}
@@ -63,7 +69,15 @@ public class HomeView extends JPanel {
 		// Add the tabbed pane to the panel
 		add(tabbedPane, BorderLayout.CENTER);
 
-		// Center the frame on the screen
+		// Add a ChangeListener to the tabbedPane
+        tabbedPane.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if (tabbedPane.getSelectedIndex() == 1) { // Assuming "Call Logs" is the second tab (index 1)
+                	// TODO Fetch data when "Call Logs" tab is selected
+                }
+            }
+        });
 
 		System.out.println("homeView created");
 		revalidate();
@@ -79,12 +93,11 @@ public class HomeView extends JPanel {
 		return timeSheetPanel;
 	}
 
-	private JPanel createCallLogsPanel() {
-		JPanel panel = new JPanel();
-		panel.setBackground(ColorConstants.CHARCOAL);
-		// Add components specific to Call Logs
-		return panel;
-	}
+	 private JPanel createCallLogsPanel() {
+	        dailyCallLogPanel = new DailyCallLogPanel(controller);
+	        dailyCallLogPanel.setBackground(ColorConstants.CHARCOAL);
+	        return dailyCallLogPanel;
+	    }
 
 	private JPanel createMedicationSOPanel() {
 		JPanel panel = new JPanel();

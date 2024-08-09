@@ -1,6 +1,9 @@
 package view;
 
 import javax.swing.*;
+
+import controller.TTController;
+
 import java.util.List;
 
 import model.CertificationLevelenum;
@@ -20,6 +23,7 @@ public class viewClass extends JFrame {
 	private HomeView homeView;
 	private CardLayout cardLayout;
 	private JPanel mainPanel;
+	private TTController controller;
 
 	public viewClass() {
 		// set the window title
@@ -126,7 +130,7 @@ public class viewClass extends JFrame {
 			System.out.println("removing home view");
 			mainPanel.remove(homeView);
 		}
-		homeView = new HomeView(employeeName);
+		homeView = new HomeView(employeeName, controller);
 
 		mainPanel.add(homeView, "HomeView");
 		homeView.setVisible(true);

@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import model.AmbulanceCall;
 import model.CertificationLevelenum;
 import model.DatabaseManager;
 import model.Employee;
@@ -309,6 +310,12 @@ public class TTController {
 		java.sql.Date sqlEndDate = new java.sql.Date(endDate.getTime());
 
 		return new java.sql.Date[] { sqlStartDate, sqlEndDate };
+	}
+
+	//handleAmbulanceCalls
+	public void deleteAmbulanceCall(AmbulanceCall call) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

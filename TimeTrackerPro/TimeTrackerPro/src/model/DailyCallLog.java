@@ -1,8 +1,6 @@
 package model;
 
 import java.util.Date;
-
-import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -11,10 +9,10 @@ public class DailyCallLog {
     private Date startDate;
     private Date endDate;
     private String truckUnitNumber;
-    private List<Integer> crewMembers;
+    private List<String> crewMembers;
     private List<AmbulanceCall> ambulanceCalls;
 
-    public DailyCallLog(int id, Date startDate, Date endDate, String truckUnitNumber, int crewMember1, int crewMember2) {
+    public DailyCallLog(int id, Date startDate, Date endDate, String truckUnitNumber) {
         this.id = id;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -27,8 +25,8 @@ public class DailyCallLog {
         ambulanceCalls.add(call);
     }
 
-    public void addCrewMember(int crewMemberId) {
-        crewMembers.add(crewMemberId);
+    public void addCrewMember(String crewMemberName) {
+        crewMembers.add(crewMemberName);
     }
 
     // Getters and setters
@@ -64,11 +62,11 @@ public class DailyCallLog {
         this.truckUnitNumber = truckUnitNumber;
     }
 
-    public List<Integer> getCrewMembers() {
+    public List<String> getCrewMembers() {
         return crewMembers;
     }
 
-    public void setCrewMembers(List<Integer> crewMembers) {
+    public void setCrewMembers(List<String> crewMembers) {
         this.crewMembers = crewMembers;
     }
 

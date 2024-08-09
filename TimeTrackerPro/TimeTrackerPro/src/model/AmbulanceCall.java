@@ -6,25 +6,36 @@ public class AmbulanceCall {
     private int id;
     private int dailyLogId;
     private Date callDate;
-    private String callType;
-    private String callCategory;
+    private String patientsName;
+    private TypeOfCallEnum callCategory;
     private String pickupLocation;
     private String dropoffLocation;
     private int totalMiles;
     private String insurance;
-    private int aicEmployeeId;
+    private String aicEmployee;
 
-    public AmbulanceCall(int id, int dailyLogId, Date callDate, String callType, String callCategory, String pickupLocation, String dropoffLocation, int totalMiles, String insurance, int aicEmployeeId) {
+    //all fields present
+    public AmbulanceCall(int id, int dailyLogId, Date callDate, String callType, TypeOfCallEnum callCategory, String pickupLocation, String dropoffLocation, int totalMiles, String insurance, String aicEmployee) {
         this.id = id;
         this.dailyLogId = dailyLogId;
         this.callDate = callDate;
-        this.callType = callType;
+        this.patientsName = callType;
         this.callCategory = callCategory;
         this.pickupLocation = pickupLocation;
         this.dropoffLocation = dropoffLocation;
         this.totalMiles = totalMiles;
         this.insurance = insurance;
-        this.aicEmployeeId = aicEmployeeId;
+        this.aicEmployee = aicEmployee;
+    }
+    //refusal for ptName, refusal typeOfCall, aic
+    public AmbulanceCall(int id, int dailyLogId, Date callDate, String patientsName, TypeOfCallEnum callCategory, String aicEmployee) {
+    	this.id = id;
+    	this.dailyLogId = dailyLogId;
+    	this.callDate = callDate;
+    	this.patientsName = patientsName;
+    	this.callCategory = callCategory;
+    	this.aicEmployee = aicEmployee;
+    	
     }
 
     // Getters and setters
@@ -52,19 +63,19 @@ public class AmbulanceCall {
         this.callDate = callDate;
     }
 
-    public String getCallType() {
-        return callType;
+    public String getPatientsName() {
+        return patientsName;
     }
 
-    public void setCallType(String callType) {
-        this.callType = callType;
+    public void setPatientsName(String callType) {
+        this.patientsName = callType;
     }
 
-    public String getCallCategory() {
+    public TypeOfCallEnum getCallCategory() {
         return callCategory;
     }
 
-    public void setCallCategory(String callCategory) {
+    public void setCallCategory(TypeOfCallEnum callCategory) {
         this.callCategory = callCategory;
     }
 
@@ -100,11 +111,11 @@ public class AmbulanceCall {
         this.insurance = insurance;
     }
 
-    public int getAicEmployeeId() {
-        return aicEmployeeId;
+    public String getAicName() {
+        return aicEmployee;
     }
 
-    public void setAicEmployeeId(int aicEmployeeId) {
-        this.aicEmployeeId = aicEmployeeId;
+    public void setAicEmployeeId(String aicEmployee) {
+        this.aicEmployee = aicEmployee;
     }
 }
