@@ -165,7 +165,8 @@ public class DatabaseManager {
 	    List<TimeSheet> timeSheets = new ArrayList<>();
 	    String sql = "SELECT timesheets.id, timesheets.employeeId, employees.name, timesheets.shiftStartDate, timesheets.shiftEndDate, timesheets.shiftStartTime, timesheets.shiftEndTime, timesheets.overtimeComment, timesheets.hoursWorked "
 	            + "FROM timesheets " + "JOIN employees ON timesheets.employeeId = employees.id "
-	            + "WHERE timesheets.shiftStartDate >= ? AND timesheets.shiftEndDate <= ?";
+	            + "WHERE timesheets.shiftStartDate >= ? AND timesheets.shiftEndDate <= ?"
+	            +"ORDER BY timesheets.shiftStartDate ASC";
 
 	    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 	        pstmt.setString(1, formatDate(startDate));
