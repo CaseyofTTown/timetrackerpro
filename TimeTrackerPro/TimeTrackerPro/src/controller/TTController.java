@@ -337,5 +337,10 @@ public class TTController {
 			System.out.println("unable to add log\n" + e.getMessage());
 		}
 	}
+	
+	public List<DailyCallLog> getCallLogsFromDateToDate() {
+		List<DailyCallLog> results = db.getDailyCallLogsByDateRange(sqlStartDate, sqlEndDate);
+		return results;
+	}
 
 }

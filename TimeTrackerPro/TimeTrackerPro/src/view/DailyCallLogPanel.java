@@ -32,6 +32,7 @@ public class DailyCallLogPanel extends JPanel {
     private JDatePickerImpl endDatePicker;
     private CallLogEntryPanel callLogEntryPanel;
     private List<String> crewMembers;
+    private List<DailyCallLog> dailyLogList;
     private JSplitPane splitPane;
     private TTController controller;
 
@@ -76,6 +77,7 @@ public class DailyCallLogPanel extends JPanel {
 
         // CallLogDisplay Component
         callLogDisplay = new CallLogDisplay(controller);
+        updateCallLog();
 
         // CallLogEntryPanel (initially hidden)
         callLogEntryPanel = new CallLogEntryPanel(crewMembers);
@@ -127,7 +129,15 @@ public class DailyCallLogPanel extends JPanel {
         repaint();
     }
 
-    private void handleCreateNewCallLog() {
+    private void updateCallLog() {
+		callLogDisplay.clearAllEntries();
+		dailyLogList = controller.getCallLogsFromDateToDate();
+		callLogDisplay.addAllCallLogCards(dailyLogList);
+		System.out.println(dailyLogList.size() + " passed to callLogDisplay");
+		
+	}
+
+	private void handleCreateNewCallLog() {
     	Date shiftStartDate = callLogEntryPanel.getStartDate();
     	Date shiftEndDate = callLogEntryPanel.getEndDate();
     	String truckUnitNumber = callLogEntryPanel.getTruckUnitNumber();
