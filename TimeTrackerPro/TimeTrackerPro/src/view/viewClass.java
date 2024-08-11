@@ -27,6 +27,8 @@ public class viewClass extends JFrame {
 
 	
 	public viewClass() {
+		//reference to controller
+		this.controller = controller;
 		// set the window title
 		setTitle("Time Tracker Pro");
 
@@ -124,6 +126,11 @@ public class viewClass extends JFrame {
 			updateWindowSize();
 
 		}
+	}
+	
+	public void setController(TTController controller) {
+		this.controller = controller;
+		System.out.println("controller has been passed to viewClass");
 	}
 
 	public void showHomeView(String employeeName) {

@@ -20,6 +20,13 @@ public class DailyCallLog {
         this.crewMembers = new ArrayList<>();
         this.ambulanceCalls = new ArrayList<>();
     }
+    public DailyCallLog(Date startDate, Date endDate, String truckUnitNumber) {
+    	this.startDate = startDate;
+    	this.endDate = endDate;
+    	this.truckUnitNumber = truckUnitNumber;
+    	this.crewMembers = new ArrayList<>();
+    	this.ambulanceCalls = new ArrayList<>();
+    }
 
     public void addAmbulanceCall(AmbulanceCall call) {
         ambulanceCalls.add(call);

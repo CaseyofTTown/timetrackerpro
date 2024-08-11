@@ -8,6 +8,7 @@ import java.util.List;
 
 import model.AmbulanceCall;
 import model.CertificationLevelenum;
+import model.DailyCallLog;
 import model.DatabaseManager;
 import model.Employee;
 import model.Session;
@@ -43,6 +44,8 @@ public class TTController {
 		// was used to update after db was created db.addHoursWorkedColumn();
 
 		displayUserLoginRegisterUI();
+		// pass controller for later pages that need it
+		view.setController(this);
 
 	}
 
@@ -206,11 +209,10 @@ public class TTController {
 		}
 
 		try {
-		employee = new Employee(employeeId, name, certificationLevel, certificationNumber, expirationDate);
-		} catch(Exception e) {
+			employee = new Employee(employeeId, name, certificationLevel, certificationNumber, expirationDate);
+		} catch (Exception e) {
 			System.out.println("unable to create employee object");
 		}
-		
 
 		boolean isStored = false;
 		try {
@@ -324,6 +326,16 @@ public class TTController {
 	public void deleteAmbulanceCall(AmbulanceCall call) {
 		// TODO Auto-generated method stub
 
+	}
+
+	// functions for call logs and ambulance runs
+	public void createNewCallLog(DailyCallLog log) {
+		System.out.println("creating new call log -dbManager");
+		try {
+			db.addDailyCallLog(log);
+		} catch (Exception e) {
+			System.out.println("unable to add log\n" + e.getMessage());
+		}
 	}
 
 }

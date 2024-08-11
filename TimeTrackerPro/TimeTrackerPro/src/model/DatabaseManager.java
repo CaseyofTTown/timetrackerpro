@@ -14,6 +14,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DatabaseManager {
@@ -45,11 +46,23 @@ public class DatabaseManager {
 		String sqlCreateUsersTable = "CREATE TABLE IF NOT EXISTS users (\n " + " username text PRIMARY KEY, \n"
 				+ " hashedPassword text NOT NULL, \n" + " salt text NOT NULL, \n" + " employeeId integer, \n"
 				+ "pin integer, \n" + "FOREIGN KEY(employeeID) REFERENCES employees(id)\n" + ")";
+		String sqlCreateDailyCallLogTable = "CREATE TABLE IF NOT EXISTS daily_call_log (\n"
+				+ " id INTEGER PRIMARY KEY AUTOINCREMENT,\n" + " start_date TEXT NOT NULL,\n"
+				+ " end_date TEXT NOT NULL,\n" + " truck_unit_number TEXT NOT NULL,\n" + " crew_members TEXT,\n"
+				+ " ambulance_calls TEXT\n" + ");";
+		String sqlCreateAmbulanceCallTable = "CREATE TABLE IF NOT EXISTS ambulance_call (\n"
+				+ " id INTEGER PRIMARY KEY AUTOINCREMENT,\n" + " daily_log_id INTEGER NOT NULL,\n"
+				+ " call_date TEXT NOT NULL,\n" + " patients_name TEXT,\n" + " call_category TEXT NOT NULL,\n"
+				+ " pickup_location TEXT,\n" + " dropoff_location TEXT,\n" + " total_miles INTEGER,\n"
+				+ " insurance TEXT,\n" + " aic_employee TEXT,\n"
+				+ " FOREIGN KEY(daily_log_id) REFERENCES daily_call_log(id)\n" + ");";
 
 		try (Statement stmt = connection.createStatement()) {
 			stmt.execute(sqlCreateEmployeesTable);
 			stmt.execute(sqlCreateTimeSheetsTable);
 			stmt.execute(sqlCreateUsersTable);
+			stmt.execute(sqlCreateDailyCallLogTable);
+			stmt.execute(sqlCreateAmbulanceCallTable);
 			System.out.println("Succesfully created database tables");
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
@@ -66,7 +79,7 @@ public class DatabaseManager {
 			pstmt.setInt(1, employee.getId());
 			pstmt.setString(2, employee.getName());
 			pstmt.setString(3, employee.getCertLevel().toString());
-			//if employee is a driver, the below will encounter null values 
+			// if employee is a driver, the below will encounter null values
 			if (employee.getCertificationNumber() != null) {
 				pstmt.setString(4, employee.getCertificationNumber());
 			} else {
@@ -464,23 +477,146 @@ public class DatabaseManager {
 		return sqlTime.toLocalTime();
 	}
 
-	public void close() {
-		try {
-			if (connection != null) {
-				connection.close();
+	// functions for managing the Daily Call Log table
+
+	public void addDailyCallLog(DailyCallLog dailyCallLog) {
+		String sqlInsertDailyCallLog = "INSERT INTO daily_call_log (start_date, end_date, truck_unit_number, crew_members) VALUES (?, ?, ?, ?)";
+
+		try (PreparedStatement pstmt = connection.prepareStatement(sqlInsertDailyCallLog,
+				Statement.RETURN_GENERATED_KEYS)) {
+			pstmt.setString(1, dailyCallLog.getStartDate().toString());
+			pstmt.setString(2, dailyCallLog.getEndDate().toString());
+			pstmt.setString(3, dailyCallLog.getTruckUnitNumber());
+			pstmt.setString(4, String.join(",", dailyCallLog.getCrewMembers()));
+
+			int affectedRows = pstmt.executeUpdate();
+
+			if (affectedRows > 0) {
+				try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+					if (generatedKeys.next()) {
+						dailyCallLog.setId(generatedKeys.getInt(1));
+					}
+				}
 			}
+
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
 	}
 
-	// TODO delete this later:
-	public void dropTimesheetsTable() {
-		String sql = "DROP TABLE IF EXISTS timesheets";
+	// functions for managing Ambulance call table
 
-		try (Statement stmt = connection.createStatement()) {
-			stmt.execute(sql);
-			System.out.println("timesheets table dropped");
+	public void addAmbulanceCall(AmbulanceCall ambulanceCall) {
+		String sqlInsertAmbulanceCall = "INSERT INTO ambulance_call (daily_log_id, call_date, patients_name, call_category, pickup_location, dropoff_location, total_miles, insurance, aic_employee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+		try (PreparedStatement pstmt = connection.prepareStatement(sqlInsertAmbulanceCall,
+				Statement.RETURN_GENERATED_KEYS)) {
+			pstmt.setInt(1, ambulanceCall.getDailyLogId());
+			pstmt.setString(2, ambulanceCall.getCallDate().toString());
+			pstmt.setString(3, ambulanceCall.getPatientsName());
+			pstmt.setString(4, ambulanceCall.getCallCategory().toString());
+			pstmt.setString(5, ambulanceCall.getPickupLocation());
+			pstmt.setString(6, ambulanceCall.getDropoffLocation());
+			pstmt.setInt(7, ambulanceCall.getTotalMiles());
+			pstmt.setString(8, ambulanceCall.getInsurance());
+			pstmt.setString(9, ambulanceCall.getAicName());
+
+			int affectedRows = pstmt.executeUpdate();
+
+			if (affectedRows > 0) {
+				try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+					if (generatedKeys.next()) {
+						ambulanceCall.setId(generatedKeys.getInt(1));
+					}
+				}
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	public List<DailyCallLog> getDailyCallLogsByDateRange(Date startDate, Date endDate) {
+		List<DailyCallLog> dailyCallLogs = new ArrayList<>();
+		String sql = "SELECT id, start_date, end_date, truck_unit_number, crew_members, ambulance_calls "
+				+ "FROM daily_call_log " + "WHERE start_date >= ? AND end_date <= ? " + "ORDER BY start_date ASC";
+
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setString(1, formatDate(startDate));
+			pstmt.setString(2, formatDate(endDate));
+
+			System.out.println("Executing query: " + sql);
+			System.out.println("Start Date: " + formatDate(startDate));
+			System.out.println("End Date: " + formatDate(endDate));
+
+			ResultSet rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+				int id = rs.getInt("id");
+				java.util.Date start_date = parseDate(rs.getString("start_date"));
+				java.util.Date end_date = parseDate(rs.getString("end_date"));
+				String truckUnitNumber = rs.getString("truck_unit_number");
+				List<String> crewMembers = Arrays.asList(rs.getString("crew_members").split(","));
+				List<AmbulanceCall> ambulanceCalls = getAmbulanceCallsByDailyLogId(id);
+
+				DailyCallLog dailyCallLog = new DailyCallLog(id, start_date, end_date, truckUnitNumber);
+				dailyCallLog.setCrewMembers(crewMembers);
+				dailyCallLog.setAmbulanceCalls(ambulanceCalls);
+
+				dailyCallLogs.add(dailyCallLog);
+			}
+		} catch (SQLException e) {
+			System.out.println("SQL Exception: " + e.getMessage());
+			e.printStackTrace();
+		} catch (Exception e) {
+			System.out.println("General Exception: " + e.getMessage());
+			e.printStackTrace();
+		}
+
+		return dailyCallLogs;
+	}
+
+	private List<AmbulanceCall> getAmbulanceCallsByDailyLogId(int dailyLogId) {
+		List<AmbulanceCall> ambulanceCalls = new ArrayList<>();
+		String sql = "SELECT id, daily_log_id, call_date, patients_name, call_category, pickup_location, dropoff_location, total_miles, insurance, aic_employee "
+				+ "FROM ambulance_call " + "WHERE daily_log_id = ?";
+
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, dailyLogId);
+
+			ResultSet rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+				int id = rs.getInt("id");
+				java.util.Date callDate = parseDate(rs.getString("call_date"));
+				String patientsName = rs.getString("patients_name");
+				TypeOfCallEnum callCategory = TypeOfCallEnum.valueOf(rs.getString("call_category"));
+				String pickupLocation = rs.getString("pickup_location");
+				String dropoffLocation = rs.getString("dropoff_location");
+				int totalMiles = rs.getInt("total_miles");
+				String insurance = rs.getString("insurance");
+				String aicEmployee = rs.getString("aic_employee");
+
+				AmbulanceCall ambulanceCall = new AmbulanceCall(id, dailyLogId, callDate, patientsName, callCategory,
+						pickupLocation, dropoffLocation, totalMiles, insurance, aicEmployee);
+				ambulanceCalls.add(ambulanceCall);
+			}
+		} catch (SQLException e) {
+			System.out.println("SQL Exception: " + e.getMessage());
+			e.printStackTrace();
+		} catch (Exception e) {
+			System.out.println("General Exception: " + e.getMessage());
+			e.printStackTrace();
+		}
+
+		return ambulanceCalls;
+	}
+
+	public void close() {
+		try {
+			if (connection != null) {
+				connection.close();
+			}
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}

@@ -50,6 +50,8 @@ public class CallLogEntryPanel extends JPanel {
 		truckUnitNumberField = new JTextField(20);
 		truckUnitNumberField.setBackground(ColorConstants.DARK_GRAY);
 		truckUnitNumberField.setForeground(ColorConstants.GOLD);
+		truckUnitNumberField.setFont(new Font("Arial", Font.PLAIN, 14));
+		truckUnitNumberField.setCaretColor(ColorConstants.GOLD);
 		addComponent("Truck Unit Number", truckUnitNumberField, c, 0, 0);
 
 		// Start Date Picker
@@ -198,9 +200,14 @@ public class CallLogEntryPanel extends JPanel {
 		return this.endDatePicker;
 	}
 
-	public JList<String> getCrewMemberList() {
-		return this.crewMemberList;
-	}
+	public List<String> getCrewMemberList() {
+        List<String> crewMembers = new ArrayList<>();
+        ListModel<String> model = crewMemberList.getModel();
+        for (int i = 0; i < model.getSize(); i++) {
+            crewMembers.add(model.getElementAt(i));
+        }
+        return crewMembers;
+    }
 
 	public void setCrewMemberList(List<String> crewMembers) {
 		this.crewMembers = crewMembers;
@@ -265,4 +272,6 @@ public class CallLogEntryPanel extends JPanel {
 		endDatePicker.getModel().setValue(null);
 		crewMemberListModel.clear();
 	}
+
+
 }

@@ -120,13 +120,33 @@ public class DailyCallLogPanel extends JPanel {
         
      // Add action listener to cancel button
         callLogEntryPanel.getCancelButton().addActionListener(e -> hideAddNewCallLogPanel());
+        callLogEntryPanel.getSubmitButton().addActionListener(e -> handleCreateNewCallLog());
         
         System.out.println("DailyCallLogPanel created");
         revalidate();
         repaint();
     }
 
-    public void hideAddNewCallLogPanel() {
+    private void handleCreateNewCallLog() {
+    	Date shiftStartDate = callLogEntryPanel.getStartDate();
+    	Date shiftEndDate = callLogEntryPanel.getEndDate();
+    	String truckUnitNumber = callLogEntryPanel.getTruckUnitNumber();
+    	
+		DailyCallLog log = new DailyCallLog(shiftStartDate, shiftEndDate, truckUnitNumber);
+		
+		//add employees to objects list 
+		if(callLogEntryPanel.getCrewMemberList() != null) {
+			List<String> emplList = callLogEntryPanel.getCrewMemberList();
+			for(String Employees : emplList) {
+				log.addCrewMember(Employees);
+			}
+		}
+		controller.createNewCallLog(log);
+    	//reset and hide entry panel
+    	hideAddNewCallLogPanel();
+	}
+
+	public void hideAddNewCallLogPanel() {
         callLogEntryPanel.setVisible(false);
         resetCallLogEntryPanel();
     }
@@ -134,7 +154,7 @@ public class DailyCallLogPanel extends JPanel {
         callLogEntryPanel.getTruckUnitNumberField().setText("");
         callLogEntryPanel.getStartDatePicker().getModel().setValue(null);
         callLogEntryPanel.getEndDatePicker().getModel().setValue(null);
-        callLogEntryPanel.getCrewMemberList().clearSelection();
+        callLogEntryPanel.resetFields();
     }
 
 
