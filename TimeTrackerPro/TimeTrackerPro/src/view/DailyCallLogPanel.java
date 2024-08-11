@@ -39,8 +39,9 @@ public class DailyCallLogPanel extends JPanel {
         this.controller = controller;
         if (crewMembers == null) {
             System.out.println("employee names list null on dl panel");
-        } else {
             crewMembers = new ArrayList<>();
+        } else {
+            System.out.println("DailyLogPanel created with " + crewMembers.size() + " crew members passed");
         }
 
         setLayout(new BorderLayout());
@@ -212,7 +213,11 @@ public class DailyCallLogPanel extends JPanel {
 
     public void setCrewMemberList(List<String> crewMembers) {
         this.crewMembers = crewMembers;
+        if(callLogEntryPanel != null) {
         this.callLogEntryPanel.setCrewMemberList(crewMembers);
+        } else {
+        	System.out.println("callLogEntryPanel was null when setCrewMember list in DailyCallLogPanel was called");
+        }
     }
 
     public void showAddNewCallLogPanel() {

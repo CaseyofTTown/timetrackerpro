@@ -34,6 +34,7 @@ public class HomeView extends JPanel {
 
 		this.controller = controller;
 		if (employeeNames == null) {
+			System.out.println("employeeNames was null in HomeView, creating new list");
 			employeeNames = new ArrayList<>();
 		}
 
@@ -157,11 +158,20 @@ public class HomeView extends JPanel {
 
 	public void setEmployeeNameList(List<String> employeeNames) {
 		this.employeeNames = employeeNames;
+		System.out.println("setting employeeList in homeView through setEmployeeNameList function");
 		// pass name list to time sheet panel
 		timeSheetPanel.setEmployeeNameList(employeeNames);
 		timeSheetPanel.revalidate();
 		timeSheetPanel.repaint();
 		System.out.println("names passed to time sheet panel = " + employeeNames.size());
+		if(dailyCallLogPanel != null) {
+			dailyCallLogPanel.setCrewMemberList(employeeNames);
+			System.out.println("crew list for daiyl logs updated w/ employee names through setEmplNameList in homeView");
+		} else {
+			System.out.println("dailyCallLogPanel was null when setEmployeeNameList was called");
+		}
+		
+		
 	}
 
 	public TimeSheetPanel getTimeSheetPanel() {

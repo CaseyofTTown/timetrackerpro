@@ -58,6 +58,7 @@ public class DatabaseManager {
 
 	// add employee to the database
 	public boolean addEmployee(Employee employee) {
+		System.out.println("calling add employee to db function");
 		String sql = "INSERT INTO employees(id, name, level, certificationNumber, certExpirationDate) VALUES(?,?,?,?,?)";
 		PreparedStatement pstmt = null;
 		try {
@@ -65,8 +66,17 @@ public class DatabaseManager {
 			pstmt.setInt(1, employee.getId());
 			pstmt.setString(2, employee.getName());
 			pstmt.setString(3, employee.getCertLevel().toString());
-			pstmt.setString(4, employee.getCertificationNumber());
-			pstmt.setDate(5, new Date(employee.getCertExpDate().getTime()));
+			//if employee is a driver, the below will encounter null values 
+			if (employee.getCertificationNumber() != null) {
+				pstmt.setString(4, employee.getCertificationNumber());
+			} else {
+				pstmt.setString(4, null);
+			}
+			if (employee.getCertExpDate() != null) {
+				pstmt.setDate(5, new Date(employee.getCertExpDate().getTime()));
+			} else {
+				pstmt.setNull(5, java.sql.Types.DATE);
+			}
 			pstmt.executeUpdate();
 			return true;
 		} catch (SQLException e) {
@@ -162,98 +172,96 @@ public class DatabaseManager {
 	}
 
 	public List<TimeSheet> getTimeSheetsByDateRange(Date startDate, Date endDate) {
-	    List<TimeSheet> timeSheets = new ArrayList<>();
-	    String sql = "SELECT timesheets.id, timesheets.employeeId, employees.name, timesheets.shiftStartDate, timesheets.shiftEndDate, timesheets.shiftStartTime, timesheets.shiftEndTime, timesheets.overtimeComment, timesheets.hoursWorked "
-	            + "FROM timesheets " + "JOIN employees ON timesheets.employeeId = employees.id "
-	            + "WHERE timesheets.shiftStartDate >= ? AND timesheets.shiftEndDate <= ?"
-	            +"ORDER BY timesheets.shiftStartDate ASC";
+		List<TimeSheet> timeSheets = new ArrayList<>();
+		String sql = "SELECT timesheets.id, timesheets.employeeId, employees.name, timesheets.shiftStartDate, timesheets.shiftEndDate, timesheets.shiftStartTime, timesheets.shiftEndTime, timesheets.overtimeComment, timesheets.hoursWorked "
+				+ "FROM timesheets " + "JOIN employees ON timesheets.employeeId = employees.id "
+				+ "WHERE timesheets.shiftStartDate >= ? AND timesheets.shiftEndDate <= ?"
+				+ "ORDER BY timesheets.shiftStartDate ASC";
 
-	    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-	        pstmt.setString(1, formatDate(startDate));
-	        pstmt.setString(2, formatDate(endDate));
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setString(1, formatDate(startDate));
+			pstmt.setString(2, formatDate(endDate));
 
-	        System.out.println("Executing query: " + sql);
-	        System.out.println("Start Date: " + formatDate(startDate));
-	        System.out.println("End Date: " + formatDate(endDate));
+			System.out.println("Executing query: " + sql);
+			System.out.println("Start Date: " + formatDate(startDate));
+			System.out.println("End Date: " + formatDate(endDate));
 
-	        ResultSet rs = pstmt.executeQuery();
+			ResultSet rs = pstmt.executeQuery();
 
-	        while (rs.next()) {
-	            int timeSheetId = rs.getInt("id");
-	            int employeeId = rs.getInt("employeeId");
-	            String employeeName = rs.getString("name");
-	            java.util.Date shiftStartDate = parseDate(rs.getString("shiftStartDate"));
-	            java.util.Date shiftEndDate = parseDate(rs.getString("shiftEndDate"));
-	            LocalTime shiftStartTime = convertToLocalTime(rs.getTime("shiftStartTime"));
-	            LocalTime shiftEndTime = convertToLocalTime(rs.getTime("shiftEndTime"));
-	            String overtimeComment = rs.getString("overtimeComment");
-	            long hoursWorked = rs.getLong("hoursWorked");
+			while (rs.next()) {
+				int timeSheetId = rs.getInt("id");
+				int employeeId = rs.getInt("employeeId");
+				String employeeName = rs.getString("name");
+				java.util.Date shiftStartDate = parseDate(rs.getString("shiftStartDate"));
+				java.util.Date shiftEndDate = parseDate(rs.getString("shiftEndDate"));
+				LocalTime shiftStartTime = convertToLocalTime(rs.getTime("shiftStartTime"));
+				LocalTime shiftEndTime = convertToLocalTime(rs.getTime("shiftEndTime"));
+				String overtimeComment = rs.getString("overtimeComment");
+				long hoursWorked = rs.getLong("hoursWorked");
 
-	            System.out.println("Processing TimeSheet ID: " + timeSheetId);
+				System.out.println("Processing TimeSheet ID: " + timeSheetId);
 
-	            TimeSheet timeSheet;
-	            if (overtimeComment != null && !overtimeComment.isEmpty()) {
-	                timeSheet = new TimeSheet(timeSheetId, employeeId, employeeName, shiftStartDate, shiftEndDate,
-	                        shiftStartTime, shiftEndTime, overtimeComment, hoursWorked);
-	            } else {
-	                timeSheet = new TimeSheet(timeSheetId, employeeId, employeeName, shiftStartDate, shiftEndDate,
-	                        shiftStartTime, shiftEndTime, hoursWorked);
-	            }
+				TimeSheet timeSheet;
+				if (overtimeComment != null && !overtimeComment.isEmpty()) {
+					timeSheet = new TimeSheet(timeSheetId, employeeId, employeeName, shiftStartDate, shiftEndDate,
+							shiftStartTime, shiftEndTime, overtimeComment, hoursWorked);
+				} else {
+					timeSheet = new TimeSheet(timeSheetId, employeeId, employeeName, shiftStartDate, shiftEndDate,
+							shiftStartTime, shiftEndTime, hoursWorked);
+				}
 
-	            timeSheets.add(timeSheet);
-	        }
-	    } catch (SQLException e) {
-	        System.out.println("SQL Exception: " + e.getMessage());
-	        e.printStackTrace();
-	    } catch (Exception e) {
-	        System.out.println("General Exception: " + e.getMessage());
-	        e.printStackTrace();
-	    }
+				timeSheets.add(timeSheet);
+			}
+		} catch (SQLException e) {
+			System.out.println("SQL Exception: " + e.getMessage());
+			e.printStackTrace();
+		} catch (Exception e) {
+			System.out.println("General Exception: " + e.getMessage());
+			e.printStackTrace();
+		}
 
-	    return timeSheets;
+		return timeSheets;
 	}
-
 
 	public TimeSheet getTimeSheetById(int timeSheetId) {
-	    String sql = "SELECT timesheets.id, timesheets.employeeId, employees.name, timesheets.shiftStartDate, timesheets.shiftEndDate, timesheets.shiftStartTime, timesheets.shiftEndTime, timesheets.overtimeComment, timesheets.hoursWorked "
-	            + "FROM timesheets " + "JOIN employees ON timesheets.employeeId = employees.id "
-	            + "WHERE timesheets.id = ?";
+		String sql = "SELECT timesheets.id, timesheets.employeeId, employees.name, timesheets.shiftStartDate, timesheets.shiftEndDate, timesheets.shiftStartTime, timesheets.shiftEndTime, timesheets.overtimeComment, timesheets.hoursWorked "
+				+ "FROM timesheets " + "JOIN employees ON timesheets.employeeId = employees.id "
+				+ "WHERE timesheets.id = ?";
 
-	    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-	        pstmt.setInt(1, timeSheetId);
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, timeSheetId);
 
-	        System.out.println("Executing query: " + sql);
-	        System.out.println("TimeSheet ID: " + timeSheetId);
+			System.out.println("Executing query: " + sql);
+			System.out.println("TimeSheet ID: " + timeSheetId);
 
-	        ResultSet rs = pstmt.executeQuery();
+			ResultSet rs = pstmt.executeQuery();
 
-	        if (rs.next()) {
-	            int id = rs.getInt("id");
-	            int employeeId = rs.getInt("employeeId");
-	            String employeeName = rs.getString("name");
-	            java.util.Date shiftStartDate = parseDate(rs.getString("shiftStartDate"));
-	            java.util.Date shiftEndDate = parseDate(rs.getString("shiftEndDate"));
-	            LocalTime shiftStartTime = convertToLocalTime(rs.getTime("shiftStartTime"));
-	            LocalTime shiftEndTime = convertToLocalTime(rs.getTime("shiftEndTime"));
-	            String overtimeComment = rs.getString("overtimeComment");
-	            long hoursWorked = rs.getLong("hoursWorked");
+			if (rs.next()) {
+				int id = rs.getInt("id");
+				int employeeId = rs.getInt("employeeId");
+				String employeeName = rs.getString("name");
+				java.util.Date shiftStartDate = parseDate(rs.getString("shiftStartDate"));
+				java.util.Date shiftEndDate = parseDate(rs.getString("shiftEndDate"));
+				LocalTime shiftStartTime = convertToLocalTime(rs.getTime("shiftStartTime"));
+				LocalTime shiftEndTime = convertToLocalTime(rs.getTime("shiftEndTime"));
+				String overtimeComment = rs.getString("overtimeComment");
+				long hoursWorked = rs.getLong("hoursWorked");
 
-	            System.out.println("Processing TimeSheet ID: " + id);
+				System.out.println("Processing TimeSheet ID: " + id);
 
-	            return new TimeSheet(id, employeeId, employeeName, shiftStartDate, shiftEndDate, shiftStartTime,
-	                    shiftEndTime, overtimeComment, hoursWorked);
-	        }
-	    } catch (SQLException e) {
-	        System.out.println("SQL Exception: " + e.getMessage());
-	        e.printStackTrace();
-	    } catch (Exception e) {
-	        System.out.println("General Exception: " + e.getMessage());
-	        e.printStackTrace();
-	    }
+				return new TimeSheet(id, employeeId, employeeName, shiftStartDate, shiftEndDate, shiftStartTime,
+						shiftEndTime, overtimeComment, hoursWorked);
+			}
+		} catch (SQLException e) {
+			System.out.println("SQL Exception: " + e.getMessage());
+			e.printStackTrace();
+		} catch (Exception e) {
+			System.out.println("General Exception: " + e.getMessage());
+			e.printStackTrace();
+		}
 
-	    return null; // Return null if no time sheet is found
+		return null; // Return null if no time sheet is found
 	}
-
 
 	public int getEmployeeIdByName(String employeeName) {
 		String sql = "SELECT id FROM employees WHERE name = ?";

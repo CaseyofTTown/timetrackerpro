@@ -64,11 +64,12 @@ public class NewEmployeeInfoView extends JFrame {
 		emsCertifiedComboBox.setForeground(ColorConstants.GOLD);
 		emsCertifiedComboBox.addActionListener(e -> {
 			boolean isCertified = emsCertifiedComboBox.getSelectedItem().equals("Yes");
-			boolean isAnswered = !emsCertifiedComboBox.getSelectedItem().equals("Please select");
+
 			certificationLevelComboBox.setEnabled(isCertified);
 			certificationNumberField.setEnabled(isCertified);
 			expirationDateField.setEnabled(isCertified);
-			submitNewEmployeeButton.setEnabled(isAnswered); // forces a selection to continue
+			// submitNewEmployeeButton.setEnabled(isAnswered); // forces a selection to
+			// continue
 			checkFields();
 		});
 		panel.add(emsCertifiedComboBox, c);
@@ -129,23 +130,33 @@ public class NewEmployeeInfoView extends JFrame {
 		expirationDateField.getJFormattedTextField().getDocument().addDocumentListener(documentListener);
 
 		System.out.println("NewEmployeeInfoView created");
+		revalidate();
+		repaint();
 	}
 
 	private void checkFields() {
 		boolean isCertified = emsCertifiedComboBox.getSelectedItem().equals("Yes");
 		boolean isAnswered = !emsCertifiedComboBox.getSelectedItem().equals("Please select");
 
-		if (isAnswered && (nameField.getText().trim().isEmpty()
-				|| (isCertified && (certificationNumberField.getText().trim().isEmpty()
-						|| certificationLevelComboBox.getSelectedItem() == null
-						|| expirationDateField.getJFormattedTextField().getText().trim().isEmpty())))) {
-			submitNewEmployeeButton.setEnabled(false);
-		} else {
+		boolean nameFilled = !nameField.getText().trim().isEmpty();
+		boolean certificationNumberFilled = !certificationNumberField.getText().trim().isEmpty();
+		boolean certificationLevelSelected = certificationLevelComboBox.getSelectedItem() != null;
+		boolean expirationDateFilled = !expirationDateField.getJFormattedTextField().getText().trim().isEmpty();
+
+		//must have name, certSelection, if not certified, otherwise must enter all fields
+		boolean allFieldsFilled = isAnswered && nameFilled
+				&& (!isCertified || (certificationNumberFilled && certificationLevelSelected && expirationDateFilled));
+
+		if (allFieldsFilled) {
+			System.out.println("passed field validation");
 			submitNewEmployeeButton.setEnabled(true);
 			submitNewEmployeeButton.setBackground(ColorConstants.DEEP_BLUE);
 			submitNewEmployeeButton.setForeground(ColorConstants.LIME_GREEN);
+		} else {
+			submitNewEmployeeButton.setEnabled(false);
 		}
 	}
+
 	// getters for the data so view and controller can use it
 
 	public String getName() {
@@ -176,6 +187,7 @@ public class NewEmployeeInfoView extends JFrame {
 	public JButton getSubmitNewEmployeeButton() {
 		return submitNewEmployeeButton;
 	}
+
 	public void addSubmitEmployeeInfoButtonListener(ActionListener listenForSubmitButton) {
 		System.out.println("listener added to submit employee button");
 		submitNewEmployeeButton.addActionListener(listenForSubmitButton);

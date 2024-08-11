@@ -199,11 +199,18 @@ public class TTController {
 			certificationLevel = view.getCertificationLevel();
 			certificationNumber = view.getEmsCertificationNumber();
 			expirationDate = new Date(view.getExpirationDate().getTime());
+			System.out.println("New certified employee created");
 		} else {
 			certificationLevel = CertificationLevelenum.DRIVER;
+			System.out.println("New driver created");
 		}
 
+		try {
 		employee = new Employee(employeeId, name, certificationLevel, certificationNumber, expirationDate);
+		} catch(Exception e) {
+			System.out.println("unable to create employee object");
+		}
+		
 
 		boolean isStored = false;
 		try {
@@ -213,7 +220,7 @@ public class TTController {
 		}
 
 		if (isStored) {
-			System.out.print("Employee added to db");
+			System.out.print("Employee added to db" + employee);
 			view.hideNewEmployeeInfoView();
 			view.hideLoginRegisterView();
 			handleHomeViewSetupAndNavigate();
@@ -231,25 +238,26 @@ public class TTController {
 		System.out.println("Calculated Start Date: " + sqlStartDate);
 		System.out.println("Calculated End Date: " + sqlEndDate);
 	}
+
 	private void updateDateRange() {
-		//get date range from user
+		// get date range from user
 		Date newStartDate = view.getStartDateRangeForTs();
 		Date newEndDate = view.getEndDateRangeForTs();
-		//convert util date to sql date 
+		// convert util date to sql date
 		java.sql.Date sqlNewStartDate = new java.sql.Date(newStartDate.getTime());
 		java.sql.Date sqlNewEndDate = new java.sql.Date(newEndDate.getTime());
-		
-		//update instance variables
+
+		// update instance variables
 		sqlStartDate = sqlNewStartDate;
 		sqlEndDate = sqlNewEndDate;
-		
+
 		useAutoDateRangesForTsDisplay = false;
-		
-		//update teh date range in the view 
+
+		// update teh date range in the view
 		view.setStartDate(newStartDate);
 		view.setEndDate(newEndDate);
-		
-		//refresh view with new date ragne
+
+		// refresh view with new date ragne
 		handleHomeViewSetupAndNavigate();
 	}
 
@@ -274,7 +282,7 @@ public class TTController {
 		view.updateTimeSheetDisplay(timeSheets);
 		view.setStartDate(new Date(sqlStartDate.getTime()));
 		view.setEndDate(new Date(sqlEndDate.getTime()));
-		
+
 		this.view.getUpdateDateRangeButton().addActionListener(e -> updateDateRange());
 
 		// listeners for timeSheetTab on HomeView
@@ -312,10 +320,10 @@ public class TTController {
 		return new java.sql.Date[] { sqlStartDate, sqlEndDate };
 	}
 
-	//handleAmbulanceCalls
+	// handleAmbulanceCalls
 	public void deleteAmbulanceCall(AmbulanceCall call) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }
