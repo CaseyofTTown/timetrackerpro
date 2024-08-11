@@ -29,6 +29,7 @@ public class CallLogEntryPanel extends JPanel {
     public CallLogEntryPanel(List<String> crewMembers) {
         if (crewMembers == null) {
             crewMembers = new ArrayList<>();
+            System.out.println("crewMember list was null so a new one was created");
         }
         this.crewMembers = crewMembers;
 

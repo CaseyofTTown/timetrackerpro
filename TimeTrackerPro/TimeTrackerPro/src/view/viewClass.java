@@ -25,6 +25,7 @@ public class viewClass extends JFrame {
 	private JPanel mainPanel;
 	private TTController controller;
 
+	
 	public viewClass() {
 		// set the window title
 		setTitle("Time Tracker Pro");

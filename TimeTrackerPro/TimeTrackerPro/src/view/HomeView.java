@@ -25,6 +25,11 @@ public class HomeView extends JPanel {
 	private List<String> employeeNames;
 	private TTController controller;
 
+	// added as an update to simplify passing dates to other pages, original
+	// architecture for TS page left in place, modified to set these
+	private Date datePickerStartDate;
+	private Date datePickerEndDate;
+
 	public HomeView(String employeeName, TTController controller) {
 
 		this.controller = controller;
@@ -70,14 +75,14 @@ public class HomeView extends JPanel {
 		add(tabbedPane, BorderLayout.CENTER);
 
 		// Add a ChangeListener to the tabbedPane
-        tabbedPane.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                if (tabbedPane.getSelectedIndex() == 1) { // Assuming "Call Logs" is the second tab (index 1)
-                	// TODO Fetch data when "Call Logs" tab is selected
-                }
-            }
-        });
+		tabbedPane.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (tabbedPane.getSelectedIndex() == 1) { // Assuming "Call Logs" is the second tab (index 1)
+					// TODO Fetch data when "Call Logs" tab is selected
+				}
+			}
+		});
 
 		System.out.println("homeView created");
 		revalidate();
@@ -93,11 +98,12 @@ public class HomeView extends JPanel {
 		return timeSheetPanel;
 	}
 
-	 private JPanel createCallLogsPanel() {
-	        dailyCallLogPanel = new DailyCallLogPanel(controller);
-	        dailyCallLogPanel.setBackground(ColorConstants.CHARCOAL);
-	        return dailyCallLogPanel;
-	    }
+	private JPanel createCallLogsPanel() {
+		dailyCallLogPanel = new DailyCallLogPanel(controller);
+		dailyCallLogPanel.setBackground(ColorConstants.CHARCOAL);
+		dailyCallLogPanel.setCrewMemberList(employeeNames);
+		return dailyCallLogPanel;
+	}
 
 	private JPanel createMedicationSOPanel() {
 		JPanel panel = new JPanel();
@@ -113,13 +119,35 @@ public class HomeView extends JPanel {
 		return panel;
 	}
 
-	// methods to set the start and end dates on timesheetview
+	// methods to set the start and end dates on timesheetview and this class so it
+	// can be passed to daily log panel
 	public void setStartDate(Date date) {
-		timeSheetPanel.setStartDate(date);
+		System.out.println();
+		System.out.println("Start date variable set in homeView class");
+		if (dailyCallLogPanel != null) {
+			dailyCallLogPanel.setStartDate(date);
+		} else {
+			System.out.println("unable to set start date on dailyCallLogPanel, was null");
+		}
+		if (timeSheetPanel != null) {
+			timeSheetPanel.setStartDate(date);
+		} else {
+			System.out.println("unable to set start date on dailyCallLogPanel, was null");
+		}
 	}
 
 	public void setEndDate(Date date) {
-		timeSheetPanel.setEndDate(date);
+		System.out.println("Start date variable set in homeView class");
+		if (dailyCallLogPanel != null) {
+			dailyCallLogPanel.setEndDate(date);
+		} else {
+			System.out.println("unable to set start date on dailyCallLogPanel, was null");
+		}
+		if (timeSheetPanel != null) {
+			timeSheetPanel.setEndDate(date);
+		} else {
+			System.out.println("unable to set start date on dailyCallLogPanel, was null");
+		}
 	}
 
 	// getters/setters to update timeSheetDisplay
@@ -139,14 +167,16 @@ public class HomeView extends JPanel {
 	public TimeSheetPanel getTimeSheetPanel() {
 		return this.timeSheetPanel;
 	}
-	//getters for date range above time sheet display
+
+	// getters for date range above time sheet display
 	public JButton getUpdateDateRangeButton() {
 		return timeSheetPanel.getUpdateDateRangeButton();
 	}
-	
+
 	public Date getStartDateRangeForTs() {
 		return timeSheetPanel.getStartDate();
 	}
+
 	public Date getEndDateRangeForTs() {
 		return timeSheetPanel.getEndDate();
 	}
@@ -187,27 +217,32 @@ public class HomeView extends JPanel {
 	public JButton getCancelTimeSheetSubmissionButton() {
 		return timeSheetPanel.getCancelTimeSheetButton();
 	}
-	
+
 	public int getSelectedTimeSheetId() {
 		return timeSheetPanel.getSelectedTimeSheetId();
 	}
-	
-	//setters for addnewTimeSheet to allow modifying existing one
+
+	// setters for addnewTimeSheet to allow modifying existing one
 	public void setEmployeeNameOnTS(String employeeName) {
 		timeSheetPanel.setEmployeeNameOnModTs(employeeName);
 	}
+
 	public void setShiftStartDateOnModTs(Date shiftStartDate) {
 		timeSheetPanel.setShiftStartDateOnModTs(shiftStartDate);
 	}
+
 	public void setShiftEndDateOnModTs(Date shiftEndDate) {
 		timeSheetPanel.setShiftEndDateOnModTs(shiftEndDate);
 	}
+
 	public void setShiftStartTimeOnModTs(LocalTime shiftStartTime) {
 		timeSheetPanel.setShiftStartTimeOnModTs(shiftStartTime);
 	}
+
 	public void setShiftEndTimeOnModTs(LocalTime shiftEndTime) {
 		timeSheetPanel.setShiftEndTimeOnModTs(shiftEndTime);
 	}
+
 	public void setOverTimeCommentOnModTs(String overtimeComment) {
 		timeSheetPanel.setOverTimeCommentOnModTs(overtimeComment);
 	}
