@@ -189,7 +189,7 @@ public class DatabaseManager {
 		String sql = "SELECT timesheets.id, timesheets.employeeId, employees.name, timesheets.shiftStartDate, timesheets.shiftEndDate, timesheets.shiftStartTime, timesheets.shiftEndTime, timesheets.overtimeComment, timesheets.hoursWorked "
 				+ "FROM timesheets " + "JOIN employees ON timesheets.employeeId = employees.id "
 				+ "WHERE timesheets.shiftStartDate >= ? AND timesheets.shiftEndDate <= ?"
-				+ "ORDER BY timesheets.shiftStartDate ASC";
+				+ "ORDER BY timesheets.shiftStartDate DESC";
 
 		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 			pstmt.setString(1, formatDate(startDate));
@@ -511,6 +511,7 @@ public class DatabaseManager {
 			pstmt.setInt(7, ambulanceCall.getTotalMiles());
 			pstmt.setString(8, ambulanceCall.getInsurance());
 			pstmt.setString(9, ambulanceCall.getAicName());
+			System.out.println("Executing query :" + sqlInsertAmbulanceCall);
 
 			int affectedRows = pstmt.executeUpdate();
 
@@ -520,6 +521,7 @@ public class DatabaseManager {
 						ambulanceCall.setId(generatedKeys.getInt(1));
 					}
 				}
+				System.out.println(affectedRows + " rows affect in ambulance call table");
 			}
 
 		} catch (SQLException e) {
@@ -531,7 +533,7 @@ public class DatabaseManager {
 	public List<DailyCallLog> getDailyCallLogsByDateRange(Date startDate, Date endDate) {
 		List<DailyCallLog> dailyCallLogs = new ArrayList<>();
 		String sql = "SELECT id, start_date, end_date, truck_unit_number, crew_members, ambulance_calls "
-				+ "FROM daily_call_log " + "WHERE start_date >= ? AND end_date <= ? " + "ORDER BY start_date ASC";
+				+ "FROM daily_call_log " + "WHERE start_date >= ? AND end_date <= ? " + "ORDER BY start_date DESC";
 
 		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 			pstmt.setString(1, formatDate(startDate));

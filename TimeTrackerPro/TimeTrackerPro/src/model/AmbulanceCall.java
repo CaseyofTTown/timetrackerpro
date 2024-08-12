@@ -3,119 +3,149 @@ package model;
 import java.util.Date;
 
 public class AmbulanceCall {
-    private int id;
-    private int dailyLogId;
-    private Date callDate;
-    private String patientsName;
-    private TypeOfCallEnum callCategory;
-    private String pickupLocation;
-    private String dropoffLocation;
-    private int totalMiles;
-    private String insurance;
-    private String aicEmployee;
+	private int id;
+	private int dailyLogId;
+	private Date callDate;
+	private String patientsName;
+	private TypeOfCallEnum callCategory;
+	private String pickupLocation;
+	private String dropoffLocation;
+	private int totalMiles;
+	private String insurance;
+	private String aicEmployee;
 
-    //all fields present
-    public AmbulanceCall(int id, int dailyLogId, Date callDate, String callType, TypeOfCallEnum callCategory, String pickupLocation, String dropoffLocation, int totalMiles, String insurance, String aicEmployee) {
-        this.id = id;
-        this.dailyLogId = dailyLogId;
-        this.callDate = callDate;
-        this.patientsName = callType;
-        this.callCategory = callCategory;
-        this.pickupLocation = pickupLocation;
-        this.dropoffLocation = dropoffLocation;
-        this.totalMiles = totalMiles;
-        this.insurance = insurance;
-        this.aicEmployee = aicEmployee;
-    }
-    //refusal for ptName, refusal typeOfCall, aic
-    public AmbulanceCall(int id, int dailyLogId, Date callDate, String patientsName, TypeOfCallEnum callCategory, String aicEmployee) {
-    	this.id = id;
-    	this.dailyLogId = dailyLogId;
-    	this.callDate = callDate;
-    	this.patientsName = patientsName;
-    	this.callCategory = callCategory;
-    	this.aicEmployee = aicEmployee;
-    	
-    }
+	// all fields present
+	public AmbulanceCall(int id, int dailyLogId, Date callDate, String patientsName, TypeOfCallEnum callCategory,
+			String pickupLocation, String dropoffLocation, int totalMiles, String insurance, String aicEmployee) {
+		this.id = id;
+		this.dailyLogId = dailyLogId;
+		this.callDate = callDate;
+		this.patientsName = patientsName;
+		this.callCategory = callCategory;
+		this.pickupLocation = pickupLocation;
+		this.dropoffLocation = dropoffLocation;
+		this.totalMiles = totalMiles;
+		this.insurance = insurance;
+		this.aicEmployee = aicEmployee;
+	}
 
-    // Getters and setters
-    public int getId() {
-        return id;
-    }
+	// refusal for ptName, refusal typeOfCall, aic
+	public AmbulanceCall(int id, int dailyLogId, Date callDate, TypeOfCallEnum callCategory, String pickupLocation,
+			String aicEmployee) {
+		this.id = id;
+		this.dailyLogId = dailyLogId;
+		this.callDate = callDate;
+		this.callCategory = callCategory;
+		this.pickupLocation = pickupLocation;
+		this.aicEmployee = aicEmployee;
 
-    public void setId(int id) {
-        this.id = id;
-    }
+	}
 
-    public int getDailyLogId() {
-        return dailyLogId;
-    }
+	// for creating object in application (wont have id, sqlite auto generates it)
+	// all fields present
+	public AmbulanceCall(int dailyLogId, Date callDate, String callType, TypeOfCallEnum callCategory,
+			String pickupLocation, String dropoffLocation, int totalMiles, String insurance, String aicEmployee) {
 
-    public void setDailyLogId(int dailyLogId) {
-        this.dailyLogId = dailyLogId;
-    }
+		this.dailyLogId = dailyLogId;
+		this.callDate = callDate;
+		this.patientsName = callType;
+		this.callCategory = callCategory;
+		this.pickupLocation = pickupLocation;
+		this.dropoffLocation = dropoffLocation;
+		this.totalMiles = totalMiles;
+		this.insurance = insurance;
+		this.aicEmployee = aicEmployee;
+	}
 
-    public Date getCallDate() {
-        return callDate;
-    }
+	// refusal for ptName, refusal typeOfCall, aic
+	public AmbulanceCall(int dailyLogId, Date callDate, TypeOfCallEnum callCategory, String pickupLocation,
+			String aicEmployee) {
+		this.dailyLogId = dailyLogId;
+		this.callDate = callDate;
+		this.callCategory = callCategory;
+		this.pickupLocation = pickupLocation;
+		this.aicEmployee = aicEmployee;
 
-    public void setCallDate(Date callDate) {
-        this.callDate = callDate;
-    }
+	}
 
-    public String getPatientsName() {
-        return patientsName;
-    }
+	// Getters and setters
+	public int getId() {
+		return id;
+	}
 
-    public void setPatientsName(String callType) {
-        this.patientsName = callType;
-    }
+	public void setId(int id) {
+		this.id = id;
+	}
 
-    public TypeOfCallEnum getCallCategory() {
-        return callCategory;
-    }
+	public int getDailyLogId() {
+		return dailyLogId;
+	}
 
-    public void setCallCategory(TypeOfCallEnum callCategory) {
-        this.callCategory = callCategory;
-    }
+	public void setDailyLogId(int dailyLogId) {
+		this.dailyLogId = dailyLogId;
+	}
 
-    public String getPickupLocation() {
-        return pickupLocation;
-    }
+	public Date getCallDate() {
+		return callDate;
+	}
 
-    public void setPickupLocation(String pickupLocation) {
-        this.pickupLocation = pickupLocation;
-    }
+	public void setCallDate(Date callDate) {
+		this.callDate = callDate;
+	}
 
-    public String getDropoffLocation() {
-        return dropoffLocation;
-    }
+	public String getPatientsName() {
+		return patientsName;
+	}
 
-    public void setDropoffLocation(String dropoffLocation) {
-        this.dropoffLocation = dropoffLocation;
-    }
+	public void setPatientsName(String callType) {
+		this.patientsName = callType;
+	}
 
-    public int getTotalMiles() {
-        return totalMiles;
-    }
+	public TypeOfCallEnum getCallCategory() {
+		return callCategory;
+	}
 
-    public void setTotalMiles(int totalMiles) {
-        this.totalMiles = totalMiles;
-    }
+	public void setCallCategory(TypeOfCallEnum callCategory) {
+		this.callCategory = callCategory;
+	}
 
-    public String getInsurance() {
-        return insurance;
-    }
+	public String getPickupLocation() {
+		return pickupLocation;
+	}
 
-    public void setInsurance(String insurance) {
-        this.insurance = insurance;
-    }
+	public void setPickupLocation(String pickupLocation) {
+		this.pickupLocation = pickupLocation;
+	}
 
-    public String getAicName() {
-        return aicEmployee;
-    }
+	public String getDropoffLocation() {
+		return dropoffLocation;
+	}
 
-    public void setAicEmployeeId(String aicEmployee) {
-        this.aicEmployee = aicEmployee;
-    }
+	public void setDropoffLocation(String dropoffLocation) {
+		this.dropoffLocation = dropoffLocation;
+	}
+
+	public int getTotalMiles() {
+		return totalMiles;
+	}
+
+	public void setTotalMiles(int totalMiles) {
+		this.totalMiles = totalMiles;
+	}
+
+	public String getInsurance() {
+		return insurance;
+	}
+
+	public void setInsurance(String insurance) {
+		this.insurance = insurance;
+	}
+
+	public String getAicName() {
+		return aicEmployee;
+	}
+
+	public void setAicEmployeeId(String aicEmployee) {
+		this.aicEmployee = aicEmployee;
+	}
 }

@@ -361,4 +361,9 @@ public class TTController {
 		
 	}
 
+	public void addAmbulanceCall(AmbulanceCall call) {
+		db.addAmbulanceCall(call);
+		
+	}
+
 }
