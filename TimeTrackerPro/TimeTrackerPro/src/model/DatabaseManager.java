@@ -456,16 +456,6 @@ public class DatabaseManager {
 		return time.format(DateTimeFormatter.ofPattern("HH:mm"));
 	}
 
-	private LocalTime parseTime(String time) {
-		try {
-			// Replace "-" with ":" to match the expected format
-			time = time.replace("-", ":");
-			return LocalTime.parse(time, DateTimeFormatter.ofPattern("HH:mm"));
-		} catch (DateTimeParseException e) {
-			System.out.println("Error parsing time: " + e.getMessage());
-			return null;
-		}
-	}
 
 	// Convert LocalTime to java.sql.Time
 	public static java.sql.Time convertToSqlTime(LocalTime localTime) {
@@ -484,8 +474,8 @@ public class DatabaseManager {
 
 		try (PreparedStatement pstmt = connection.prepareStatement(sqlInsertDailyCallLog,
 				Statement.RETURN_GENERATED_KEYS)) {
-			pstmt.setString(1, dailyCallLog.getStartDate().toString());
-			pstmt.setString(2, dailyCallLog.getEndDate().toString());
+			pstmt.setString(1, formatDate(dailyCallLog.getStartDate()));
+			pstmt.setString(2, formatDate(dailyCallLog.getEndDate()));
 			pstmt.setString(3, dailyCallLog.getTruckUnitNumber());
 			pstmt.setString(4, String.join(",", dailyCallLog.getCrewMembers()));
 
@@ -496,6 +486,7 @@ public class DatabaseManager {
 					if (generatedKeys.next()) {
 						dailyCallLog.setId(generatedKeys.getInt(1));
 					}
+					System.out.print("added daily log with: " + affectedRows + " rows affected");
 				}
 			}
 
@@ -512,7 +503,7 @@ public class DatabaseManager {
 		try (PreparedStatement pstmt = connection.prepareStatement(sqlInsertAmbulanceCall,
 				Statement.RETURN_GENERATED_KEYS)) {
 			pstmt.setInt(1, ambulanceCall.getDailyLogId());
-			pstmt.setString(2, ambulanceCall.getCallDate().toString());
+			pstmt.setString(2, formatDate(ambulanceCall.getCallDate()));
 			pstmt.setString(3, ambulanceCall.getPatientsName());
 			pstmt.setString(4, ambulanceCall.getCallCategory().toString());
 			pstmt.setString(5, ambulanceCall.getPickupLocation());
@@ -533,6 +524,7 @@ public class DatabaseManager {
 
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
@@ -575,6 +567,32 @@ public class DatabaseManager {
 
 		return dailyCallLogs;
 	}
+	
+	// Delete a daily call log entry from the database
+	public void deleteDailyCallLog(int id) {
+	    String sql = "DELETE FROM daily_call_log WHERE id = ?";
+
+	    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+	        pstmt.setInt(1, id);
+
+	        System.out.println("Executing delete: " + sql);
+	        System.out.println("DailyCallLog ID: " + id);
+
+	        int affectedRows = pstmt.executeUpdate();
+	        if (affectedRows > 0) {
+	            System.out.println("DailyCallLog deleted successfully.");
+	        } else {
+	            System.out.println("DailyCallLog delete failed: No rows affected.");
+	        }
+	    } catch (SQLException e) {
+	        System.out.println("SQL Exception: " + e.getMessage());
+	        e.printStackTrace();
+	    } catch (Exception e) {
+	        System.out.println("General Exception: " + e.getMessage());
+	        e.printStackTrace();
+	    }
+	}
+
 
 	private List<AmbulanceCall> getAmbulanceCallsByDailyLogId(int dailyLogId) {
 		List<AmbulanceCall> ambulanceCalls = new ArrayList<>();

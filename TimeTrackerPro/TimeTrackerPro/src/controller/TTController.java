@@ -262,6 +262,10 @@ public class TTController {
 		// refresh view with new date ragne
 		handleHomeViewSetupAndNavigate();
 	}
+	
+	private void updateDateRangesForOtherClasses() {
+		
+	}
 
 	private void handleHomeViewSetupAndNavigate() {
 
@@ -341,6 +345,20 @@ public class TTController {
 	public List<DailyCallLog> getCallLogsFromDateToDate() {
 		List<DailyCallLog> results = db.getDailyCallLogsByDateRange(sqlStartDate, sqlEndDate);
 		return results;
+	}
+	
+	public void setSqlStartDate(java.sql.Date newSqlStartDate) {
+		useAutoDateRangesForTsDisplay = false;
+		this.sqlStartDate = newSqlStartDate;
+	}
+	public void setSqlEndDate(java.sql.Date newSqlEndDate) {
+		useAutoDateRangesForTsDisplay = false;
+		this.sqlEndDate = newSqlEndDate;
+	}
+
+	public void deleteCallLogWithId(int idOfSelectedCallLogCard) {
+		db.deleteDailyCallLog(idOfSelectedCallLogCard);
+		
 	}
 
 }

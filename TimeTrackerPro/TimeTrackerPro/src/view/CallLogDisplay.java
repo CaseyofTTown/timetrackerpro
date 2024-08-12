@@ -2,69 +2,109 @@ package view;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import model.ColorConstants;
 import model.DailyCallLog;
 import controller.TTController;
 
 public class CallLogDisplay extends JPanel {
-    private TTController controller;
-    private JList<DailyCallLog> callLogList;
-    private DefaultListModel<DailyCallLog> callLogListModel;
+	private TTController controller;
+	private JPanel callLogDisplayPanel;
+	private JScrollPane scrollPane;
+	private CallLogCard selectedCard;
+	private List<CallLogCard> callLogCards;
 
-    public CallLogDisplay(TTController controller) {
-        this.controller = controller;
-        setLayout(new BorderLayout());
-        setBackground(ColorConstants.CHARCOAL);
+	public CallLogDisplay(TTController controller) {
+		this.controller = controller;
+		setLayout(new BorderLayout());
+		setBackground(ColorConstants.CHARCOAL);
+		callLogCards = new ArrayList<CallLogCard>(); // list of cards
 
-        callLogListModel = new DefaultListModel<>();
-        callLogList = new JList<>(callLogListModel);
-        callLogList.setCellRenderer(new CallLogListCellRenderer());
-        callLogList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		callLogDisplayPanel = new JPanel();
+		callLogDisplayPanel.setLayout(new BoxLayout(callLogDisplayPanel, BoxLayout.Y_AXIS));
+		callLogDisplayPanel.setBackground(ColorConstants.CHARCOAL);
 
-        add(new JScrollPane(callLogList), BorderLayout.CENTER);
-    }
+		scrollPane = new JScrollPane(callLogDisplayPanel);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-    // Method to add a new call log card
-    public void addCallLogCard(DailyCallLog callLog) {
-        callLogListModel.addElement(callLog);
-    }
+		add(scrollPane, BorderLayout.CENTER);
 
-    // Method to add all call log cards
-    public void addAllCallLogCards(List<DailyCallLog> callLogs) {
-        for (DailyCallLog callLog : callLogs) {
-            addCallLogCard(callLog);
-        }
-    }
+	}
 
-    // Method to clear all entries
-    public void clearAllEntries() {
-        callLogListModel.clear();
-    }
+	// Method to add a new call log card
+	public void addCallLogCard(DailyCallLog callLog) {
+		CallLogCard callLogCard = new CallLogCard(callLog, controller);
+		callLogCard.setAlignmentX(Component.LEFT_ALIGNMENT);
+		callLogDisplayPanel.add(callLogCard);
+		callLogDisplayPanel.add(Box.createRigidArea(new Dimension(0, 10)));// spacing between cards
+		revalidate();
+		repaint();
+	}
 
-    // Method to get the selected call log ID
-    public int getSelectedCallLogId() {
-        DailyCallLog selectedCallLog = callLogList.getSelectedValue();
-        return selectedCallLog != null ? selectedCallLog.getId() : -1;
-    }
+	// Method to add all call log cards
+	public void addAllCallLogCards(List<DailyCallLog> callLogs) {
+		System.out.println("clearing call log list - addAllCallLogCards");
+		callLogDisplayPanel.removeAll();
+		callLogCards.clear();
+		for (DailyCallLog callLog : callLogs) {
+			try {
+				CallLogCard card = new CallLogCard(callLog, controller);
+				card.addPropertyChangeListener("selectedCard", evt -> {
+					if ((boolean) evt.getNewValue()) {
+						if (selectedCard != null && selectedCard != card) {
+							selectedCard.setBackground(ColorConstants.CHARCOAL);
+							selectedCard.firePropertyChange("selected", true, false);
+						}
+						selectedCard = card;
+					} else {
+						selectedCard = null;
+					}
+					firePropertyChange("selectedCard", null, selectedCard);
+				});
+				callLogCards.add(card);
+				callLogDisplayPanel.add(card);
+				callLogDisplayPanel.add(Box.createVerticalStrut(10)); // Add spacing between cards
+				System.out.println("callLogCard added to callLogDisplayPanel for CallLog ID: " + callLog.getId());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
-    // Method to get the selection model
-    public ListSelectionModel getSelectionModel() {
-        return callLogList.getSelectionModel();
-    }
+		}
+		revalidate();
+		repaint();
+	}
 
-    // Custom cell renderer for the call log list
-    private class CallLogListCellRenderer extends DefaultListCellRenderer {
-        @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-            Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            if (value instanceof DailyCallLog) {
-                DailyCallLog callLog = (DailyCallLog) value;
-                setText("Truck Unit: " + callLog.getTruckUnitNumber() + " | Date: " + callLog.getStartDate() + " - " + callLog.getEndDate());
-                setBackground(isSelected ? ColorConstants.DEEP_BLUE : ColorConstants.CHARCOAL);
-                setForeground(isSelected ? ColorConstants.GOLD : ColorConstants.LIME_GREEN);
-            }
-            return c;
-        }
-    }
+	// Method to clear all entries
+	public void clearAllEntries() {
+		callLogDisplayPanel.removeAll();
+		revalidate();
+		repaint();
+	}
+
+	public CallLogCard getSelectedCard() {
+		return selectedCard;
+	}
+
+	public int getSelectedCardLogId() {
+		return selectedCard != null ? selectedCard.getCallLogId(): -1;
+	}
+
+	// Custom cell renderer for the call log list
+	private class CallLogListCellRenderer extends DefaultListCellRenderer {
+		@Override
+		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
+				boolean cellHasFocus) {
+			Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			if (value instanceof DailyCallLog) {
+				DailyCallLog callLog = (DailyCallLog) value;
+				setText("Truck Unit: " + callLog.getTruckUnitNumber() + " | Date: " + callLog.getStartDate() + " - "
+						+ callLog.getEndDate());
+				setBackground(isSelected ? ColorConstants.DEEP_BLUE : ColorConstants.CHARCOAL);
+				setForeground(isSelected ? ColorConstants.GOLD : ColorConstants.LIME_GREEN);
+			}
+			return c;
+		}
+	}
 }
