@@ -25,6 +25,7 @@ public class CallLogCard extends JPanel {
 	private JTable callTable;
 	private DefaultTableModel callTableModel;
 	private TTController controller;
+	private JPanel headerPanel;
 	private boolean isSelected;
 	private int callLogId;
 	private static CallLogCard selectedCard = null; // keep track of selected card
@@ -34,12 +35,12 @@ public class CallLogCard extends JPanel {
 		this.callLogId = callLog.getId();
 		this.controller = controller;
 		setLayout(new BorderLayout());
-		setBackground(ColorConstants.CHARCOAL);
-		setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		setBackground(ColorConstants.DARK_GRAY);
+		setBorder(BorderFactory.createLineBorder(ColorConstants.GOLD, 2));
 
 		// Header panel
-		JPanel headerPanel = new JPanel(new GridLayout(2, 1));
-		headerPanel.setBackground(ColorConstants.SLATE_GRAY);
+		headerPanel = new JPanel(new GridLayout(2, 1));
+		headerPanel.setBackground(ColorConstants.DARK_GRAY);
 		headerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		// MouseListener to detect selection
@@ -50,7 +51,9 @@ public class CallLogCard extends JPanel {
 					selectedCard.deselect(); // Deselect the previously selected card
 				}
 				isSelected = !isSelected;
-				setBackground(isSelected ? ColorConstants.DEEP_BLUE : ColorConstants.CHARCOAL);
+				setBackground(isSelected ? ColorConstants.DEEP_BLUE : ColorConstants.DARK_GRAY);
+				headerPanel.setBackground(isSelected ? ColorConstants.DEEP_BLUE : ColorConstants.DARK_GRAY);
+
 				firePropertyChange("selectedCard", !isSelected, isSelected);
 				if (isSelected) {
 					selectedCard = CallLogCard.this; // Update the selected card
@@ -67,6 +70,7 @@ public class CallLogCard extends JPanel {
 		JLabel headerLabel = new JLabel(
 				"Truck Unit: " + callLog.getTruckUnitNumber() + " | Date: " + startDate + " - " + endDate);
 		headerLabel.setForeground(ColorConstants.ORANGE);
+		headerLabel.setBackground(ColorConstants.DARK_GRAY);
 		headerPanel.add(headerLabel, BorderLayout.NORTH);
 
 		JLabel crewLabel = new JLabel("Crew Members: " + String.join(", ", callLog.getCrewMembers()));
@@ -131,6 +135,8 @@ public class CallLogCard extends JPanel {
 	public void deselect() {
 		isSelected = false;
 		setBackground(ColorConstants.CHARCOAL);
+		headerPanel.setBackground(isSelected ? ColorConstants.DEEP_BLUE : ColorConstants.DARK_GRAY);
+
 		firePropertyChange("selectedCard", true, false);
 	}
 
