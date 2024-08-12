@@ -173,8 +173,9 @@ public class CallLogCard extends JPanel {
 	public void showAddAmbulanceCallPopup() {
 		System.out.println("adding new ambulance call");
 		Date[] callDates = { callLog.getStartDate(), callLog.getEndDate() };
+		List<String> employees = callLog.getCrewMembers();
 		AddAmbulanceCallDialog dialog = new AddAmbulanceCallDialog((Frame) SwingUtilities.getWindowAncestor(this),
-				controller, callLogId, callDates);
+				controller, callLogId, callDates, employees);
 		dialog.setVisible(true);
 
 	}
