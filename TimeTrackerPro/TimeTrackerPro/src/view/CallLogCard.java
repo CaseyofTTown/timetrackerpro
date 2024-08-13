@@ -18,9 +18,12 @@ import java.util.Date;
 import java.util.List;
 import model.DailyCallLog;
 import model.AmbulanceCall;
+import model.CallLogCardSelectionListener;
 import model.ColorConstants;
 
 public class CallLogCard extends JPanel {
+	private CallLogCardSelectionListener selectionListener;
+	
 	private DailyCallLog callLog;
 	private JButton expandButton;
 	private JPanel detailsPanel;
@@ -164,6 +167,7 @@ public class CallLogCard extends JPanel {
 		addCallButton.setBackground(ColorConstants.SLATE_GRAY);
 		addCallButton.setForeground(ColorConstants.GOLD);
 		detailsPanel.add(addCallButton, BorderLayout.SOUTH);
+		addSelectionListener();
 
 		add(detailsPanel, BorderLayout.CENTER);
 	}
@@ -198,13 +202,40 @@ public class CallLogCard extends JPanel {
         callLog.setAmbulanceCalls(updatedCalls);
         populateCallTable();
     }
+	
+	//below handles selecting and deselecting a card
+	public void setSelectionListener(CallLogCardSelectionListener listener) {
+		this.selectionListener = listener;
+	}
+	
+	public void addSelectionListener() {
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (selectedCard != null) {
+                    selectedCard.deselect();
+                }
+                select();
+                selectedCard = CallLogCard.this;
+            }
+        });
+    }
 
 	public void deselect() {
 		isSelected = false;
 		setBackground(ColorConstants.CHARCOAL);
 		headerPanel.setBackground(isSelected ? ColorConstants.DEEP_BLUE : ColorConstants.DARK_GRAY);
 
-		firePropertyChange("selectedCard", true, false);
+	}
+	private void select() {
+		isSelected = true;
+		setBackground(ColorConstants.DEEP_BLUE);
+		headerPanel.setBackground(ColorConstants.DEEP_BLUE);
+		if(selectionListener != null) {
+			selectionListener.onCardSelected(this);
+		} else {
+			System.out.println("selectionListener was null when select was called");
+		}
 	}
 
 	private void toggleDetails() {

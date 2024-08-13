@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import model.CallLogCardSelectionListener;
 import model.ColorConstants;
 import model.DailyCallLog;
 import controller.TTController;
@@ -33,48 +35,39 @@ public class CallLogDisplay extends JPanel {
 
 	}
 
-	// Method to add a new call log card
-	public void addCallLogCard(DailyCallLog callLog) {
-		CallLogCard callLogCard = new CallLogCard(callLog, controller);
-		callLogCard.setAlignmentX(Component.LEFT_ALIGNMENT);
-		callLogDisplayPanel.add(callLogCard);
-		callLogDisplayPanel.add(Box.createRigidArea(new Dimension(0, 10)));// spacing between cards
-		revalidate();
-		repaint();
+	 // Method to add a new call log card
+	public void addCallLogCard(CallLogCard callLogCard) {
+	    callLogCard.setAlignmentX(Component.LEFT_ALIGNMENT);
+	    callLogDisplayPanel.add(callLogCard);
+	    callLogDisplayPanel.add(Box.createRigidArea(new Dimension(0, 10))); // spacing between cards
+	    revalidate();
+	    repaint();
 	}
 
-	// Method to add all call log cards
-	public void addAllCallLogCards(List<DailyCallLog> callLogs) {
-		System.out.println("clearing call log list - addAllCallLogCards");
-		callLogDisplayPanel.removeAll();
-		callLogCards.clear();
-		for (DailyCallLog callLog : callLogs) {
-			try {
-				CallLogCard card = new CallLogCard(callLog, controller);
-				card.addPropertyChangeListener("selectedCard", evt -> {
-					if ((boolean) evt.getNewValue()) {
-						if (selectedCard != null && selectedCard != card) {
-							selectedCard.setBackground(ColorConstants.CHARCOAL);
-							selectedCard.firePropertyChange("selected", true, false);
-						}
-						selectedCard = card;
-					} else {
-						selectedCard = null;
-					}
-					firePropertyChange("selectedCard", null, selectedCard);
-				});
-				callLogCards.add(card);
-				callLogDisplayPanel.add(card);
-				callLogDisplayPanel.add(Box.createVerticalStrut(10)); // Add spacing between cards
-				System.out.println("callLogCard added to callLogDisplayPanel for CallLog ID: " + callLog.getId());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 
-		}
-		revalidate();
-		repaint();
-	}
+	/*
+
+    // Method to add all call log cards
+    public void addAllCallLogCards(List<DailyCallLog> callLogs, CallLogCardSelectionListener listener) {
+        System.out.println("clearing call log list - addAllCallLogCards");
+        callLogDisplayPanel.removeAll();
+        callLogCards.clear();
+        for (DailyCallLog callLog : callLogs) {
+            try {
+                CallLogCard card = new CallLogCard(callLog, controller);
+                card.setSelectionListener(listener); // Set the listener
+                callLogCards.add(card);
+                callLogDisplayPanel.add(card);
+                callLogDisplayPanel.add(Box.createVerticalStrut(10)); // Add spacing between cards
+                System.out.println("callLogCard added to callLogDisplayPanel for CallLog ID: " + callLog.getId());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        revalidate();
+        repaint();
+    }
+    */
 
 	// Method to clear all entries
 	public void clearAllEntries() {

@@ -21,11 +21,13 @@ import javax.swing.BorderFactory;
 
 import org.jdatepicker.impl.JDatePickerImpl;
 
+import model.CallLogCardSelectionListener;
 import model.ColorConstants;
 import model.DailyCallLog;
 import controller.TTController;
+import model.CallLogCardSelectionListener;
 
-public class DailyCallLogPanel extends JPanel {
+public class DailyCallLogPanel extends JPanel implements CallLogCardSelectionListener {
 	private JButton createNewCallLogBttn;
 	private JButton modifyDailyCallLogBttn;
 	private JButton deleteCallLogButton;
@@ -117,27 +119,14 @@ public class DailyCallLogPanel extends JPanel {
 		modifyDailyCallLogBttn.setEnabled(false);
 		deleteCallLogButton.setEnabled(false);
 
-		callLogDisplay.addPropertyChangeListener("selectedCard", evt -> {
-			selectedCard = (CallLogCard) evt.getNewValue();
-			if (selectedCard != null) {
-				System.out.println("Selected Card id: " + selectedCard.getCallLogId());
-			} else {
-				System.out.println("Selected Card is null");
-			}
-			boolean isSelected = selectedCard != null;
-			modifyDailyCallLogBttn.setEnabled(isSelected);
-			deleteCallLogButton.setEnabled(isSelected);
-			if (isSelected) {
-				idOfSelectedCallLogCard = callLogDisplay.getSelectedCardLogId(); // store selected id
-			}
-		});
-
 		// listeners for modify/delete call log buttons
 		modifyDailyCallLogBttn.addActionListener(e -> loadCreateNewCallLogIdWithExistingLog());
 
 		// add action listener to createNewCallLogBttn
 		createNewCallLogBttn.addActionListener(e -> showAddNewCallLogPanel());
 
+		// delete call logs action listener
+		deleteCallLogButton.addActionListener(e -> deleteCallLogWithSelectedId());
 		// Add action listener to cancel button
 		callLogEntryPanel.getCancelButton().addActionListener(e -> hideAddNewCallLogPanel());
 		callLogEntryPanel.getSubmitButton().addActionListener(e -> handleCreateNewCallLog());
@@ -163,6 +152,22 @@ public class DailyCallLogPanel extends JPanel {
 		revalidate();
 		repaint();
 	}
+	
+
+    @Override
+    public void onCardSelected(CallLogCard selectedCard) {
+        if (selectedCard != null) {
+            idOfSelectedCallLogCard = selectedCard.getCallLogId(); // store selected id
+            System.out.println("Selected Card id: " + idOfSelectedCallLogCard);
+        } else {
+            System.out.println("Selected Card is null");
+            idOfSelectedCallLogCard = -1; // reset id
+        }
+        boolean isSelected = selectedCard != null;
+        modifyDailyCallLogBttn.setEnabled(isSelected);
+        deleteCallLogButton.setEnabled(isSelected);
+    }
+
 
 	private void loadCreateNewCallLogIdWithExistingLog() {
 		// TODO Auto-generated method stub
@@ -174,19 +179,24 @@ public class DailyCallLogPanel extends JPanel {
 		updateCallLog();
 	}
 
-	private void updateCallLog() {
-		try {
-			callLogDisplay.clearAllEntries();
-			dailyLogList = controller.getCallLogsFromDateToDate();
-			callLogDisplay.addAllCallLogCards(dailyLogList);
-			System.out.println(dailyLogList.size()
-					+ " call logs passed to callLogDisplay, addAllCallLogCards called -updateCallLogs()");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		revalidate();
-		repaint();
+	//create call log cards, set listener, pass cards to display for it to show them. no longer creating them in display
+	public void updateCallLog() {
+	    try {
+	        callLogDisplay.clearAllEntries();
+	        dailyLogList = controller.getCallLogsFromDateToDate();
+	        for (DailyCallLog callLog : dailyLogList) {
+	            CallLogCard card = new CallLogCard(callLog, controller);
+	            card.setSelectionListener(this); // Set the listener
+	            callLogDisplay.addCallLogCard(card);
+	        }
+	        System.out.println(dailyLogList.size() + " call logs passed to callLogDisplay, addAllCallLogCards called -updateCallLogs()");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	    revalidate();
+	    repaint();
 	}
+
 
 	private void updateStartSqlDateInController() {
 		if (controller != null) {
@@ -369,7 +379,7 @@ public class DailyCallLogPanel extends JPanel {
 
 	// Getters/setters to update callLogDisplay
 	public void addAllCallLogsToDisplay(List<DailyCallLog> callLogs) {
-		callLogDisplay.addAllCallLogCards(callLogs);
+		callLogDisplay.addAllCallLogCards(callLogs, this);
 	}
 
 	// Setters to modify a call log
