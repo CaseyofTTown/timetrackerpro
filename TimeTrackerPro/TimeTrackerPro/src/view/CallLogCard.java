@@ -11,6 +11,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -147,11 +149,7 @@ public class CallLogCard extends JPanel {
 		callTable.setDefaultRenderer(Object.class, new CallTableCellRenderer());
 
 		// Populate the table with Ambulance Calls
-		for (AmbulanceCall call : callLog.getAmbulanceCalls()) {
-			callTableModel.addRow(new Object[] { call.getCallDate(), call.getPatientsName(), call.getCallCategory(),
-					call.getPickupLocation(), call.getDropoffLocation(), call.getTotalMiles(), call.getInsurance(),
-					call.getAicName(), createDeleteButton(call) });
-		}
+		populateCallTable();
 
 		detailsPanel.add(new JScrollPane(callTable), BorderLayout.CENTER);
 
@@ -176,9 +174,30 @@ public class CallLogCard extends JPanel {
 		List<String> employees = callLog.getCrewMembers();
 		AddAmbulanceCallDialog dialog = new AddAmbulanceCallDialog((Frame) SwingUtilities.getWindowAncestor(this),
 				controller, callLogId, callDates, employees);
+		dialog.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosed(WindowEvent e) {
+				refreshData();
+			}
+		});
 		dialog.setVisible(true);
 
 	}
+	private void populateCallTable() {
+        callTableModel.setRowCount(0); // Clear existing rows
+        for (AmbulanceCall call : callLog.getAmbulanceCalls()) {
+            callTableModel.addRow(new Object[] { call.getCallDate(), call.getPatientsName(), call.getCallCategory(),
+                    call.getPickupLocation(), call.getDropoffLocation(), call.getTotalMiles(), call.getInsurance(),
+                    call.getAicName(), createDeleteButton(call) });
+        }
+    }
+	
+	private void refreshData() {
+        // Fetch updated data from the controller
+        List<AmbulanceCall> updatedCalls = controller.getAmbulanceCallsByID(callLogId);
+        callLog.setAmbulanceCalls(updatedCalls);
+        populateCallTable();
+    }
 
 	public void deselect() {
 		isSelected = false;

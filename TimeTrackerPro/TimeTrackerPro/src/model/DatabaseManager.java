@@ -48,8 +48,7 @@ public class DatabaseManager {
 				+ "pin integer, \n" + "FOREIGN KEY(employeeID) REFERENCES employees(id)\n" + ")";
 		String sqlCreateDailyCallLogTable = "CREATE TABLE IF NOT EXISTS daily_call_log (\n"
 				+ " id INTEGER PRIMARY KEY AUTOINCREMENT,\n" + " start_date TEXT NOT NULL,\n"
-				+ " end_date TEXT NOT NULL,\n" + " truck_unit_number TEXT NOT NULL,\n" + " crew_members TEXT,\n"
-				+ " ambulance_calls TEXT\n" + ");";
+				+ " end_date TEXT NOT NULL,\n" + " truck_unit_number TEXT NOT NULL,\n" + " crew_members TEXT\n" + ");";
 		String sqlCreateAmbulanceCallTable = "CREATE TABLE IF NOT EXISTS ambulance_call (\n"
 				+ " id INTEGER PRIMARY KEY AUTOINCREMENT,\n" + " daily_log_id INTEGER NOT NULL,\n"
 				+ " call_date TEXT NOT NULL,\n" + " patients_name TEXT,\n" + " call_category TEXT NOT NULL,\n"
@@ -188,9 +187,17 @@ public class DatabaseManager {
 		List<TimeSheet> timeSheets = new ArrayList<>();
 		String sql = "SELECT timesheets.id, timesheets.employeeId, employees.name, timesheets.shiftStartDate, timesheets.shiftEndDate, timesheets.shiftStartTime, timesheets.shiftEndTime, timesheets.overtimeComment, timesheets.hoursWorked "
 				+ "FROM timesheets " + "JOIN employees ON timesheets.employeeId = employees.id "
-				+ "WHERE timesheets.shiftStartDate >= ? AND timesheets.shiftEndDate <= ?"
-				+ "ORDER BY timesheets.shiftStartDate DESC";
+				+ "WHERE (timesheets.shiftStartDate >= ? AND timesheets.shiftStartDate <= ?) " + // Timesheets that
+																									// start in date
+																									// range
 
+				"OR (timesheets.shiftEndDate >= ? AND timesheets.shiftEndDate <= ?) " + // Timesheets that end within
+																						// the range
+
+				"OR (timesheets.shiftStartDate <= ? AND timesheets.shiftEndDate >= ?) " + // Timesheets that span the
+																							// entire range
+
+				"ORDER BY timesheets.shiftStartDate DESC";
 		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 			pstmt.setString(1, formatDate(startDate));
 			pstmt.setString(2, formatDate(endDate));
@@ -456,7 +463,6 @@ public class DatabaseManager {
 		return time.format(DateTimeFormatter.ofPattern("HH:mm"));
 	}
 
-
 	// Convert LocalTime to java.sql.Time
 	public static java.sql.Time convertToSqlTime(LocalTime localTime) {
 		return java.sql.Time.valueOf(localTime);
@@ -532,8 +538,11 @@ public class DatabaseManager {
 
 	public List<DailyCallLog> getDailyCallLogsByDateRange(Date startDate, Date endDate) {
 		List<DailyCallLog> dailyCallLogs = new ArrayList<>();
-		String sql = "SELECT id, start_date, end_date, truck_unit_number, crew_members, ambulance_calls "
-				+ "FROM daily_call_log " + "WHERE start_date >= ? AND end_date <= ? " + "ORDER BY start_date DESC";
+		String sql = "SELECT id, start_date, end_date, truck_unit_number, crew_members " + "FROM daily_call_log "
+				+ "WHERE (start_date >= ? AND start_date <= ?) " + // Logs that start within the range
+				"OR (end_date >= ? AND end_date <= ?) " + // Logs that end within the range
+				"OR (start_date <= ? AND end_date >= ?) " + // Logs that span the entire range
+				"ORDER BY start_date DESC";
 
 		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 			pstmt.setString(1, formatDate(startDate));
@@ -569,34 +578,33 @@ public class DatabaseManager {
 
 		return dailyCallLogs;
 	}
-	
+
 	// Delete a daily call log entry from the database
 	public void deleteDailyCallLog(int id) {
-	    String sql = "DELETE FROM daily_call_log WHERE id = ?";
+		String sql = "DELETE FROM daily_call_log WHERE id = ?";
 
-	    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-	        pstmt.setInt(1, id);
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, id);
 
-	        System.out.println("Executing delete: " + sql);
-	        System.out.println("DailyCallLog ID: " + id);
+			System.out.println("Executing delete: " + sql);
+			System.out.println("DailyCallLog ID: " + id);
 
-	        int affectedRows = pstmt.executeUpdate();
-	        if (affectedRows > 0) {
-	            System.out.println("DailyCallLog deleted successfully.");
-	        } else {
-	            System.out.println("DailyCallLog delete failed: No rows affected.");
-	        }
-	    } catch (SQLException e) {
-	        System.out.println("SQL Exception: " + e.getMessage());
-	        e.printStackTrace();
-	    } catch (Exception e) {
-	        System.out.println("General Exception: " + e.getMessage());
-	        e.printStackTrace();
-	    }
+			int affectedRows = pstmt.executeUpdate();
+			if (affectedRows > 0) {
+				System.out.println("DailyCallLog deleted successfully.");
+			} else {
+				System.out.println("DailyCallLog delete failed: No rows affected.");
+			}
+		} catch (SQLException e) {
+			System.out.println("SQL Exception: " + e.getMessage());
+			e.printStackTrace();
+		} catch (Exception e) {
+			System.out.println("General Exception: " + e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
-
-	private List<AmbulanceCall> getAmbulanceCallsByDailyLogId(int dailyLogId) {
+	public List<AmbulanceCall> getAmbulanceCallsByDailyLogId(int dailyLogId) {
 		List<AmbulanceCall> ambulanceCalls = new ArrayList<>();
 		String sql = "SELECT id, daily_log_id, call_date, patients_name, call_category, pickup_location, dropoff_location, total_miles, insurance, aic_employee "
 				+ "FROM ambulance_call " + "WHERE daily_log_id = ?";
@@ -621,6 +629,7 @@ public class DatabaseManager {
 						pickupLocation, dropoffLocation, totalMiles, insurance, aicEmployee);
 				ambulanceCalls.add(ambulanceCall);
 			}
+			System.out.println("database returned: " + ambulanceCalls.size() + " ambulance calls");
 		} catch (SQLException e) {
 			System.out.println("SQL Exception: " + e.getMessage());
 			e.printStackTrace();

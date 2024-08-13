@@ -365,5 +365,10 @@ public class TTController {
 		db.addAmbulanceCall(call);
 		
 	}
+	//used by CallLogCard to refresh data and get new list of calls 
+	public List<AmbulanceCall> getAmbulanceCallsByID(int callLogId){
+		List<AmbulanceCall> results = db.getAmbulanceCallsByDailyLogId(callLogId);
+		return results;
+	}
 
 }
