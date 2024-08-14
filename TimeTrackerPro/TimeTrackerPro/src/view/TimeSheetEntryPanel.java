@@ -3,6 +3,7 @@ package view;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -16,6 +17,7 @@ import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
 import model.ColorConstants;
+import model.KeyBindingUtil;
 import model.TimeFormatter;
 import model.TimeSheet;
 import model.ValidationListener;
@@ -129,7 +131,19 @@ public class TimeSheetEntryPanel extends JPanel {
 		shiftEndDatePicker.getJFormattedTextField().getDocument()
 				.addDocumentListener(new ValidationListener(this::validateFields));
 
+		
 		validateFields();
+		
+		addKeyBindings();
+	}
+
+	private void addKeyBindings() {
+	    KeyBindingUtil.addSubmitAndCancelBindings(employeeNameComboBox, submitButton, cancelButton);
+	    KeyBindingUtil.addSubmitAndCancelBindings(shiftStartDatePicker.getJFormattedTextField(), submitButton, cancelButton);
+	    KeyBindingUtil.addSubmitAndCancelBindings(shiftEndDatePicker.getJFormattedTextField(), submitButton, cancelButton);
+	    KeyBindingUtil.addSubmitAndCancelBindings(shiftStartTimePicker, submitButton, cancelButton);
+	    KeyBindingUtil.addSubmitAndCancelBindings(shiftEndTimePicker, submitButton, cancelButton);
+	    KeyBindingUtil.addSubmitAndCancelBindings(overtimeCommentField, submitButton, cancelButton);
 	}
 
 	private void addComponent(String label, JComponent component, GridBagConstraints c, int row, int col) {
@@ -255,5 +269,7 @@ public class TimeSheetEntryPanel extends JPanel {
 
 		return isValid;
 	}
+	//function to add binginds to keys for submit and cancel via enter/escape
+	
 
 }
