@@ -136,7 +136,7 @@ public class TimeSheetEntryPanel extends JPanel {
 		
 		addKeyBindings();
 	}
-
+	//bindings on adding a new time sheet 
 	private void addKeyBindings() {
 	    KeyBindingUtil.addSubmitAndCancelBindings(employeeNameComboBox, submitButton, cancelButton);
 	    KeyBindingUtil.addSubmitAndCancelBindings(shiftStartDatePicker.getJFormattedTextField(), submitButton, cancelButton);

@@ -15,6 +15,7 @@ import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
 import model.ColorConstants;
+import model.KeyBindingUtil;
 
 public class CallLogEntryPanel extends JPanel {
 	private JTextField truckUnitNumberField;
@@ -28,6 +29,7 @@ public class CallLogEntryPanel extends JPanel {
 	private JButton submitButton;
 	private JButton cancelButton;
 	private JLabel warningLabel;
+	private boolean isEditMode = false;
 
 	private List<String> crewMembers;
 
@@ -115,8 +117,30 @@ public class CallLogEntryPanel extends JPanel {
 		addComponent("", cancelButton, c, 1, 6);
 		
 		addListeners();
+		addKeyBindings();
 
 		System.out.println("CallLogEntryPanel created");
+	}
+	
+	public void setEditMode(boolean isEditMode) {
+		this.isEditMode = isEditMode;
+		if(isEditMode) {
+			submitButton.setText("Update Log");
+		} else {
+			submitButton.setText("Create Log");
+		}
+	}
+	
+	public boolean isEditMode() {
+		return isEditMode;
+	}
+
+	private void addKeyBindings() {
+	    KeyBindingUtil.addSubmitAndCancelBindings(truckUnitNumberField, submitButton, cancelButton);
+	    KeyBindingUtil.addSubmitAndCancelBindings(startDatePicker.getJFormattedTextField(), submitButton, cancelButton);
+	    KeyBindingUtil.addSubmitAndCancelBindings(endDatePicker.getJFormattedTextField(), submitButton, cancelButton);
+	    KeyBindingUtil.addSubmitAndCancelBindings(crewMemberComboBox, submitButton, cancelButton);
+	    KeyBindingUtil.addSubmitAndCancelBindings(crewMemberList, submitButton, cancelButton);
 	}
 
 	private void addComponent(String label, JComponent component, GridBagConstraints c, int row, int col) {
@@ -177,6 +201,14 @@ public class CallLogEntryPanel extends JPanel {
 		String selectedCrewMember = crewMemberList.getSelectedValue();
 		if (selectedCrewMember != null) {
 			crewMemberListModel.removeElement(selectedCrewMember);
+		}
+	}
+	
+	public void addCrewMembersToCrewMemberListBox(List<String> crewOnCall){
+		if(crewOnCall != null) {
+			for (String crew : crewOnCall) {
+				crewMemberListModel.addElement(crew);
+			}
 		}
 	}
 

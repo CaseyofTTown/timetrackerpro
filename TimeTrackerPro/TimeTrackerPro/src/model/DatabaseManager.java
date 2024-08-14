@@ -500,7 +500,7 @@ public class DatabaseManager {
 			System.out.println(e.getMessage());
 		}
 	}
-	
+
 	public List<DailyCallLog> getDailyCallLogsByDateRange(Date startDate, Date endDate) {
 		List<DailyCallLog> dailyCallLogs = new ArrayList<>();
 		String sql = "SELECT id, start_date, end_date, truck_unit_number, crew_members " + "FROM daily_call_log "
@@ -542,6 +542,49 @@ public class DatabaseManager {
 		}
 
 		return dailyCallLogs;
+	}
+
+	public DailyCallLog getCallLogById(int id) {
+		String sql = "SELECT * FROM daily_call_log WHERE id = ?";
+		DailyCallLog dailyCallLog = null;
+
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setInt(1, id);
+			ResultSet rs = pstmt.executeQuery();
+
+			if (rs.next()) {
+				java.util.Date startDate = parseDate(rs.getString("start_date"));
+				java.util.Date endDate = parseDate(rs.getString("end_date"));
+				String truckUnitNumber = rs.getString("truck_unit_number");
+				List<String> crewMembers = Arrays.asList(rs.getString("crew_members").split(","));
+
+				dailyCallLog = new DailyCallLog(startDate, endDate, truckUnitNumber);
+				dailyCallLog.setId(id);
+				dailyCallLog.setCrewMembers(crewMembers);
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+
+		return dailyCallLog;
+	}
+
+	public void updateDailyCallLog(DailyCallLog dailyCallLog) {
+		String sqlUpdateDailyCallLog = "UPDATE daily_call_log SET start_date = ?, end_date = ?, truck_unit_number = ?, crew_members = ? WHERE id = ?";
+
+		try (PreparedStatement pstmt = connection.prepareStatement(sqlUpdateDailyCallLog)) {
+			pstmt.setString(1, formatDate(dailyCallLog.getStartDate()));
+			pstmt.setString(2, formatDate(dailyCallLog.getEndDate()));
+			pstmt.setString(3, dailyCallLog.getTruckUnitNumber());
+			pstmt.setString(4, String.join(",", dailyCallLog.getCrewMembers()));
+			pstmt.setInt(5, dailyCallLog.getId());
+
+			int affectedRows = pstmt.executeUpdate();
+			System.out.println("updated daily log with: " + affectedRows + " rows affected");
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
 	}
 
 	// Delete a daily call log entry from the database
@@ -604,8 +647,6 @@ public class DatabaseManager {
 		}
 	}
 
-	
-
 	public List<AmbulanceCall> getAmbulanceCallsByDailyLogId(int dailyLogId) {
 		List<AmbulanceCall> ambulanceCalls = new ArrayList<>();
 		String sql = "SELECT id, daily_log_id, call_date, patients_name, call_category, pickup_location, dropoff_location, total_miles, insurance, aic_employee "
@@ -642,59 +683,57 @@ public class DatabaseManager {
 
 		return ambulanceCalls;
 	}
-	
+
 	public void deleteAmbulanceCall(int ambulanceCallId) {
-	    String sqlDeleteAmbulanceCall = "DELETE FROM ambulance_call WHERE id = ?";
+		String sqlDeleteAmbulanceCall = "DELETE FROM ambulance_call WHERE id = ?";
 
-	    try (PreparedStatement pstmt = connection.prepareStatement(sqlDeleteAmbulanceCall)) {
-	        pstmt.setInt(1, ambulanceCallId);
-	        System.out.println("Executing query: " + sqlDeleteAmbulanceCall);
+		try (PreparedStatement pstmt = connection.prepareStatement(sqlDeleteAmbulanceCall)) {
+			pstmt.setInt(1, ambulanceCallId);
+			System.out.println("Executing query: " + sqlDeleteAmbulanceCall);
 
-	        int affectedRows = pstmt.executeUpdate();
+			int affectedRows = pstmt.executeUpdate();
 
-	        if (affectedRows > 0) {
-	            System.out.println("Ambulance call with ID " + ambulanceCallId + " was deleted successfully.");
-	        } else {
-	            System.out.println("No ambulance call found with ID " + ambulanceCallId);
-	        }
+			if (affectedRows > 0) {
+				System.out.println("Ambulance call with ID " + ambulanceCallId + " was deleted successfully.");
+			} else {
+				System.out.println("No ambulance call found with ID " + ambulanceCallId);
+			}
 
-	    } catch (SQLException e) {
-	        System.out.println("SQL Exception: " + e.getMessage());
-	        e.printStackTrace();
-	    }
+		} catch (SQLException e) {
+			System.out.println("SQL Exception: " + e.getMessage());
+			e.printStackTrace();
+		}
 	}
-	
+
 	public void updateAmbulanceCall(AmbulanceCall ambulanceCall) {
-	    String sqlUpdateAmbulanceCall = "UPDATE ambulance_call SET daily_log_id = ?, call_date = ?, patients_name = ?, call_category = ?, pickup_location = ?, dropoff_location = ?, total_miles = ?, insurance = ?, aic_employee = ? WHERE id = ?";
+		String sqlUpdateAmbulanceCall = "UPDATE ambulance_call SET daily_log_id = ?, call_date = ?, patients_name = ?, call_category = ?, pickup_location = ?, dropoff_location = ?, total_miles = ?, insurance = ?, aic_employee = ? WHERE id = ?";
 
-	    try (PreparedStatement pstmt = connection.prepareStatement(sqlUpdateAmbulanceCall)) {
-	        pstmt.setInt(1, ambulanceCall.getDailyLogId());
-	        pstmt.setString(2, formatDate(ambulanceCall.getCallDate()));
-	        pstmt.setString(3, ambulanceCall.getPatientsName());
-	        pstmt.setString(4, ambulanceCall.getCallCategory().toString());
-	        pstmt.setString(5, ambulanceCall.getPickupLocation());
-	        pstmt.setString(6, ambulanceCall.getDropoffLocation());
-	        pstmt.setInt(7, ambulanceCall.getTotalMiles());
-	        pstmt.setString(8, ambulanceCall.getInsurance());
-	        pstmt.setString(9, ambulanceCall.getAicName());
-	        pstmt.setInt(10, ambulanceCall.getId());
-	        System.out.println("Executing query: " + sqlUpdateAmbulanceCall);
+		try (PreparedStatement pstmt = connection.prepareStatement(sqlUpdateAmbulanceCall)) {
+			pstmt.setInt(1, ambulanceCall.getDailyLogId());
+			pstmt.setString(2, formatDate(ambulanceCall.getCallDate()));
+			pstmt.setString(3, ambulanceCall.getPatientsName());
+			pstmt.setString(4, ambulanceCall.getCallCategory().toString());
+			pstmt.setString(5, ambulanceCall.getPickupLocation());
+			pstmt.setString(6, ambulanceCall.getDropoffLocation());
+			pstmt.setInt(7, ambulanceCall.getTotalMiles());
+			pstmt.setString(8, ambulanceCall.getInsurance());
+			pstmt.setString(9, ambulanceCall.getAicName());
+			pstmt.setInt(10, ambulanceCall.getId());
+			System.out.println("Executing query: " + sqlUpdateAmbulanceCall);
 
-	        int affectedRows = pstmt.executeUpdate();
+			int affectedRows = pstmt.executeUpdate();
 
-	        if (affectedRows > 0) {
-	            System.out.println("Ambulance call with ID " + ambulanceCall.getId() + " was updated successfully.");
-	        } else {
-	            System.out.println("No ambulance call found with ID " + ambulanceCall.getId());
-	        }
+			if (affectedRows > 0) {
+				System.out.println("Ambulance call with ID " + ambulanceCall.getId() + " was updated successfully.");
+			} else {
+				System.out.println("No ambulance call found with ID " + ambulanceCall.getId());
+			}
 
-	    } catch (SQLException e) {
-	        System.out.println("SQL Exception: " + e.getMessage());
-	        e.printStackTrace();
-	    }
+		} catch (SQLException e) {
+			System.out.println("SQL Exception: " + e.getMessage());
+			e.printStackTrace();
+		}
 	}
-
-
 
 	public void close() {
 		try {

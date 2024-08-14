@@ -35,7 +35,7 @@ public class HomeView extends JPanel {
 		this.controller = controller;
 		if (employeeNames == null) {
 			System.out.println("employeeNames was null in HomeView, creating new list");
-			employeeNames = new ArrayList<>();
+			employeeNames = controller.getEmployeeListFromDb();
 		}
 
 		// panel with BorderLayout

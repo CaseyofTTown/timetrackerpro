@@ -263,9 +263,7 @@ public class TTController {
 		handleHomeViewSetupAndNavigate();
 	}
 	
-	private void updateDateRangesForOtherClasses() {
-		
-	}
+	
 
 	private void handleHomeViewSetupAndNavigate() {
 
@@ -360,6 +358,10 @@ public class TTController {
 		db.deleteDailyCallLog(idOfSelectedCallLogCard);
 		
 	}
+	public void updateDailyCallLog(DailyCallLog log) {
+		db.updateDailyCallLog(log);
+		
+	}
 
 	public void addAmbulanceCall(AmbulanceCall call) {
 		db.addAmbulanceCall(call);
@@ -375,5 +377,17 @@ public class TTController {
 		db.updateAmbulanceCall(call);
 		
 	}
+
+	public DailyCallLog getCallLogById(int idOfSelectedCallLogCard) {
+		DailyCallLog result = db.getCallLogById(idOfSelectedCallLogCard);
+		return result;
+	}
+
+	public List<String> getEmployeeListFromDb() {
+		List<String> employeeNames = db.getAllEmployeeNames();
+		return employeeNames;
+	}
+
+	
 
 }

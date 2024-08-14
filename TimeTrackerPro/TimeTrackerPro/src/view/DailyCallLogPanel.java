@@ -48,7 +48,7 @@ public class DailyCallLogPanel extends JPanel implements CallLogCardSelectionLis
 		this.controller = controller;
 		if (crewMembers == null) {
 			System.out.println("employee names list null on dl panel");
-			crewMembers = new ArrayList<>();
+			crewMembers = controller.getEmployeeListFromDb();
 		} else {
 			System.out.println("DailyLogPanel created with " + crewMembers.size() + " crew members passed");
 		}
@@ -129,7 +129,13 @@ public class DailyCallLogPanel extends JPanel implements CallLogCardSelectionLis
 		deleteCallLogButton.addActionListener(e -> deleteCallLogWithSelectedId());
 		// Add action listener to cancel button
 		callLogEntryPanel.getCancelButton().addActionListener(e -> hideAddNewCallLogPanel());
-		callLogEntryPanel.getSubmitButton().addActionListener(e -> handleCreateNewCallLog());
+		callLogEntryPanel.getSubmitButton().addActionListener(e -> {
+			if (callLogEntryPanel.isEditMode()) {
+				handleUpdateCallLog();
+			} else {
+				handleCreateNewCallLog();
+			}
+		});
 
 		// listener to update call log date range
 		startDatePicker.addActionListener(new ActionListener() {
@@ -146,35 +152,91 @@ public class DailyCallLogPanel extends JPanel implements CallLogCardSelectionLis
 				updateCallLog();
 			}
 		});
-		//leaving for a way to force refresh incase something is wrong 
+		// leaving for a way to force refresh incase something is wrong
 		updateCallLogDisplayDateRangesBttn.addActionListener(e -> updateCallLog());
 
 		System.out.println("DailyCallLogPanel created");
+		addKeyBindings();
 		revalidate();
 		repaint();
 	}
-	
+
+	private void addKeyBindings() {
+
+	}
 
 	@Override
 	public void onCardSelected(CallLogCard selectedCard) {
-	    System.out.println("onCardSelected called with card: " + selectedCard);
-	    if (selectedCard != null) {
-	        idOfSelectedCallLogCard = selectedCard.getCallLogId(); // store selected id
-	        this.selectedCard = selectedCard;
-	    } else {
-	        idOfSelectedCallLogCard = -1; // reset id
-	        this.selectedCard = null;
-	    }
-	    boolean isSelected = selectedCard != null && selectedCard.isSelected();
-	    modifyDailyCallLogBttn.setEnabled(isSelected);
-	    deleteCallLogButton.setEnabled(isSelected);
+		System.out.println("onCardSelected called with card: " + selectedCard);
+		if (selectedCard != null) {
+			idOfSelectedCallLogCard = selectedCard.getCallLogId(); // store selected id
+			this.selectedCard = selectedCard;
+		} else {
+			idOfSelectedCallLogCard = -1; // reset id
+			this.selectedCard = null;
+		}
+		boolean isSelected = selectedCard != null && selectedCard.isSelected();
+		modifyDailyCallLogBttn.setEnabled(isSelected);
+		deleteCallLogButton.setEnabled(isSelected);
 	}
 
-
-
 	private void loadCreateNewCallLogIdWithExistingLog() {
-		// TODO Auto-generated method stub
+		if (selectedCard != null) {
+			DailyCallLog selectedLog = controller.getCallLogById(idOfSelectedCallLogCard);
+			if (selectedLog != null) {
+				callLogEntryPanel.setTruckUnitNumber(selectedLog.getTruckUnitNumber());
+				callLogEntryPanel.setStartDate(selectedLog.getStartDate());
+				callLogEntryPanel.setEndDate(selectedLog.getEndDate());
+				callLogEntryPanel.addCrewMembersToCrewMemberListBox(selectedLog.getCrewMembers());
+				// set edit mode flag
+				callLogEntryPanel.setEditMode(true);
+				showAddNewCallLogPanel();
+			}
+		}
+	}
 
+	private void handleCreateNewCallLog() {
+		Date shiftStartDate = callLogEntryPanel.getStartDate();
+		Date shiftEndDate = callLogEntryPanel.getEndDate();
+		String truckUnitNumber = callLogEntryPanel.getTruckUnitNumber();
+
+		DailyCallLog log = new DailyCallLog(shiftStartDate, shiftEndDate, truckUnitNumber);
+
+		// add employees to objects list
+		if (callLogEntryPanel.getCrewMemberList() != null) {
+			List<String> emplList = callLogEntryPanel.getCrewMemberList();
+			for (String Employees : emplList) {
+				log.addCrewMember(Employees);
+			}
+		}
+		controller.createNewCallLog(log);
+		// reset and hide entry panel
+		hideAddNewCallLogPanel();
+		updateCallLog();
+	}
+
+	// called when callLogEntryPanel has true for isEditMode
+	private void handleUpdateCallLog() {
+		Date shiftStartDate = callLogEntryPanel.getStartDate();
+		Date shiftEndDate = callLogEntryPanel.getEndDate();
+		String truckUnitNumber = callLogEntryPanel.getTruckUnitNumber();
+		List<String> crewMembers = callLogEntryPanel.getCrewMemberList();
+
+		DailyCallLog log = new DailyCallLog(shiftStartDate, shiftEndDate, truckUnitNumber);
+		log.setId(idOfSelectedCallLogCard); // Set the ID of the log being updated
+		// add employees to objects list
+		if (callLogEntryPanel.getCrewMemberList() != null) {
+			List<String> emplList = callLogEntryPanel.getCrewMemberList();
+			for (String Employees : emplList) {
+				log.addCrewMember(Employees);
+			}
+		}
+
+		controller.updateDailyCallLog(log);
+
+		// Reset and hide entry panel
+		hideAddNewCallLogPanel();
+		updateCallLog();
 	}
 
 	private void deleteCallLogWithSelectedId() {
@@ -182,24 +244,25 @@ public class DailyCallLogPanel extends JPanel implements CallLogCardSelectionLis
 		updateCallLog();
 	}
 
-	//create call log cards, set listener, pass cards to display for it to show them. no longer creating them in display
+	// create call log cards, set listener, pass cards to display for it to show
+	// them. no longer creating them in display
 	public void updateCallLog() {
-	    try {
-	        callLogDisplay.clearAllEntries();
-	        dailyLogList = controller.getCallLogsFromDateToDate();
-	        for (DailyCallLog callLog : dailyLogList) {
-	            CallLogCard card = new CallLogCard(callLog, controller);
-	            card.setSelectionListener(this); // Set the listener
-	            callLogDisplay.addCallLogCard(card);
-	        }
-	        System.out.println(dailyLogList.size() + " call logs passed to callLogDisplay, addAllCallLogCards called -updateCallLogs()");
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
-	    revalidate();
-	    repaint();
+		try {
+			callLogDisplay.clearAllEntries();
+			dailyLogList = controller.getCallLogsFromDateToDate();
+			for (DailyCallLog callLog : dailyLogList) {
+				CallLogCard card = new CallLogCard(callLog, controller);
+				card.setSelectionListener(this); // Set the listener
+				callLogDisplay.addCallLogCard(card);
+			}
+			System.out.println(dailyLogList.size()
+					+ " call logs passed to callLogDisplay, addAllCallLogCards called -updateCallLogs()");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		revalidate();
+		repaint();
 	}
-
 
 	private void updateStartSqlDateInController() {
 		if (controller != null) {
@@ -224,26 +287,6 @@ public class DailyCallLogPanel extends JPanel implements CallLogCardSelectionLis
 			System.out.println("controller was null when updateEndSqlDateInController called it");
 
 		}
-	}
-
-	private void handleCreateNewCallLog() {
-		Date shiftStartDate = callLogEntryPanel.getStartDate();
-		Date shiftEndDate = callLogEntryPanel.getEndDate();
-		String truckUnitNumber = callLogEntryPanel.getTruckUnitNumber();
-
-		DailyCallLog log = new DailyCallLog(shiftStartDate, shiftEndDate, truckUnitNumber);
-
-		// add employees to objects list
-		if (callLogEntryPanel.getCrewMemberList() != null) {
-			List<String> emplList = callLogEntryPanel.getCrewMemberList();
-			for (String Employees : emplList) {
-				log.addCrewMember(Employees);
-			}
-		}
-		controller.createNewCallLog(log);
-		// reset and hide entry panel
-		hideAddNewCallLogPanel();
-		updateCallLog();
 	}
 
 	public void hideAddNewCallLogPanel() {
@@ -348,6 +391,9 @@ public class DailyCallLogPanel extends JPanel implements CallLogCardSelectionLis
 	public void showAddNewCallLogPanel() {
 		splitPane.setDividerLocation(0.5);
 		callLogEntryPanel.setVisible(true);
+		if (callLogEntryPanel != null) {
+			this.callLogEntryPanel.setCrewMemberList(crewMembers);
+		}
 	}
 
 	// Getters for CallLogEntryPanel to allow view.controller to create a new Call
@@ -379,7 +425,6 @@ public class DailyCallLogPanel extends JPanel implements CallLogCardSelectionLis
 	public JPanel getCallLogEntryPanel() {
 		return callLogEntryPanel;
 	}
-
 
 	// Setters to modify a call log
 	public void setTruckUnitNumberOnModCallLog(String truckUnitNumber) {
