@@ -146,6 +146,7 @@ public class DailyCallLogPanel extends JPanel implements CallLogCardSelectionLis
 				updateCallLog();
 			}
 		});
+		//leaving for a way to force refresh incase something is wrong 
 		updateCallLogDisplayDateRangesBttn.addActionListener(e -> updateCallLog());
 
 		System.out.println("DailyCallLogPanel created");
@@ -154,19 +155,21 @@ public class DailyCallLogPanel extends JPanel implements CallLogCardSelectionLis
 	}
 	
 
-    @Override
-    public void onCardSelected(CallLogCard selectedCard) {
-        if (selectedCard != null) {
-            idOfSelectedCallLogCard = selectedCard.getCallLogId(); // store selected id
-            System.out.println("Selected Card id: " + idOfSelectedCallLogCard);
-        } else {
-            System.out.println("Selected Card is null");
-            idOfSelectedCallLogCard = -1; // reset id
-        }
-        boolean isSelected = selectedCard != null;
-        modifyDailyCallLogBttn.setEnabled(isSelected);
-        deleteCallLogButton.setEnabled(isSelected);
-    }
+	@Override
+	public void onCardSelected(CallLogCard selectedCard) {
+	    System.out.println("onCardSelected called with card: " + selectedCard);
+	    if (selectedCard != null) {
+	        idOfSelectedCallLogCard = selectedCard.getCallLogId(); // store selected id
+	        this.selectedCard = selectedCard;
+	    } else {
+	        idOfSelectedCallLogCard = -1; // reset id
+	        this.selectedCard = null;
+	    }
+	    boolean isSelected = selectedCard != null && selectedCard.isSelected();
+	    modifyDailyCallLogBttn.setEnabled(isSelected);
+	    deleteCallLogButton.setEnabled(isSelected);
+	}
+
 
 
 	private void loadCreateNewCallLogIdWithExistingLog() {
@@ -377,10 +380,6 @@ public class DailyCallLogPanel extends JPanel implements CallLogCardSelectionLis
 		return callLogEntryPanel;
 	}
 
-	// Getters/setters to update callLogDisplay
-	public void addAllCallLogsToDisplay(List<DailyCallLog> callLogs) {
-		callLogDisplay.addAllCallLogCards(callLogs, this);
-	}
 
 	// Setters to modify a call log
 	public void setTruckUnitNumberOnModCallLog(String truckUnitNumber) {

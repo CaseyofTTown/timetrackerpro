@@ -327,8 +327,8 @@ public class TTController {
 	}
 
 	// handleAmbulanceCalls
-	public void deleteAmbulanceCall(AmbulanceCall call) {
-		// TODO Auto-generated method stub
+	public void deleteAmbulanceCall(int ambulanceCallId) {
+		db.deleteAmbulanceCall(ambulanceCallId);
 
 	}
 
@@ -369,6 +369,11 @@ public class TTController {
 	public List<AmbulanceCall> getAmbulanceCallsByID(int callLogId){
 		List<AmbulanceCall> results = db.getAmbulanceCallsByDailyLogId(callLogId);
 		return results;
+	}
+
+	public void updateAmbulanceCall(AmbulanceCall call) {
+		db.updateAmbulanceCall(call);
+		
 	}
 
 }

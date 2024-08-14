@@ -500,42 +500,7 @@ public class DatabaseManager {
 			System.out.println(e.getMessage());
 		}
 	}
-
-	// functions for managing Ambulance call table
-
-	public void addAmbulanceCall(AmbulanceCall ambulanceCall) {
-		String sqlInsertAmbulanceCall = "INSERT INTO ambulance_call (daily_log_id, call_date, patients_name, call_category, pickup_location, dropoff_location, total_miles, insurance, aic_employee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-		try (PreparedStatement pstmt = connection.prepareStatement(sqlInsertAmbulanceCall,
-				Statement.RETURN_GENERATED_KEYS)) {
-			pstmt.setInt(1, ambulanceCall.getDailyLogId());
-			pstmt.setString(2, formatDate(ambulanceCall.getCallDate()));
-			pstmt.setString(3, ambulanceCall.getPatientsName());
-			pstmt.setString(4, ambulanceCall.getCallCategory().toString());
-			pstmt.setString(5, ambulanceCall.getPickupLocation());
-			pstmt.setString(6, ambulanceCall.getDropoffLocation());
-			pstmt.setInt(7, ambulanceCall.getTotalMiles());
-			pstmt.setString(8, ambulanceCall.getInsurance());
-			pstmt.setString(9, ambulanceCall.getAicName());
-			System.out.println("Executing query :" + sqlInsertAmbulanceCall);
-
-			int affectedRows = pstmt.executeUpdate();
-
-			if (affectedRows > 0) {
-				try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
-					if (generatedKeys.next()) {
-						ambulanceCall.setId(generatedKeys.getInt(1));
-					}
-				}
-				System.out.println(affectedRows + " rows affect in ambulance call table");
-			}
-
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-			e.printStackTrace();
-		}
-	}
-
+	
 	public List<DailyCallLog> getDailyCallLogsByDateRange(Date startDate, Date endDate) {
 		List<DailyCallLog> dailyCallLogs = new ArrayList<>();
 		String sql = "SELECT id, start_date, end_date, truck_unit_number, crew_members " + "FROM daily_call_log "
@@ -604,6 +569,43 @@ public class DatabaseManager {
 		}
 	}
 
+	// functions for managing Ambulance call table
+
+	public void addAmbulanceCall(AmbulanceCall ambulanceCall) {
+		String sqlInsertAmbulanceCall = "INSERT INTO ambulance_call (daily_log_id, call_date, patients_name, call_category, pickup_location, dropoff_location, total_miles, insurance, aic_employee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+		try (PreparedStatement pstmt = connection.prepareStatement(sqlInsertAmbulanceCall,
+				Statement.RETURN_GENERATED_KEYS)) {
+			pstmt.setInt(1, ambulanceCall.getDailyLogId());
+			pstmt.setString(2, formatDate(ambulanceCall.getCallDate()));
+			pstmt.setString(3, ambulanceCall.getPatientsName());
+			pstmt.setString(4, ambulanceCall.getCallCategory().toString());
+			pstmt.setString(5, ambulanceCall.getPickupLocation());
+			pstmt.setString(6, ambulanceCall.getDropoffLocation());
+			pstmt.setInt(7, ambulanceCall.getTotalMiles());
+			pstmt.setString(8, ambulanceCall.getInsurance());
+			pstmt.setString(9, ambulanceCall.getAicName());
+			System.out.println("Executing query :" + sqlInsertAmbulanceCall);
+
+			int affectedRows = pstmt.executeUpdate();
+
+			if (affectedRows > 0) {
+				try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+					if (generatedKeys.next()) {
+						ambulanceCall.setId(generatedKeys.getInt(1));
+					}
+				}
+				System.out.println(affectedRows + " rows affect in ambulance call table");
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	
+
 	public List<AmbulanceCall> getAmbulanceCallsByDailyLogId(int dailyLogId) {
 		List<AmbulanceCall> ambulanceCalls = new ArrayList<>();
 		String sql = "SELECT id, daily_log_id, call_date, patients_name, call_category, pickup_location, dropoff_location, total_miles, insurance, aic_employee "
@@ -640,6 +642,59 @@ public class DatabaseManager {
 
 		return ambulanceCalls;
 	}
+	
+	public void deleteAmbulanceCall(int ambulanceCallId) {
+	    String sqlDeleteAmbulanceCall = "DELETE FROM ambulance_call WHERE id = ?";
+
+	    try (PreparedStatement pstmt = connection.prepareStatement(sqlDeleteAmbulanceCall)) {
+	        pstmt.setInt(1, ambulanceCallId);
+	        System.out.println("Executing query: " + sqlDeleteAmbulanceCall);
+
+	        int affectedRows = pstmt.executeUpdate();
+
+	        if (affectedRows > 0) {
+	            System.out.println("Ambulance call with ID " + ambulanceCallId + " was deleted successfully.");
+	        } else {
+	            System.out.println("No ambulance call found with ID " + ambulanceCallId);
+	        }
+
+	    } catch (SQLException e) {
+	        System.out.println("SQL Exception: " + e.getMessage());
+	        e.printStackTrace();
+	    }
+	}
+	
+	public void updateAmbulanceCall(AmbulanceCall ambulanceCall) {
+	    String sqlUpdateAmbulanceCall = "UPDATE ambulance_call SET daily_log_id = ?, call_date = ?, patients_name = ?, call_category = ?, pickup_location = ?, dropoff_location = ?, total_miles = ?, insurance = ?, aic_employee = ? WHERE id = ?";
+
+	    try (PreparedStatement pstmt = connection.prepareStatement(sqlUpdateAmbulanceCall)) {
+	        pstmt.setInt(1, ambulanceCall.getDailyLogId());
+	        pstmt.setString(2, formatDate(ambulanceCall.getCallDate()));
+	        pstmt.setString(3, ambulanceCall.getPatientsName());
+	        pstmt.setString(4, ambulanceCall.getCallCategory().toString());
+	        pstmt.setString(5, ambulanceCall.getPickupLocation());
+	        pstmt.setString(6, ambulanceCall.getDropoffLocation());
+	        pstmt.setInt(7, ambulanceCall.getTotalMiles());
+	        pstmt.setString(8, ambulanceCall.getInsurance());
+	        pstmt.setString(9, ambulanceCall.getAicName());
+	        pstmt.setInt(10, ambulanceCall.getId());
+	        System.out.println("Executing query: " + sqlUpdateAmbulanceCall);
+
+	        int affectedRows = pstmt.executeUpdate();
+
+	        if (affectedRows > 0) {
+	            System.out.println("Ambulance call with ID " + ambulanceCall.getId() + " was updated successfully.");
+	        } else {
+	            System.out.println("No ambulance call found with ID " + ambulanceCall.getId());
+	        }
+
+	    } catch (SQLException e) {
+	        System.out.println("SQL Exception: " + e.getMessage());
+	        e.printStackTrace();
+	    }
+	}
+
+
 
 	public void close() {
 		try {

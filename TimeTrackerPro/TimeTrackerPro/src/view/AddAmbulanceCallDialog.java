@@ -27,12 +27,15 @@ public class AddAmbulanceCallDialog extends JDialog {
 	private TTController controller;
 	private int dailyLogId;
 	private JButton submitButton;
+	private boolean isModifyMode;
+	private AmbulanceCall existingCall;
 
 	public AddAmbulanceCallDialog(Frame owner, TTController controller, int dailyLogId, Date[] callDates,
-			List<String> employees) {
+			List<String> employees, boolean isModifyMode) {
 		super(owner, "Add Ambulance Call", true);
 		this.controller = controller;
 		this.dailyLogId = dailyLogId;
+		this.isModifyMode = isModifyMode;
 		setLocationRelativeTo(null); // Center the dialog
 
 		// Set dark layout
@@ -105,44 +108,50 @@ public class AddAmbulanceCallDialog extends JDialog {
 		panel.add(aicEmployeeField, gbc);
 
 		// Submit button
-		submitButton = new JButton("Submit");
+		submitButton = new JButton(isModifyMode ? "Update" : "Submit");
 		submitButton.setBackground(ColorConstants.DEEP_BLUE);
 		submitButton.setForeground(ColorConstants.LIME_GREEN);
 		submitButton.setEnabled(false);
 		submitButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// Collect data from fields
-				Date callDate = (Date) callDateField.getSelectedItem();
-				String patientsName = patientsNameField.getText();
-				TypeOfCallEnum callCategory = (TypeOfCallEnum) callCategoryField.getSelectedItem();
-				String pickupLocation = pickupLocationField.getText();
-				String dropoffLocation = dropoffLocationField.getText();
-				int totalMiles = totalMilesField.getText().trim().isEmpty() ? 0
-						: Integer.parseInt(totalMilesField.getText().trim());
-				String insurance = insuranceField.getText();
-				String aicEmployee = (String) aicEmployeeField.getSelectedItem();
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        // Collect data from fields
+		        Date callDate = (Date) callDateField.getSelectedItem();
+		        String patientsName = patientsNameField.getText();
+		        TypeOfCallEnum callCategory = (TypeOfCallEnum) callCategoryField.getSelectedItem();
+		        String pickupLocation = pickupLocationField.getText();
+		        String dropoffLocation = dropoffLocationField.getText();
+		        int totalMiles = totalMilesField.getText().trim().isEmpty() ? 0
+		                : Integer.parseInt(totalMilesField.getText().trim());
+		        String insurance = insuranceField.getText();
+		        String aicEmployee = (String) aicEmployeeField.getSelectedItem();
 
-				// Create an AmbulanceCall object
-				AmbulanceCall call;
-				try {
-					if (callCategory == TypeOfCallEnum.Refusal) {
-						call = new AmbulanceCall(dailyLogId, callDate, callCategory, pickupLocation, aicEmployee);
-					} else {
-						call = new AmbulanceCall(dailyLogId, callDate, patientsName, callCategory, pickupLocation,
-								dropoffLocation, totalMiles, insurance, aicEmployee);
-					}
+		        try {
+		            AmbulanceCall call;
+		            if (callCategory == TypeOfCallEnum.Refusal) {
+		                call = new AmbulanceCall(dailyLogId, callDate, callCategory, pickupLocation, aicEmployee);
+		            } else {
+		                call = new AmbulanceCall(dailyLogId, callDate, patientsName, callCategory, pickupLocation,
+		                        dropoffLocation, totalMiles, insurance, aicEmployee);
+		            }
 
-					// Use the controller to submit the call to the database
-					controller.addAmbulanceCall(call);
-				} catch (Exception exception) {
-					exception.printStackTrace();
-				}
+		            if (isModifyMode && existingCall != null) {
+		                // Update the existing call
+		                call.setId(existingCall.getId()); //get existing call ids and add to new obj used to update
+		                controller.updateAmbulanceCall(call);
+		            } else {
+		                // Create a new call
+		                controller.addAmbulanceCall(call);
+		            }
+		        } catch (Exception exception) {
+		            exception.printStackTrace();
+		        }
 
-				// Close the dialog
-				dispose();
-			}
+		        // Close the dialog
+		        dispose();
+		    }
 		});
+
 		gbc.gridx = 0;
 		gbc.gridy = 4;
 		gbc.gridwidth = 2;
@@ -232,4 +241,18 @@ public class AddAmbulanceCallDialog extends JDialog {
 	private void checkFormValidity() {
 		submitButton.setEnabled(isFormValid());
 	}
+	
+	//set fields with an existing ambulance call
+	public void setCallDetails(AmbulanceCall call) {
+	    this.existingCall = call;
+	    callDateField.setSelectedItem(call.getCallDate());
+	    patientsNameField.setText(call.getPatientsName());
+	    callCategoryField.setSelectedItem(call.getCallCategory());
+	    pickupLocationField.setText(call.getPickupLocation());
+	    dropoffLocationField.setText(call.getDropoffLocation());
+	    totalMilesField.setText(String.valueOf(call.getTotalMiles()));
+	    insuranceField.setText(call.getInsurance());
+	    aicEmployeeField.setSelectedItem(call.getAicName());
+	}
+
 }
