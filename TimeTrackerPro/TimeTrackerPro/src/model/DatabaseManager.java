@@ -609,7 +609,7 @@ public class DatabaseManager {
 	public List<AmbulanceCall> getAmbulanceCallsByDailyLogId(int dailyLogId) {
 		List<AmbulanceCall> ambulanceCalls = new ArrayList<>();
 		String sql = "SELECT id, daily_log_id, call_date, patients_name, call_category, pickup_location, dropoff_location, total_miles, insurance, aic_employee "
-				+ "FROM ambulance_call " + "WHERE daily_log_id = ?";
+				+ "FROM ambulance_call " + "WHERE daily_log_id = ?" + "ORDER BY call_date ASC";
 
 		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 			pstmt.setInt(1, dailyLogId);

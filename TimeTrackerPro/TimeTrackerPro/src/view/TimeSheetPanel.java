@@ -9,6 +9,8 @@ import model.TimeSheet;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.Time;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -67,18 +69,22 @@ public class TimeSheetPanel extends JPanel {
 		// TimeSheetDisplay Component
 		timeSheetDisplay = new TimeSheetDisplay();
 		timeSheetDisplay.setBackground(ColorConstants.DARK_GRAY);
-		// add(new JScrollPane(timeSheetDisplay), BorderLayout.CENTER);
+
+		JScrollPane scrollPane = new JScrollPane(timeSheetDisplay);
+		scrollPane.getViewport().setBackground(ColorConstants.DARK_GRAY); // Set the viewport background
+		scrollPane.setBackground(ColorConstants.DARK_GRAY);
 
 		// TimeSheetEntryPanel (initially hidden)
 		timeSheetEntryPanel = new TimeSheetEntryPanel(employeeNames);
 		timeSheetEntryPanel.setVisible(false);
-		// add(timeSheetEntryPanel, BorderLayout.EAST);
 
-		splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(timeSheetDisplay), timeSheetEntryPanel);
-		splitPane.setResizeWeight(0.8);// adjust size weight
+		splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scrollPane, timeSheetEntryPanel);
+		splitPane.setResizeWeight(0.8); // Adjust size weight
+		splitPane.setBackground(ColorConstants.DARK_GRAY);
 		splitPane.setOneTouchExpandable(true);
 		splitPane.setDividerLocation(300);
 		add(splitPane, BorderLayout.CENTER);
+
 
 		// Buttons
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -102,11 +108,31 @@ public class TimeSheetPanel extends JPanel {
 		modifyButton.setEnabled(false);
 		deleteTimeSheetButton.setEnabled(false);
 
-		timeSheetDisplay.getSelectionModel().addListSelectionListener(e -> {
-			boolean isSelected = timeSheetDisplay.getSelectedRow() != -1;
-			modifyButton.setEnabled(isSelected);
-			deleteTimeSheetButton.setEnabled(isSelected);
+		// Add the MouseListener to the TimeSheetDisplay to handle deselection instead of getSelectionModel()
+		timeSheetDisplay.addMouseListener(new MouseAdapter() {
+		    private int selectedRow = -1;
+
+		    @Override
+		    public void mouseClicked(MouseEvent e) {
+		        int currentSelectedRow = timeSheetDisplay.rowAtPoint(e.getPoint());
+		        System.out.println("Mouse clicked on row: " + currentSelectedRow);
+
+		        if (currentSelectedRow == selectedRow) {
+		            // Deselect the row if it is already selected
+		            System.out.println("same row selected, calling clearSelection()");
+		            timeSheetDisplay.clearSelection();
+		            selectedRow = -1;
+		        } else {
+		            selectedRow = currentSelectedRow;
+		        }
+
+		        boolean isSelected = selectedRow != -1;
+		        modifyButton.setEnabled(isSelected);
+		        deleteTimeSheetButton.setEnabled(isSelected);
+		        System.out.println("Final selectedRow: " + selectedRow);
+		    }
 		});
+
 
 		System.out.println("TimeSheetPanel created");
 		revalidate();

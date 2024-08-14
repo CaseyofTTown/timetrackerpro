@@ -36,11 +36,14 @@ public class CallLogCard extends JPanel {
 	private int callLogId;
 	private static CallLogCard selectedCard = null; // keep track of selected card
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	private int selectedRow = -1;
 
+	
 	public CallLogCard(DailyCallLog callLog, TTController controller) {
 		this.callLog = callLog;
 		this.callLogId = callLog.getId();
 		this.controller = controller;
+		this.selectedRow = -1;
 		setLayout(new BorderLayout());
 		setBackground(ColorConstants.DARK_GRAY);
 		setBorder(BorderFactory.createLineBorder(ColorConstants.GOLD, 2));
@@ -69,7 +72,7 @@ public class CallLogCard extends JPanel {
 		gbc.gridx = 1;
 		JLabel truckValueLabel = new JLabel(callLog.getTruckUnitNumber());
 		truckValueLabel.setForeground(ColorConstants.ORANGE);
-		truckValueLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+		truckValueLabel.setFont(new Font("Arial", Font.PLAIN, 16));
 		headerPanel.add(truckValueLabel, gbc);
 
 		// Log Start Date
@@ -82,7 +85,7 @@ public class CallLogCard extends JPanel {
 		gbc.gridx = 3;
 		JLabel startDateValueLabel = new JLabel(startDate);
 		startDateValueLabel.setForeground(ColorConstants.ORANGE);
-		startDateValueLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+		startDateValueLabel.setFont(new Font("Arial", Font.PLAIN, 16));
 		headerPanel.add(startDateValueLabel, gbc);
 
 		// Log End Date
@@ -95,7 +98,7 @@ public class CallLogCard extends JPanel {
 		gbc.gridx = 5;
 		JLabel endDateValueLabel = new JLabel(endDate);
 		endDateValueLabel.setForeground(ColorConstants.ORANGE);
-		endDateValueLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+		endDateValueLabel.setFont(new Font("Arial", Font.PLAIN, 16));
 		headerPanel.add(endDateValueLabel, gbc);
 
 		// Crew Members
@@ -108,7 +111,7 @@ public class CallLogCard extends JPanel {
 		gbc.gridx = 7;
 		JLabel crewValueLabel = new JLabel(String.join(", ", callLog.getCrewMembers()));
 		crewValueLabel.setForeground(ColorConstants.ORANGE);
-		crewValueLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+		crewValueLabel.setFont(new Font("Arial", Font.PLAIN, 16));
 		headerPanel.add(crewValueLabel, gbc);
 
 		// Expand Button
@@ -198,23 +201,39 @@ public class CallLogCard extends JPanel {
 
 		add(detailsPanel, BorderLayout.CENTER);
 
-		// selection listener for ambulance call table
-		callTable.getSelectionModel().addListSelectionListener(e -> {
-			boolean isSelected = callTable.getSelectedRow() != -1;
-			modifyCallButton.setEnabled(isSelected);
-			deleteCallButton.setEnabled(isSelected);
+		// Add the MouseListener to the table
+		callTable.addMouseListener(new MouseAdapter() {
+		    @Override
+		    public void mouseClicked(MouseEvent e) {
+		        int currentSelectedRow = callTable.rowAtPoint(e.getPoint());
+		        System.out.println("Mouse clicked on row: " + currentSelectedRow);
+
+		        if (currentSelectedRow == selectedRow) {
+		            // Deselect the row if it is already selected
+		            System.out.println("same row selected, calling clearSelection()");
+		            callTable.clearSelection();
+		            selectedRow = -1;
+		        } else {
+		            selectedRow = currentSelectedRow;
+		        }
+
+		        boolean isSelected = selectedRow != -1;
+		        modifyCallButton.setEnabled(isSelected);
+		        deleteCallButton.setEnabled(isSelected);
+		        System.out.println("Final selectedRow: " + selectedRow);
+		    }
 		});
+
 
 		// listeners for modify and delete buttons
 		modifyCallButton.addActionListener(e -> {
-			int selectedRow = callTable.getSelectedRow();
-			if (selectedRow != -1) {
-				AmbulanceCall selectedCall = callLog.getAmbulanceCalls().get(selectedRow);
-				showModifyAmbulanceCallPopup(selectedCall);
-			}
+		    if (selectedRow != -1) {
+		        AmbulanceCall selectedCall = callLog.getAmbulanceCalls().get(selectedRow);
+		        showModifyAmbulanceCallPopup(selectedCall);
+		    }
 		});
+
 		deleteCallButton.addActionListener(e -> {
-		    int selectedRow = callTable.getSelectedRow();
 		    if (selectedRow != -1) {
 		        AmbulanceCall selectedCall = callLog.getAmbulanceCalls().get(selectedRow);
 		        int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this call?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
@@ -224,6 +243,7 @@ public class CallLogCard extends JPanel {
 		        }
 		    }
 		});
+
 		
 		this.isSelected = false;
 	}
