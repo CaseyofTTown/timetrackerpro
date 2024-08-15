@@ -395,6 +395,15 @@ public class DailyCallLogPanel extends JPanel implements CallLogCardSelectionLis
 			this.callLogEntryPanel.setCrewMemberList(crewMembers);
 		}
 	}
+	
+	public void addNewCallLogFromHotkeyButton(Date startDate, Date endDate) {
+		showAddNewCallLogPanel();
+		callLogEntryPanel.setStartDate(startDate);
+		callLogEntryPanel.setEndDate(endDate);
+		if (callLogEntryPanel != null) {
+			this.callLogEntryPanel.setCrewMemberList(crewMembers);
+		}
+	}
 
 	// Getters for CallLogEntryPanel to allow view.controller to create a new Call
 	// Log

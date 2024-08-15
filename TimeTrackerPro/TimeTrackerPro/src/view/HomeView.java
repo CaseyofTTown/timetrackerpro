@@ -8,11 +8,13 @@ import javax.swing.event.ChangeListener;
 
 import controller.TTController;
 import model.ColorConstants;
+import model.Employee;
 import model.TimeSheet;
 
 import java.awt.*;
 import java.sql.Time;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -24,15 +26,18 @@ public class HomeView extends JPanel {
 	private DailyCallLogPanel dailyCallLogPanel;
 	private List<String> employeeNames;
 	private TTController controller;
+	private JLabel clockLabel;
+	private JLabel employeeInfoLabel;
+	private Employee employee;
 
 	// added as an update to simplify passing dates to other pages, original
 	// architecture for TS page left in place, modified to set these
 	private Date datePickerStartDate;
 	private Date datePickerEndDate;
 
-	public HomeView(String employeeName, TTController controller) {
-
+	public HomeView(Employee employee, TTController controller) {
 		this.controller = controller;
+		this.employee = employee;
 		if (employeeNames == null) {
 			System.out.println("employeeNames was null in HomeView, creating new list");
 			employeeNames = controller.getEmployeeListFromDb();
@@ -42,21 +47,44 @@ public class HomeView extends JPanel {
 		setLayout(new BorderLayout());
 		setBackground(ColorConstants.CHARCOAL);
 
-		// Create a panel with a BorderLayout
-		JPanel panel = new JPanel(new BorderLayout());
-		panel.setBackground(ColorConstants.CHARCOAL);
-
-		// Create a panel for the welcome message
-		JPanel welcomePanel = new JPanel();
-		welcomePanel.setLayout(new BoxLayout(welcomePanel, BoxLayout.Y_AXIS));
+		// Create a panel with a GridBagLayout for precise control
+		JPanel welcomePanel = new JPanel(new GridBagLayout());
 		welcomePanel.setBackground(ColorConstants.DARK_GRAY);
 		welcomePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Add padding
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(0, 0, 0, 0);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
 
+		String employeeName = employee.getName();
 		// Create a label for the welcome message
-		welcomeLabel = new JLabel("Welcome, " + employeeName + "!", SwingConstants.CENTER);
+		welcomeLabel = new JLabel("Welcome, " + employeeName + "!", SwingConstants.LEFT);
 		welcomeLabel.setForeground(ColorConstants.GOLD);
 		welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
-		welcomePanel.add(welcomeLabel);
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.weightx = 1.0;
+		welcomePanel.add(welcomeLabel, gbc);
+
+		// Create a label for the clock
+		clockLabel = new JLabel();
+		clockLabel.setForeground(ColorConstants.ORANGE);
+		clockLabel.setFont(new Font("Arial", Font.BOLD, 24));
+		gbc.gridx = 1;
+		gbc.gridy = 0;
+		gbc.anchor = GridBagConstraints.CENTER;
+		gbc.weightx = 1.0;
+		welcomePanel.add(clockLabel, gbc);
+
+		// Create a label for the employee info
+		employeeInfoLabel = new JLabel();
+		employeeInfoLabel.setForeground(ColorConstants.LIME_GREEN);
+		employeeInfoLabel.setFont(new Font("Arial", Font.BOLD, 24));
+		gbc.gridx = 2;
+		gbc.gridy = 0;
+		gbc.anchor = GridBagConstraints.EAST;
+		gbc.weightx = 1.0;
+		welcomePanel.add(employeeInfoLabel, gbc);
 
 		// Add the welcome panel to the NORTH region of the main panel
 		add(welcomePanel, BorderLayout.NORTH);
@@ -65,9 +93,8 @@ public class HomeView extends JPanel {
 		tabbedPane = new JTabbedPane();
 		tabbedPane.setBackground(ColorConstants.DARK_GRAY);
 		tabbedPane.setForeground(ColorConstants.LIME_GREEN);
-
 		// Add tabs with standard components
-		tabbedPane.addTab("Time Sheets", createTimeSheetsPanel());
+		tabbedPane.addTab("Time Sheets", createTimeSheetsPanel(controller));
 		tabbedPane.addTab("Call Logs", createCallLogsPanel());
 		tabbedPane.addTab("Medication S/O", createMedicationSOPanel());
 		tabbedPane.addTab("Reports", createReportsPanel());
@@ -85,6 +112,9 @@ public class HomeView extends JPanel {
 			}
 		});
 
+		initializeClock();
+		setEmployeeInfo(this.employee);
+
 		System.out.println("homeView created");
 		revalidate();
 		repaint();
@@ -92,9 +122,9 @@ public class HomeView extends JPanel {
 	}
 
 	// Methods to create panels for each tab
-	private JPanel createTimeSheetsPanel() {
+	private JPanel createTimeSheetsPanel(TTController controller) {
 		System.out.println("creating time sheet panel");
-		timeSheetPanel = new TimeSheetPanel();
+		timeSheetPanel = new TimeSheetPanel(controller);
 		timeSheetPanel.setBackground(ColorConstants.CHARCOAL);
 		return timeSheetPanel;
 	}
@@ -118,6 +148,48 @@ public class HomeView extends JPanel {
 		panel.setBackground(ColorConstants.CHARCOAL);
 		// Add components specific to Reports
 		return panel;
+	}
+	
+	//method for to quickly start a log from a TS
+	public void switchToLogPanelandEnterLog(Date startDate, Date endDate) {
+		tabbedPane.setSelectedComponent(dailyCallLogPanel);
+		dailyCallLogPanel.addNewCallLogFromHotkeyButton(startDate, endDate);
+	}
+
+	// for elements on the header of the main page
+	private void initializeClock() {
+		Timer timer = new Timer(250, e -> {
+			LocalTime now = LocalTime.now();
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+			clockLabel.setText("Time: " + now.format(formatter));
+		});
+		timer.start();
+	}
+
+	public void setEmployeeInfo(Employee employee) {
+		if (employee != null) {
+			String level = employee.getCertLevel().toString();
+			String infoText;
+
+			if ("Driver".equalsIgnoreCase(level)) {
+				infoText = "Level: Driver";
+				employeeInfoLabel.setForeground(ColorConstants.ORANGE);
+			} else {
+				int daysUntilExpiration = employee.calculateDaysUntilExpiration();
+				if (daysUntilExpiration >= 0) {
+					infoText = "Days until certification expires: " + daysUntilExpiration;
+					employeeInfoLabel.setForeground(ColorConstants.LIME_GREEN);
+				} else {
+					infoText = "Error calculating expiration date.";
+					employeeInfoLabel.setForeground(ColorConstants.CRIMSON_RED);
+				}
+			}
+
+			employeeInfoLabel.setText(infoText);
+		} else {
+			employeeInfoLabel.setText("Employee information not available.");
+			employeeInfoLabel.setForeground(ColorConstants.CRIMSON_RED);
+		}
 	}
 
 	// methods to set the start and end dates on timesheetview and this class so it
@@ -164,14 +236,14 @@ public class HomeView extends JPanel {
 		timeSheetPanel.revalidate();
 		timeSheetPanel.repaint();
 		System.out.println("names passed to time sheet panel = " + employeeNames.size());
-		if(dailyCallLogPanel != null) {
+		if (dailyCallLogPanel != null) {
 			dailyCallLogPanel.setCrewMemberList(employeeNames);
-			System.out.println("crew list for daiyl logs updated w/ employee names through setEmplNameList in homeView");
+			System.out
+					.println("crew list for daiyl logs updated w/ employee names through setEmplNameList in homeView");
 		} else {
 			System.out.println("dailyCallLogPanel was null when setEmployeeNameList was called");
 		}
-		
-		
+
 	}
 
 	public TimeSheetPanel getTimeSheetPanel() {

@@ -8,6 +8,7 @@ import java.util.List;
 
 import model.CertificationLevelenum;
 import model.ColorConstants;
+import model.Employee;
 import model.TimeSheet;
 
 import java.awt.*;
@@ -133,22 +134,25 @@ public class viewClass extends JFrame {
 		System.out.println("controller has been passed to viewClass");
 	}
 
-	public void showHomeView(String employeeName) {
+	public void showHomeView(Employee employee) {
 		if (homeView != null) {
 			System.out.println("removing home view");
 			mainPanel.remove(homeView);
 		}
-		homeView = new HomeView(employeeName, controller);
+		homeView = new HomeView(employee, controller);
 
 		mainPanel.add(homeView, "HomeView");
 		homeView.setVisible(true);
 
 		cardLayout.show(mainPanel, "HomeView");
-		System.out.println("HomeView shown with employee name: " + employeeName);
+		System.out.println("HomeView shown with employee name: " + employee);
 		updateWindowSize();
 		revalidate();
 		repaint();
 
+	}
+	public void createLogFromTimeSheet(Date startDate, Date endDate) {
+		homeView.switchToLogPanelandEnterLog(startDate, endDate);
 	}
 
 	public void hideHomeView() {

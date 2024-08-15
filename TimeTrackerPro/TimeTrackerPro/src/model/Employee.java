@@ -59,6 +59,23 @@ public class Employee {
 	public List<TimeSheet> getTimeSheetList() {
 		return this.timeSheetList;
 	}
+	public int calculateDaysUntilExpiration() {
+	    try {
+	        Date expirationDate = this.getCertExpDate();
+	        if (expirationDate == null) {
+	            throw new Exception("No expiration date available.");
+	        }
+
+	        Date currentDate = new Date();
+	        long diffInMillies = expirationDate.getTime() - currentDate.getTime();
+	        return (int) (diffInMillies / (1000 * 60 * 60 * 24));
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return -1; // Indicate an error
+	    }
+	}
+
+
 
 	public void setName(String name) {
 		if (this.name != null)

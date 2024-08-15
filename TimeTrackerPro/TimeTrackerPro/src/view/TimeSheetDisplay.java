@@ -16,6 +16,7 @@ public class TimeSheetDisplay extends JTable {
 	private DefaultTableModel model;
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 	private List<Integer> timeSheetIds;
+	private List<TimeSheet> timeSheets;
 
 	public TimeSheetDisplay() {
 		model = new DefaultTableModel() {
@@ -46,6 +47,7 @@ public class TimeSheetDisplay extends JTable {
 		setDefaultRenderer(Object.class, new CustomCellRenderer());
 
 		timeSheetIds = new ArrayList<>();
+		timeSheets = new ArrayList<>(); // added because time sheets are not directly passed to this class
 
 		System.out.println("TimeSheetDisplay created");
 	}
@@ -93,6 +95,7 @@ public class TimeSheetDisplay extends JTable {
 				formatDate(timesheet.getShiftEndDate()), timesheet.getShiftStartTime(), timesheet.getShiftEndTime(),
 				timesheet.getFormattedHoursWorked(), timesheet.getOvertimeComment() });
 		timeSheetIds.add(timesheet.getTimeSheetId());
+		timeSheets.add(timesheet);
 		revalidate();
 		repaint();
 	}
@@ -104,7 +107,7 @@ public class TimeSheetDisplay extends JTable {
 					formatDate(timesheet.getShiftEndDate()), timesheet.getShiftStartTime(), timesheet.getShiftEndTime(),
 					timesheet.getFormattedHoursWorked(), timesheet.getOvertimeComment() });
 			timeSheetIds.add(timesheet.getTimeSheetId());
-
+			timeSheets.add(timesheet);
 		}
 
 		revalidate();
@@ -126,11 +129,13 @@ public class TimeSheetDisplay extends JTable {
 
 	// Method to remove a time sheet entry
 	public void removeTimeSheetEntry(int rowIndex) {
-		model.removeRow(rowIndex);
-		timeSheetIds.remove(rowIndex);
-		revalidate();
-		repaint();
+	    model.removeRow(rowIndex);
+	    timeSheetIds.remove(rowIndex);
+	    timeSheets.remove(rowIndex);
+	    revalidate();
+	    repaint();
 	}
+
 
 	// Method to clear all entries
 	public void clearAllEntries() {
@@ -139,15 +144,24 @@ public class TimeSheetDisplay extends JTable {
 		revalidate();
 		repaint();
 	}
+	
+	public TimeSheet getTimeSheetAt(int rowIndex) {
+	    if (rowIndex >= 0 && rowIndex < timeSheets.size()) {
+	        return timeSheets.get(rowIndex);
+	    }
+	    throw new IndexOutOfBoundsException("Invalid row index");
+	}
+	
+
 
 	// Helper method to format date
 	private String formatDate(java.util.Date date) {
 		return DATE_FORMAT.format(date);
 	}
-	
+
 	public int getSelectedTimeSheetId() {
 		int selectedRow = getSelectedRow();
-		if(selectedRow != -1) {
+		if (selectedRow != -1) {
 			System.out.println("selected timeSheetRow: " + selectedRow);
 			return timeSheetIds.get(selectedRow);
 		}

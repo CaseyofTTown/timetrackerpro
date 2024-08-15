@@ -279,7 +279,7 @@ public class TTController {
 		System.out.println("Fetched " + timeSheets.size() + " time sheets from the database.");
 		System.out.println("Fetched " + employeeNames.size() + " employee names from the database.");
 
-		view.showHomeView(employee.getName());
+		view.showHomeView(employee);
 		view.setEmployeeNameList(employeeNames);
 
 		// Update the view with the fetched time sheets
@@ -309,6 +309,11 @@ public class TTController {
 		} else {
 			System.out.println("Time sheet with id: " + selectedTimeSheetId + " was not found.");
 		}
+	}
+	
+	//function to quickly create a log from existing time sheet 
+	public  void createLogFromTimeSheetDates(java.util.Date startDate, java.util.Date endDate) {
+		view.createLogFromTimeSheet(startDate, endDate);
 	}
 
 	private java.sql.Date[] calculateRecentDatesForTimeSheets() {

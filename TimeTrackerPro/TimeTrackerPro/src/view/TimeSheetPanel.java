@@ -3,7 +3,10 @@ package view;
 import javax.swing.*;
 import java.util.List;
 import org.jdatepicker.impl.JDatePickerImpl;
+
+import controller.TTController;
 import model.ColorConstants;
+import model.KeyBindingUtil;
 import model.TimeSheet;
 
 import java.awt.*;
@@ -23,15 +26,23 @@ public class TimeSheetPanel extends JPanel {
 	private JButton modifyButton;
 	private JButton deleteTimeSheetButton;
 	private JButton updateTimeSheetDisplayDateRanges;
+	private JButton createNewLogFromSelectionbttn;
 	private TimeSheetDisplay timeSheetDisplay;
 	private JDatePickerImpl startDatePicker;
 	private JDatePickerImpl endDatePicker;
 	private TimeSheetEntryPanel timeSheetEntryPanel;
 	private List<String> employeeNames;
 	private JSplitPane splitPane;
+	private TTController controller;
+	//store selected time sheet to allow faster log creation
+	private TimeSheet selectedTimeSheet = null;
 
-	public TimeSheetPanel() {
+	public TimeSheetPanel(TTController  controller) {
 
+		//controller added as a later update, originally buttons are passed up
+		if(controller!= null) {
+			this.controller = controller;
+		}
 		if (employeeNames == null) {
 			employeeNames = new ArrayList<>();
 		}
@@ -93,7 +104,12 @@ public class TimeSheetPanel extends JPanel {
 		addButton = new JButton("Add New Time Sheet");
 		modifyButton = new JButton("Modify Time Sheet");
 		deleteTimeSheetButton = new JButton("Delete Time Sheet");
-
+		
+		createNewLogFromSelectionbttn = new JButton("Quick Log w/ selection");
+		createNewLogFromSelectionbttn.setBackground(ColorConstants.CHARCOAL);
+		createNewLogFromSelectionbttn.setForeground(ColorConstants.ORANGE);
+		createNewLogFromSelectionbttn.setEnabled(false);
+		
 		styleButton(addButton);
 		styleButton(modifyButton);
 		styleButton(deleteTimeSheetButton);
@@ -101,7 +117,14 @@ public class TimeSheetPanel extends JPanel {
 		buttonPanel.add(addButton);
 		buttonPanel.add(modifyButton);
 		buttonPanel.add(deleteTimeSheetButton);
-
+		buttonPanel.add(createNewLogFromSelectionbttn);
+		
+		//keybinding ctrl + t = add new time sheet
+		KeyBindingUtil.addCreateNewTimeSheetKeyBinding(this, addButton);
+		// Key binding for Ctrl+L to create log from selected time sheet
+	    KeyBindingUtil.addCreateLogFromTimeSheetBinding(this, createNewLogFromSelectionbttn);
+	    
+	    
 		add(buttonPanel, BorderLayout.SOUTH);
 
 		// disable buttons if time sheet not selected
@@ -122,14 +145,29 @@ public class TimeSheetPanel extends JPanel {
 		            System.out.println("same row selected, calling clearSelection()");
 		            timeSheetDisplay.clearSelection();
 		            selectedRow = -1;
+		            selectedTimeSheet = null;
 		        } else {
 		            selectedRow = currentSelectedRow;
+		            selectedTimeSheet = timeSheetDisplay.getTimeSheetAt(currentSelectedRow);
 		        }
 
 		        boolean isSelected = selectedRow != -1;
 		        modifyButton.setEnabled(isSelected);
 		        deleteTimeSheetButton.setEnabled(isSelected);
+		        createNewLogFromSelectionbttn.setEnabled(isSelected);
 		        System.out.println("Final selectedRow: " + selectedRow);
+		    }
+		});
+		
+		createNewLogFromSelectionbttn.addActionListener(new ActionListener() {
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        if (selectedTimeSheet != null) {
+		        	Date startDate = selectedTimeSheet.getShiftStartDate();
+		        	Date endDate = selectedTimeSheet.getShiftEndDate();
+		        	
+		        	controller.createLogFromTimeSheetDates(startDate, endDate);
+		        }
 		    }
 		});
 
