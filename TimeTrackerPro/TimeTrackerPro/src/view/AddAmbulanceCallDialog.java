@@ -1,4 +1,4 @@
-package view;
+ package view;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import model.AmbulanceCall;
 import model.ColorConstants;
+import model.KeyBindingUtil;
 import model.TypeOfCallEnum;
 import controller.TTController;
 import java.util.List;
@@ -25,6 +26,7 @@ public class AddAmbulanceCallDialog extends JDialog {
 	private TitledTextField totalMilesField;
 	private TitledTextField insuranceField;
 	private TTController controller;
+	private JButton cancelButton;
 	private int dailyLogId;
 	private JButton submitButton;
 	private boolean isModifyMode;
@@ -158,7 +160,7 @@ public class AddAmbulanceCallDialog extends JDialog {
 		panel.add(submitButton, gbc);
 
 		// Cancel button
-		JButton cancelButton = new JButton("Cancel");
+		cancelButton = new JButton("Cancel");
 		cancelButton.setBackground(ColorConstants.CRIMSON_RED);
 		cancelButton.setForeground(ColorConstants.WHITE);
 		cancelButton.addActionListener(new ActionListener() {
@@ -194,6 +196,9 @@ public class AddAmbulanceCallDialog extends JDialog {
 				System.out.println("Call category selected: " + selectedCategory);
 			}
 		});
+		
+		//set key bindings
+		setBindings();
 
 		// Add DocumentListeners to text fields
 		addDocumentListener(patientsNameField.getTextField());
@@ -241,6 +246,11 @@ public class AddAmbulanceCallDialog extends JDialog {
 	private void checkFormValidity() {
 		submitButton.setEnabled(isFormValid());
 	}
+	
+	//set key bindings
+	private void setBindings() {
+        KeyBindingUtil.addSubmitAndCancelBindings(this.getRootPane(), submitButton, cancelButton);
+    }
 	
 	//set fields with an existing ambulance call
 	public void setCallDetails(AmbulanceCall call) {

@@ -587,30 +587,49 @@ public class DatabaseManager {
 		}
 	}
 
-	// Delete a daily call log entry from the database
 	public void deleteDailyCallLog(int id) {
-		String sql = "DELETE FROM daily_call_log WHERE id = ?";
+	    String deleteLogSql = "DELETE FROM daily_call_log WHERE id = ?";
+	    String deleteCallSql = "DELETE FROM ambulance_call WHERE id = ?";
 
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, id);
+	    try {
+	        // Retrieve the list of ambulance calls associated with the log
+	        List<AmbulanceCall> calls = getAmbulanceCallsByDailyLogId(id);
 
-			System.out.println("Executing delete: " + sql);
-			System.out.println("DailyCallLog ID: " + id);
+	        // Delete each ambulance call
+	        for (AmbulanceCall call : calls) {
+	            try (PreparedStatement pstmt = connection.prepareStatement(deleteCallSql)) {
+	                pstmt.setInt(1, call.getId());
+	                int affectedRows = pstmt.executeUpdate();
+	                if (affectedRows > 0) {
+	                    System.out.println("AmbulanceCall ID " + call.getId() + " deleted successfully.");
+	                } else {
+	                    System.out.println("AmbulanceCall delete failed: No rows affected.");
+	                }
+	            } catch (SQLException e) {
+	                System.out.println("SQL Exception: " + e.getMessage());
+	                e.printStackTrace();
+	            }
+	        }
 
-			int affectedRows = pstmt.executeUpdate();
-			if (affectedRows > 0) {
-				System.out.println("DailyCallLog deleted successfully.");
-			} else {
-				System.out.println("DailyCallLog delete failed: No rows affected.");
-			}
-		} catch (SQLException e) {
-			System.out.println("SQL Exception: " + e.getMessage());
-			e.printStackTrace();
-		} catch (Exception e) {
-			System.out.println("General Exception: " + e.getMessage());
-			e.printStackTrace();
-		}
+	        // Delete the daily call log entry
+	        try (PreparedStatement pstmt = connection.prepareStatement(deleteLogSql)) {
+	            pstmt.setInt(1, id);
+	            int affectedRows = pstmt.executeUpdate();
+	            if (affectedRows > 0) {
+	                System.out.println("DailyCallLog deleted successfully.");
+	            } else {
+	                System.out.println("DailyCallLog delete failed: No rows affected.");
+	            }
+	        } catch (SQLException e) {
+	            System.out.println("SQL Exception: " + e.getMessage());
+	            e.printStackTrace();
+	        }
+	    } catch (Exception e) {
+	        System.out.println("General Exception: " + e.getMessage());
+	        e.printStackTrace();
+	    }
 	}
+
 
 	// functions for managing Ambulance call table
 
