@@ -8,14 +8,20 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.jdatepicker.impl.JDatePickerImpl;
+
+import controller.TTController;
 import model.CertificationLevelenum;
 import model.ColorConstants;
+import model.Employee;
+import model.KeyBindingUtil;
 
 public class NewEmployeeInfoView extends JFrame {
 	private TitledTextField nameField;
@@ -24,9 +30,14 @@ public class NewEmployeeInfoView extends JFrame {
 	private TitledTextField certificationNumberField;
 	private JDatePickerImpl expirationDateField;
 	private JButton submitNewEmployeeButton;
+	private boolean isUpdating = false;
+	private TTController controller;
+	private JButton updateEmployeeInfoButton;
+	private Employee employee;
 
-	public NewEmployeeInfoView() {
-
+	public NewEmployeeInfoView(boolean isUpdating) {
+		this.isUpdating = isUpdating;
+	
 		setTitle("New Employee Information");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		JPanel panel = new JPanel(new GridBagLayout());
@@ -107,7 +118,31 @@ public class NewEmployeeInfoView extends JFrame {
 
 		submitNewEmployeeButton = new JButton("Submit");
 		submitNewEmployeeButton.setEnabled(false);
-		panel.add(submitNewEmployeeButton, c);
+
+		updateEmployeeInfoButton = new JButton("Update");
+		updateEmployeeInfoButton.setBackground(ColorConstants.SLATE_GRAY);
+		updateEmployeeInfoButton.setForeground(ColorConstants.ORANGE);
+		updateEmployeeInfoButton.setEnabled(false);
+
+		if (isUpdating) {
+			panel.add(updateEmployeeInfoButton, c);
+			updateEmployeeInfoButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (controller != null) {
+						Employee newEmployee = buildEmployeeObjectFromFields();
+						controller.updateEmployeeInfo(newEmployee);
+						System.out.println("updateEmplyoeeInfo called");
+					} else {
+						System.out.println("controller was null on NewEmployeePage");
+					}
+				}
+			});
+
+		} else {
+
+			panel.add(submitNewEmployeeButton, c);
+		}
 
 		DocumentListener documentListener = new DocumentListener() {
 			public void changedUpdate(DocumentEvent documentEvent) {
@@ -130,8 +165,18 @@ public class NewEmployeeInfoView extends JFrame {
 		expirationDateField.getJFormattedTextField().getDocument().addDocumentListener(documentListener);
 
 		System.out.println("NewEmployeeInfoView created");
+		setupKeyBindings();
 		revalidate();
 		repaint();
+	}
+
+	private void setupKeyBindings() {
+		if (!isUpdating) {
+			KeyBindingUtil.addSubmitAndCancelBindings(getRootPane(), submitNewEmployeeButton, null);
+
+		} else {
+			KeyBindingUtil.addSubmitAndCancelBindings(getRootPane(), updateEmployeeInfoButton, null);
+		}
 	}
 
 	private void checkFields() {
@@ -143,7 +188,8 @@ public class NewEmployeeInfoView extends JFrame {
 		boolean certificationLevelSelected = certificationLevelComboBox.getSelectedItem() != null;
 		boolean expirationDateFilled = !expirationDateField.getJFormattedTextField().getText().trim().isEmpty();
 
-		//must have name, certSelection, if not certified, otherwise must enter all fields
+		// must have name, certSelection, if not certified, otherwise must enter all
+		// fields
 		boolean allFieldsFilled = isAnswered && nameFilled
 				&& (!isCertified || (certificationNumberFilled && certificationLevelSelected && expirationDateFilled));
 
@@ -152,8 +198,11 @@ public class NewEmployeeInfoView extends JFrame {
 			submitNewEmployeeButton.setEnabled(true);
 			submitNewEmployeeButton.setBackground(ColorConstants.DEEP_BLUE);
 			submitNewEmployeeButton.setForeground(ColorConstants.LIME_GREEN);
+			
+			updateEmployeeInfoButton.setEnabled(true);
 		} else {
 			submitNewEmployeeButton.setEnabled(false);
+			updateEmployeeInfoButton.setEnabled(false);
 		}
 	}
 
@@ -191,6 +240,56 @@ public class NewEmployeeInfoView extends JFrame {
 	public void addSubmitEmployeeInfoButtonListener(ActionListener listenForSubmitButton) {
 		System.out.println("listener added to submit employee button");
 		submitNewEmployeeButton.addActionListener(listenForSubmitButton);
+	}
+
+	private Employee buildEmployeeObjectFromFields() {
+		String name = getName();
+		String isEmsCertified = getEmsCertified();
+		CertificationLevelenum certificationLevel;
+		String certificationNumber = null;
+		Date expirationDate = null;
+
+		if (isEmsCertified.equals("Yes")) {
+			certificationLevel = getCertificationLevel();
+			certificationNumber = getCertificationNumber();
+			expirationDate = getExpirationDate();
+		} else {
+			certificationLevel = CertificationLevelenum.DRIVER;
+		}
+
+		try {
+			employee = new Employee(employee.getId(), name, certificationLevel, certificationNumber, expirationDate);
+		} catch (Exception e) {
+			System.out.println("Unable to create employee object: " + e.getMessage());
+		}
+
+		return employee;
+	}
+
+	// called by homeview to update employee info
+	public void setEmployeeInfoFromExisting(Employee employee, TTController controller) {
+		this.controller = controller; // set controller instance for class
+		this.nameField.setText(employee.getName());
+		this.employee = employee; // storing employee object to extract id before passing back to controller as a
+									// whole object
+		if (employee.getCertLevel() == CertificationLevelenum.DRIVER) {
+			this.emsCertifiedComboBox.setSelectedIndex(2);
+			this.certificationLevelComboBox.setSelectedItem(CertificationLevelenum.DRIVER);
+		} else {
+			this.emsCertifiedComboBox.setSelectedIndex(1);
+			this.certificationLevelComboBox.setSelectedItem(employee.getCertLevel());
+			this.certificationNumberField.setText(employee.getCertificationNumber());
+			// Set the date picker with the employee's expiration date
+			Date expirationDate = employee.getCertExpDate();
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(expirationDate);
+			this.expirationDateField.getModel().setDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+					calendar.get(Calendar.DAY_OF_MONTH));
+			this.expirationDateField.getModel().setSelected(true);
+		}
+		revalidate();
+		repaint();
+
 	}
 
 }

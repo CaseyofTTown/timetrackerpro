@@ -104,6 +104,38 @@ public class DatabaseManager {
 			}
 		}
 	}
+	
+	public boolean updateEmployee(Employee employee) {
+	    System.out.println("calling update employee in db function");
+	    String sql = "UPDATE employees SET name = ?, level = ?, certificationNumber = ?, certExpirationDate = ? WHERE id = ?";
+
+	    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+	        pstmt.setString(1, employee.getName());
+	        pstmt.setString(2, employee.getCertLevel().toString());
+
+	        // if employee is a driver, the below will encounter null values
+	        if (employee.getCertificationNumber() != null) {
+	            pstmt.setString(3, employee.getCertificationNumber());
+	        } else {
+	            pstmt.setString(3, null);
+	        }
+
+	        if (employee.getCertExpDate() != null) {
+	            pstmt.setDate(4, new Date(employee.getCertExpDate().getTime()));
+	        } else {
+	            pstmt.setNull(4, java.sql.Types.DATE);
+	        }
+
+	        pstmt.setInt(5, employee.getId());
+
+	        int affectedRows = pstmt.executeUpdate();
+	        return affectedRows > 0;
+	    } catch (SQLException e) {
+	        System.out.println(e.getMessage());
+	        return false;
+	    }
+	}
+
 
 	// Add a time sheet entry to the database
 	public void addTimeSheet(TimeSheet timeSheet) {

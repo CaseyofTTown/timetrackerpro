@@ -28,8 +28,6 @@ public class viewClass extends JFrame {
 
 	
 	public viewClass() {
-		//reference to controller
-		this.controller = controller;
 		// set the window title
 		setTitle("Time Tracker Pro");
 
@@ -109,10 +107,20 @@ public class viewClass extends JFrame {
 
 	public void showNewEmployeeInfoView() {
 		if (newEmployeeInfoView == null) {
-			newEmployeeInfoView = new NewEmployeeInfoView();
-			mainPanel.add(newEmployeeInfoView.getContentPane(), "NewEmployeeInfoView");
-
+			newEmployeeInfoView = new NewEmployeeInfoView(false);
 		}
+
+		mainPanel.add(newEmployeeInfoView.getContentPane(), "NewEmployeeInfoView");
+		cardLayout.show(mainPanel, "NewEmployeeInfoView");
+		updateWindowSize();
+
+	}
+	
+	public void showNewEmployeeInfoViewToUpdateInfo() {
+		if (newEmployeeInfoView == null) {
+			newEmployeeInfoView = new NewEmployeeInfoView(true);
+		}
+		mainPanel.add(newEmployeeInfoView.getContentPane(), "NewEmployeeInfoView");
 		cardLayout.show(mainPanel, "NewEmployeeInfoView");
 		updateWindowSize();
 
@@ -127,6 +135,9 @@ public class viewClass extends JFrame {
 			updateWindowSize();
 
 		}
+	}
+	public void setEmployeeInfoOnUpdatePage(Employee employee) {
+		newEmployeeInfoView.setEmployeeInfoFromExisting(employee, controller);
 	}
 	
 	public void setController(TTController controller) {

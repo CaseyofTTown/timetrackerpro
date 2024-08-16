@@ -182,6 +182,31 @@ public class TTController {
 		}
 	}
 
+	public void showUiToUpdateEmployeeInformation(Employee employee) {
+		view.hideHomeView();
+		view.showNewEmployeeInfoViewToUpdateInfo();;
+		view.setEmployeeInfoOnUpdatePage(employee);
+
+	}
+
+	public void updateEmployeeInfo(Employee newEmployee) {
+		boolean success = false ;
+		try {
+		success = db.updateEmployee(newEmployee);
+		}catch(Exception e) {
+			System.out.println("unable to perform update employee");
+			e.printStackTrace();
+		}
+		
+		if(success) {
+			System.out.println(employee + " was update successfully!");
+			employee = newEmployee;
+		}
+		view.hideNewEmployeeInfoView();
+		handleHomeViewSetupAndNavigate();
+		
+	}
+
 	private void showNewEmployeeInfoUI() {
 		view.hideLoginRegisterView();
 		view.showNewEmployeeInfoView();
@@ -262,8 +287,6 @@ public class TTController {
 		// refresh view with new date ragne
 		handleHomeViewSetupAndNavigate();
 	}
-	
-	
 
 	private void handleHomeViewSetupAndNavigate() {
 
@@ -310,9 +333,9 @@ public class TTController {
 			System.out.println("Time sheet with id: " + selectedTimeSheetId + " was not found.");
 		}
 	}
-	
-	//function to quickly create a log from existing time sheet 
-	public  void createLogFromTimeSheetDates(java.util.Date startDate, java.util.Date endDate) {
+
+	// function to quickly create a log from existing time sheet
+	public void createLogFromTimeSheetDates(java.util.Date startDate, java.util.Date endDate) {
 		view.createLogFromTimeSheet(startDate, endDate);
 	}
 
@@ -344,16 +367,17 @@ public class TTController {
 			System.out.println("unable to add log\n" + e.getMessage());
 		}
 	}
-	
+
 	public List<DailyCallLog> getCallLogsFromDateToDate() {
 		List<DailyCallLog> results = db.getDailyCallLogsByDateRange(sqlStartDate, sqlEndDate);
 		return results;
 	}
-	
+
 	public void setSqlStartDate(java.sql.Date newSqlStartDate) {
 		useAutoDateRangesForTsDisplay = false;
 		this.sqlStartDate = newSqlStartDate;
 	}
+
 	public void setSqlEndDate(java.sql.Date newSqlEndDate) {
 		useAutoDateRangesForTsDisplay = false;
 		this.sqlEndDate = newSqlEndDate;
@@ -361,26 +385,28 @@ public class TTController {
 
 	public void deleteCallLogWithId(int idOfSelectedCallLogCard) {
 		db.deleteDailyCallLog(idOfSelectedCallLogCard);
-		
+
 	}
+
 	public void updateDailyCallLog(DailyCallLog log) {
 		db.updateDailyCallLog(log);
-		
+
 	}
 
 	public void addAmbulanceCall(AmbulanceCall call) {
 		db.addAmbulanceCall(call);
-		
+
 	}
-	//used by CallLogCard to refresh data and get new list of calls 
-	public List<AmbulanceCall> getAmbulanceCallsByID(int callLogId){
+
+	// used by CallLogCard to refresh data and get new list of calls
+	public List<AmbulanceCall> getAmbulanceCallsByID(int callLogId) {
 		List<AmbulanceCall> results = db.getAmbulanceCallsByDailyLogId(callLogId);
 		return results;
 	}
 
 	public void updateAmbulanceCall(AmbulanceCall call) {
 		db.updateAmbulanceCall(call);
-		
+
 	}
 
 	public DailyCallLog getCallLogById(int idOfSelectedCallLogCard) {
@@ -392,7 +418,5 @@ public class TTController {
 		List<String> employeeNames = db.getAllEmployeeNames();
 		return employeeNames;
 	}
-
-	
 
 }

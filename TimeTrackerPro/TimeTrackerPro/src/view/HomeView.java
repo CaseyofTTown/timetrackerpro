@@ -7,11 +7,14 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import controller.TTController;
+import model.CertificationLevelenum;
 import model.ColorConstants;
 import model.Employee;
 import model.TimeSheet;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Time;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -29,6 +32,8 @@ public class HomeView extends JPanel {
 	private JLabel clockLabel;
 	private JLabel employeeInfoLabel;
 	private Employee employee;
+	private JButton updateInfoButton;
+	private JPanel medicationSignOutPanel;
 
 	// added as an update to simplify passing dates to other pages, original
 	// architecture for TS page left in place, modified to set these
@@ -85,6 +90,21 @@ public class HomeView extends JPanel {
 		gbc.anchor = GridBagConstraints.EAST;
 		gbc.weightx = 1.0;
 		welcomePanel.add(employeeInfoLabel, gbc);
+		
+		updateInfoButton = new JButton();
+		updateInfoButton.setBackground(ColorConstants.DEEP_BLUE);
+		updateInfoButton.setForeground(ColorConstants.LIME_GREEN);
+		updateInfoButton.setFont(new Font("Arial", Font.BOLD, 18));
+		if(employee.getCertLevel() != CertificationLevelenum.DRIVER) {
+			updateInfoButton.setText("Update Cert");
+		} else {
+			updateInfoButton.setText("Add Certification");
+		}
+		gbc.gridx = 3;
+		gbc.gridy  = 0;
+		gbc.weightx = 1.0;
+		gbc.anchor = GridBagConstraints.EAST;
+		welcomePanel.add(updateInfoButton, gbc);
 
 		// Add the welcome panel to the NORTH region of the main panel
 		add(welcomePanel, BorderLayout.NORTH);
@@ -109,6 +129,13 @@ public class HomeView extends JPanel {
 				if (tabbedPane.getSelectedIndex() == 1) { // Assuming "Call Logs" is the second tab (index 1)
 					// TODO Fetch data when "Call Logs" tab is selected
 				}
+			}
+		});
+		
+		updateInfoButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				controller.showUiToUpdateEmployeeInformation(employee);
 			}
 		});
 
@@ -137,10 +164,9 @@ public class HomeView extends JPanel {
 	}
 
 	private JPanel createMedicationSOPanel() {
-		JPanel panel = new JPanel();
-		panel.setBackground(ColorConstants.CHARCOAL);
-		// Add components specific to Medication S/O
-		return panel;
+		medicationSignOutPanel = new MedicationSignOutPanel();
+		medicationSignOutPanel.setBackground(ColorConstants.CHARCOAL);
+		return medicationSignOutPanel;
 	}
 
 	private JPanel createReportsPanel() {
