@@ -124,18 +124,22 @@ public class ReportPanel extends JPanel {
 	}
 
 	private void generatePayrollReport(java.sql.Date startDate, java.sql.Date endDate) {
-		// Fetch the data using the controller
-        List<TimeSheet> timeSheets = controller.getTimeSheetsByDateRange(startDate, endDate);
-        List<Employee> employees = controller.getAllEmployees();
+	    // Fetch the data using the controller
+	    List<TimeSheet> timeSheets = controller.getTimeSheetsByDateRange(startDate, endDate);
+	    List<Employee> employees = controller.getAllEmployees();
 
-        // Generate the report
-        TimeSheetReport report = new TimeSheetReport(timeSheets, employees, startDate, endDate);
-        JTable reportTable = report.generateReportTable();
-        JTable summaryTable = report.generateSummaryTable();
+	    // Convert java.sql.Date to java.util.Date
+	    java.util.Date utilStartDate = new java.util.Date(startDate.getTime());
+	    java.util.Date utilEndDate = new java.util.Date(endDate.getTime());
 
-        // Display the report in the print preview panel
-        printPreviewPanel.setReportContent(reportTable, summaryTable);
-    }
+	    // Generate the report
+	    TimeSheetReport report = new TimeSheetReport(timeSheets, employees, utilStartDate, utilEndDate);
+	    JTable reportTable = report.generateReportTable();
+
+	    // Display the report in the print preview panel
+	    printPreviewPanel.setReportContent(reportTable, utilStartDate, utilEndDate);
+	}
+
 
 
 }

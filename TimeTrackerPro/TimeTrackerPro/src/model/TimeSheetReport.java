@@ -21,7 +21,19 @@ public class TimeSheetReport {
         String[] columnNames = {"Employee Name", "Shift Start Date", "Shift End Date", "Shift Start Time", "Shift End Time", "Hours Worked", "Overtime Comments"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         JTable table = new JTable(model);
+        
+     // Set preferred column widths
+        table.getColumnModel().getColumn(0).setPreferredWidth(150); // Employee Name
+        table.getColumnModel().getColumn(1).setPreferredWidth(75); // Shift Start Date
+        table.getColumnModel().getColumn(2).setPreferredWidth(75); // Shift End Date
+        table.getColumnModel().getColumn(3).setPreferredWidth(75); // Shift Start Time
+        table.getColumnModel().getColumn(4).setPreferredWidth(75); // Shift End Time
+        table.getColumnModel().getColumn(5).setPreferredWidth(125); // Hours Worked
+        table.getColumnModel().getColumn(6).setPreferredWidth(200); // Overtime Comments
 
+        table.getTableHeader().setReorderingAllowed(false);
+        table.getTableHeader().setResizingAllowed(true);
+        
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         // Organize data into 7-day blocks and sort by date
@@ -57,61 +69,36 @@ public class TimeSheetReport {
                 }
             }
         }
+        
+        generateSummaryTable(model);
 
         return table;
     }
 
-    public JTable generateSummaryTable() {
-        String[] columnNames = {"Employee Name", "Week 1 Hours", "Week 2 Hours", "Total Hours"};
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
-        JTable table = new JTable(model);
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
-        // Organize data into 7-day blocks and sort by date
-        Map<Integer, List<TimeSheet>> employeeTimeSheets = new HashMap<>();
+    private void generateSummaryTable(DefaultTableModel model) {
+        Map<Integer, Long> employeeHours = new HashMap<>();
         for (TimeSheet ts : timeSheets) {
-            employeeTimeSheets.computeIfAbsent(ts.getEmployeeId(), k -> new ArrayList<>()).add(ts);
+            if (ts.getShiftStartDate().before(startDate) || ts.getShiftStartDate().after(endDate)) {
+                continue;
+            }
+            long hoursWorked = ts.calculateTimeWorked();
+            employeeHours.put(ts.getEmployeeId(), employeeHours.getOrDefault(ts.getEmployeeId(), 0L) + hoursWorked);
         }
 
-        // Sort time sheets by start date
-        for (List<TimeSheet> tsList : employeeTimeSheets.values()) {
-            tsList.sort(Comparator.comparing(TimeSheet::getShiftStartDate));
-        }
+        model.addRow(new Object[]{"", "", "", "", "", "", ""}); // Add empty row for separation
+        model.addRow(new Object[]{"Employee", "Total Hours", "", "", "", "", ""}); // Add summary header
 
-        // Generate summary content
         for (Employee emp : employees) {
-            List<TimeSheet> empTimeSheets = employeeTimeSheets.get(emp.getId());
-            if (empTimeSheets != null) {
-                long totalWeek1 = 0;
-                long totalWeek2 = 0;
-
-                for (TimeSheet ts : empTimeSheets) {
-                    Date shiftStartDate = ts.getShiftStartDate();
-                    if (shiftStartDate.before(startDate) || shiftStartDate.after(endDate)) {
-                        continue;
-                    }
-
-                    if (shiftStartDate.before(addDays(startDate, 7))) {
-                        totalWeek1 += ts.getHoursWorked();
-                    } else {
-                        totalWeek2 += ts.getHoursWorked();
-                    }
-                }
-
-                if (totalWeek1 > 0 || totalWeek2 > 0) {
-                    model.addRow(new Object[]{
-                        emp.getName(),
-                        totalWeek1 / 60 + " hours " + totalWeek1 % 60 + " minutes",
-                        totalWeek2 / 60 + " hours " + totalWeek2 % 60 + " minutes",
-                        (totalWeek1 + totalWeek2) / 60 + " hours " + (totalWeek1 + totalWeek2) % 60 + " minutes"
-                    });
-                }
+            Long totalMinutes = employeeHours.get(emp.getId());
+            if (totalMinutes != null) {
+                long hours = totalMinutes / 60;
+                long minutes = totalMinutes % 60;
+                String totalHoursWorked = String.format("%d hours %d minutes", hours, minutes);
+                model.addRow(new Object[]{emp.getName(), totalHoursWorked, "", "", "", "", ""});
             }
         }
-
-        return table;
     }
+
 
     private Date addDays(Date date, int days) {
         Calendar cal = Calendar.getInstance();
@@ -119,4 +106,7 @@ public class TimeSheetReport {
         cal.add(Calendar.DAY_OF_MONTH, days);
         return cal.getTime();
     }
+    
+    
+    
 }
