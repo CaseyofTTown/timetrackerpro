@@ -68,6 +68,32 @@ public class DatabaseManager {
 		}
 	}
 
+	public List<Employee> getAllEmployees() {
+        List<Employee> employees = new ArrayList<>();
+        String sql = "SELECT id, name, level, certificationNumber, certExpirationDate FROM employees";
+
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                CertificationLevelenum level = CertificationLevelenum.valueOf(rs.getString("level"));
+                String certificationNumber = rs.getString("certificationNumber");
+                long certExpirationDateMillis = rs.getLong("certExpirationDate");
+                java.util.Date certExpirationDate = (certExpirationDateMillis != 0) ? new java.util.Date(certExpirationDateMillis) : null;
+
+                Employee employee = new Employee(id, name, level, certificationNumber, certExpirationDate);
+                employees.add(employee);
+            }
+        } catch (SQLException e) {
+            System.out.println("SQL Exception: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return employees;
+    }
+
 	// add employee to the database
 	public boolean addEmployee(Employee employee) {
 		System.out.println("calling add employee to db function");
@@ -104,38 +130,37 @@ public class DatabaseManager {
 			}
 		}
 	}
-	
+
 	public boolean updateEmployee(Employee employee) {
-	    System.out.println("calling update employee in db function");
-	    String sql = "UPDATE employees SET name = ?, level = ?, certificationNumber = ?, certExpirationDate = ? WHERE id = ?";
+		System.out.println("calling update employee in db function");
+		String sql = "UPDATE employees SET name = ?, level = ?, certificationNumber = ?, certExpirationDate = ? WHERE id = ?";
 
-	    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-	        pstmt.setString(1, employee.getName());
-	        pstmt.setString(2, employee.getCertLevel().toString());
+		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+			pstmt.setString(1, employee.getName());
+			pstmt.setString(2, employee.getCertLevel().toString());
 
-	        // if employee is a driver, the below will encounter null values
-	        if (employee.getCertificationNumber() != null) {
-	            pstmt.setString(3, employee.getCertificationNumber());
-	        } else {
-	            pstmt.setString(3, null);
-	        }
+			// if employee is a driver, the below will encounter null values
+			if (employee.getCertificationNumber() != null) {
+				pstmt.setString(3, employee.getCertificationNumber());
+			} else {
+				pstmt.setString(3, null);
+			}
 
-	        if (employee.getCertExpDate() != null) {
-	            pstmt.setDate(4, new Date(employee.getCertExpDate().getTime()));
-	        } else {
-	            pstmt.setNull(4, java.sql.Types.DATE);
-	        }
+			if (employee.getCertExpDate() != null) {
+				pstmt.setDate(4, new Date(employee.getCertExpDate().getTime()));
+			} else {
+				pstmt.setNull(4, java.sql.Types.DATE);
+			}
 
-	        pstmt.setInt(5, employee.getId());
+			pstmt.setInt(5, employee.getId());
 
-	        int affectedRows = pstmt.executeUpdate();
-	        return affectedRows > 0;
-	    } catch (SQLException e) {
-	        System.out.println(e.getMessage());
-	        return false;
-	    }
+			int affectedRows = pstmt.executeUpdate();
+			return affectedRows > 0;
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+			return false;
+		}
 	}
-
 
 	// Add a time sheet entry to the database
 	public void addTimeSheet(TimeSheet timeSheet) {
@@ -620,48 +645,47 @@ public class DatabaseManager {
 	}
 
 	public void deleteDailyCallLog(int id) {
-	    String deleteLogSql = "DELETE FROM daily_call_log WHERE id = ?";
-	    String deleteCallSql = "DELETE FROM ambulance_call WHERE id = ?";
+		String deleteLogSql = "DELETE FROM daily_call_log WHERE id = ?";
+		String deleteCallSql = "DELETE FROM ambulance_call WHERE id = ?";
 
-	    try {
-	        // Retrieve the list of ambulance calls associated with the log
-	        List<AmbulanceCall> calls = getAmbulanceCallsByDailyLogId(id);
+		try {
+			// Retrieve the list of ambulance calls associated with the log
+			List<AmbulanceCall> calls = getAmbulanceCallsByDailyLogId(id);
 
-	        // Delete each ambulance call
-	        for (AmbulanceCall call : calls) {
-	            try (PreparedStatement pstmt = connection.prepareStatement(deleteCallSql)) {
-	                pstmt.setInt(1, call.getId());
-	                int affectedRows = pstmt.executeUpdate();
-	                if (affectedRows > 0) {
-	                    System.out.println("AmbulanceCall ID " + call.getId() + " deleted successfully.");
-	                } else {
-	                    System.out.println("AmbulanceCall delete failed: No rows affected.");
-	                }
-	            } catch (SQLException e) {
-	                System.out.println("SQL Exception: " + e.getMessage());
-	                e.printStackTrace();
-	            }
-	        }
+			// Delete each ambulance call
+			for (AmbulanceCall call : calls) {
+				try (PreparedStatement pstmt = connection.prepareStatement(deleteCallSql)) {
+					pstmt.setInt(1, call.getId());
+					int affectedRows = pstmt.executeUpdate();
+					if (affectedRows > 0) {
+						System.out.println("AmbulanceCall ID " + call.getId() + " deleted successfully.");
+					} else {
+						System.out.println("AmbulanceCall delete failed: No rows affected.");
+					}
+				} catch (SQLException e) {
+					System.out.println("SQL Exception: " + e.getMessage());
+					e.printStackTrace();
+				}
+			}
 
-	        // Delete the daily call log entry
-	        try (PreparedStatement pstmt = connection.prepareStatement(deleteLogSql)) {
-	            pstmt.setInt(1, id);
-	            int affectedRows = pstmt.executeUpdate();
-	            if (affectedRows > 0) {
-	                System.out.println("DailyCallLog deleted successfully.");
-	            } else {
-	                System.out.println("DailyCallLog delete failed: No rows affected.");
-	            }
-	        } catch (SQLException e) {
-	            System.out.println("SQL Exception: " + e.getMessage());
-	            e.printStackTrace();
-	        }
-	    } catch (Exception e) {
-	        System.out.println("General Exception: " + e.getMessage());
-	        e.printStackTrace();
-	    }
+			// Delete the daily call log entry
+			try (PreparedStatement pstmt = connection.prepareStatement(deleteLogSql)) {
+				pstmt.setInt(1, id);
+				int affectedRows = pstmt.executeUpdate();
+				if (affectedRows > 0) {
+					System.out.println("DailyCallLog deleted successfully.");
+				} else {
+					System.out.println("DailyCallLog delete failed: No rows affected.");
+				}
+			} catch (SQLException e) {
+				System.out.println("SQL Exception: " + e.getMessage());
+				e.printStackTrace();
+			}
+		} catch (Exception e) {
+			System.out.println("General Exception: " + e.getMessage());
+			e.printStackTrace();
+		}
 	}
-
 
 	// functions for managing Ambulance call table
 

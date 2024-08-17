@@ -34,6 +34,7 @@ public class HomeView extends JPanel {
 	private Employee employee;
 	private JButton updateInfoButton;
 	private JPanel medicationSignOutPanel;
+	private JPanel reportsPanel;
 
 	// added as an update to simplify passing dates to other pages, original
 	// architecture for TS page left in place, modified to set these
@@ -170,10 +171,9 @@ public class HomeView extends JPanel {
 	}
 
 	private JPanel createReportsPanel() {
-		JPanel panel = new JPanel();
-		panel.setBackground(ColorConstants.CHARCOAL);
-		// Add components specific to Reports
-		return panel;
+		reportsPanel = new ReportPanel(controller);
+		reportsPanel.setBackground(ColorConstants.CHARCOAL);
+		return reportsPanel;
 	}
 	
 	//method for to quickly start a log from a TS

@@ -295,7 +295,7 @@ public class TTController {
 		}
 
 		// Fetch time sheets within the date range
-		List<TimeSheet> timeSheets = db.getTimeSheetsByDateRange(sqlStartDate, sqlEndDate);
+		List<TimeSheet> timeSheets = getTimeSheetsByDateRange(sqlStartDate, sqlEndDate);
 		List<String> employeeNames = db.getAllEmployeeNames();
 
 		// Debug statements
@@ -318,6 +318,11 @@ public class TTController {
 		this.view.getTimeSheetPanel().getDeleteTimeSheetButton().addActionListener(e -> handleDeleteTimeSheetFromDb());
 		// -> handleDeleteTimeSheet());
 		System.out.println("Listeners set for TimeSheetPanel");
+	}
+	
+	public List<TimeSheet>getTimeSheetsByDateRange(java.sql.Date sqlStartDate, java.sql.Date sqlEndDate) {
+		List<TimeSheet> results = db.getTimeSheetsByDateRange(sqlStartDate, sqlEndDate);
+		return results;
 	}
 
 	private void handleDeleteTimeSheetFromDb() {
@@ -419,4 +424,8 @@ public class TTController {
 		return employeeNames;
 	}
 
+	public List<Employee> getAllEmployees(){
+		List<Employee> myList = db.getAllEmployees();
+		return myList;
+	}
 }
