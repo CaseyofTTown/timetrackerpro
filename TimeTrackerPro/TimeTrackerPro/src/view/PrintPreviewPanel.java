@@ -5,82 +5,107 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.border.EmptyBorder;
-import java.awt.print.PrinterException;
+
+import model.ColorConstants;
+
+import java.awt.print.*;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class PrintPreviewPanel extends JPanel {
-	private JTable reportTable;
-	private JTable summaryTable;
-	private JButton printButton;
-	private Date startDate;
-	private Date endDate;
+public class PrintPreviewPanel extends JPanel implements Printable {
+    private JPanel reportContainer;
+    private JButton printButton;
+    private Date startDate;
+    private Date endDate;
 
-	public PrintPreviewPanel() {
-		setLayout(new BorderLayout(10, 10)); // Add margins
+    public PrintPreviewPanel() {
+        setLayout(new BorderLayout(10, 10)); // Add margins
 
-		// Initialize tables
-		reportTable = new JTable();
-		summaryTable = new JTable();
+        // Initialize report container
+        reportContainer = new JPanel();
+        reportContainer.setLayout(new BoxLayout(reportContainer, BoxLayout.Y_AXIS));
 
-		// Add the tables to the panel with margins
-		JPanel reportPanel = new JPanel(new BorderLayout());
-		reportPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-		reportPanel.add(reportTable.getTableHeader(), BorderLayout.NORTH);
-		reportPanel.add(reportTable, BorderLayout.CENTER);
+        // Add the report container to the panel with margins
+        JScrollPane scrollPane = new JScrollPane(reportContainer);
+        scrollPane.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-		JPanel summaryPanel = new JPanel(new BorderLayout());
-		summaryPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-		summaryPanel.add(summaryTable.getTableHeader(), BorderLayout.NORTH);
-		summaryPanel.add(summaryTable, BorderLayout.CENTER);
+        // Add the print button
+        printButton = new JButton("Print");
+        printButton.setBackground(ColorConstants.DARK_GRAY);
+        printButton.setForeground(ColorConstants.ORANGE);
+        printButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                printReport();
+            }
+        });
 
-		// Add the print button
-		printButton = new JButton("Print");
-		printButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				printReport();
-			}
-		});
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(printButton);
 
-		JPanel buttonPanel = new JPanel();
-		buttonPanel.add(printButton);
+        add(scrollPane, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
+    }
 
-		add(reportPanel, BorderLayout.NORTH);
-		add(summaryPanel, BorderLayout.CENTER);
-		add(buttonPanel, BorderLayout.SOUTH);
-	}
+    public void addReportContent(JTable reportTable, String title) {
+        // Add the new report content to the report container
+        reportContainer.add(new JLabel(title, JLabel.CENTER));
+        reportContainer.add(new JScrollPane(reportTable));
 
-	public void setReportContent(JTable reportTable, Date startDate, Date endDate) {
-		// Update the tables with new data
-		this.reportTable.setModel(reportTable.getModel());
-		this.startDate = startDate;
-		this.endDate = endDate;
+        // Refresh the panel
+        reportContainer.revalidate();
+        reportContainer.repaint();
+    }
 
-		// Revalidate and repaint to refresh the display
-		revalidate();
-		repaint();
-	}
+    public void addReportContent(JPanel reportPanel, String title) {
+        // Add the new report content to the report container
+        reportContainer.add(new JLabel(title, JLabel.CENTER));
+        reportContainer.add(new JScrollPane(reportPanel));
 
-	private void printReport() {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		String dateRange = sdf.format(startDate) + " to " + sdf.format(endDate);
-		MessageFormat header = new MessageFormat("Report Date Range: " + dateRange);
-		MessageFormat footer = new MessageFormat("Page {0}");
+        // Refresh the panel
+        reportContainer.revalidate();
+        reportContainer.repaint();
+    }
 
-		try {
-			boolean complete = reportTable.print(JTable.PrintMode.FIT_WIDTH, header, footer);
-			if (complete) {
-				JOptionPane.showMessageDialog(this, "Printing Complete", "Print Result",
-						JOptionPane.INFORMATION_MESSAGE);
-			} else {
-				JOptionPane.showMessageDialog(this, "Printing Cancelled", "Print Result",
-						JOptionPane.INFORMATION_MESSAGE);
-			}
-		} catch (PrinterException pe) {
-			JOptionPane.showMessageDialog(this, "Printing Failed: " + pe.getMessage(), "Print Result",
-					JOptionPane.ERROR_MESSAGE);
-		}
-	}
+    private void printReport() {
+        PrinterJob job = PrinterJob.getPrinterJob();
+        job.setPrintable(this);
+
+        if (job.printDialog()) {
+            try {
+                job.print();
+            } catch (PrinterException pe) {
+                JOptionPane.showMessageDialog(this, "Printing Failed: " + pe.getMessage(), "Print Result", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    @Override
+    public int print(Graphics g, PageFormat pageFormat, int pageIndex) throws PrinterException {
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
+
+        // Calculate the number of pages
+        double scale = pageFormat.getImageableWidth() / reportContainer.getWidth();
+        g2d.scale(scale, scale);
+
+        int totalHeight = reportContainer.getHeight();
+        int pageHeight = (int) pageFormat.getImageableHeight();
+        int totalPages = (int) Math.ceil((double) totalHeight / pageHeight);
+
+        if (pageIndex >= totalPages) {
+            return NO_SUCH_PAGE;
+        }
+
+        // Translate to the correct page
+        g2d.translate(0, -pageIndex * pageHeight);
+
+        // Print the report container
+        reportContainer.printAll(g);
+
+        return PAGE_EXISTS;
+    }
+
+
 }

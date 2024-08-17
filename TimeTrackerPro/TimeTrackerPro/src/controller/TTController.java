@@ -378,6 +378,10 @@ public class TTController {
 		return results;
 	}
 
+	public List<DailyCallLog> getCallLogsForReportPanel(java.sql.Date startDate, java.sql.Date endDate) {
+		List<DailyCallLog> results = db.getDailyCallLogsByDateRange(startDate, endDate);
+		return results;
+	}
 	public void setSqlStartDate(java.sql.Date newSqlStartDate) {
 		useAutoDateRangesForTsDisplay = false;
 		this.sqlStartDate = newSqlStartDate;
