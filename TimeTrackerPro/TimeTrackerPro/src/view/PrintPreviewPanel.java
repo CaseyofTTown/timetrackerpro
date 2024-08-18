@@ -13,9 +13,10 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class PrintPreviewPanel extends JPanel implements Printable {
+public class PrintPreviewPanel extends JPanel {
     private JPanel reportContainer;
     private JButton printButton;
+    private JButton clearButton;
     private Date startDate;
     private Date endDate;
 
@@ -40,9 +41,30 @@ public class PrintPreviewPanel extends JPanel implements Printable {
                 printReport();
             }
         });
+        
+     // Add the clear button
+        clearButton = new JButton("Clear");
+        clearButton.setBackground(ColorConstants.DARK_GRAY);
+        clearButton.setForeground(ColorConstants.ORANGE);
+        clearButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                clearReport();
+            }
+
+            private void clearReport() {
+                // Clear the report container
+                reportContainer.removeAll();
+
+                // Refresh the panel
+                reportContainer.revalidate();
+                reportContainer.repaint();
+            }
+        });
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(printButton);
+        buttonPanel.add(clearButton); 
 
         add(scrollPane, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
@@ -51,26 +73,47 @@ public class PrintPreviewPanel extends JPanel implements Printable {
     public void addReportContent(JTable reportTable, String title) {
         // Add the new report content to the report container
         reportContainer.add(new JLabel(title, JLabel.CENTER));
-        reportContainer.add(new JScrollPane(reportTable));
+        
+        
+        
+        JScrollPane scrollPane = new JScrollPane(reportTable);
+        reportContainer.add(scrollPane);
 
         // Refresh the panel
         reportContainer.revalidate();
         reportContainer.repaint();
     }
+
 
     public void addReportContent(JPanel reportPanel, String title) {
         // Add the new report content to the report container
         reportContainer.add(new JLabel(title, JLabel.CENTER));
-        reportContainer.add(new JScrollPane(reportPanel));
+        
+        // Remove the preferred size setting
+        JScrollPane scrollPane = new JScrollPane(reportPanel);
+        reportContainer.add(scrollPane);
 
         // Refresh the panel
         reportContainer.revalidate();
         reportContainer.repaint();
     }
 
+
+
+
     private void printReport() {
         PrinterJob job = PrinterJob.getPrinterJob();
-        job.setPrintable(this);
+        double margin = 36; // 1/2 inch margin
+        job.setPrintable(new CustomPrintable(reportContainer, margin));
+
+        PageFormat pageFormat = job.defaultPage();
+        
+        // Determine the best orientation
+        if (reportContainer.getWidth() > reportContainer.getHeight()) {
+            pageFormat.setOrientation(PageFormat.LANDSCAPE);
+        } else {
+            pageFormat.setOrientation(PageFormat.PORTRAIT);
+        }
 
         if (job.printDialog()) {
             try {
@@ -81,31 +124,6 @@ public class PrintPreviewPanel extends JPanel implements Printable {
         }
     }
 
-    @Override
-    public int print(Graphics g, PageFormat pageFormat, int pageIndex) throws PrinterException {
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
-
-        // Calculate the number of pages
-        double scale = pageFormat.getImageableWidth() / reportContainer.getWidth();
-        g2d.scale(scale, scale);
-
-        int totalHeight = reportContainer.getHeight();
-        int pageHeight = (int) pageFormat.getImageableHeight();
-        int totalPages = (int) Math.ceil((double) totalHeight / pageHeight);
-
-        if (pageIndex >= totalPages) {
-            return NO_SUCH_PAGE;
-        }
-
-        // Translate to the correct page
-        g2d.translate(0, -pageIndex * pageHeight);
-
-        // Print the report container
-        reportContainer.printAll(g);
-
-        return PAGE_EXISTS;
-    }
 
 
 }

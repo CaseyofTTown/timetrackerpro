@@ -14,7 +14,7 @@ import java.text.SimpleDateFormat;
 public class TimeSheetDisplay extends JTable {
 
 	private DefaultTableModel model;
-	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("EEE, MMM dd, yyyy");
 	private List<Integer> timeSheetIds;
 	private List<TimeSheet> timeSheets;
 

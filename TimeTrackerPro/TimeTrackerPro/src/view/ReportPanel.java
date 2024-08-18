@@ -3,17 +3,16 @@ package view;
 import javax.swing.*;
 
 import controller.TTController;
-import model.CallLogReport;
 import model.ColorConstants;
 import model.DailyCallLog;
 import model.Employee;
 import model.KeyBindingUtil;
 import model.TimeSheet;
-import model.TimeSheetReport;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -192,10 +191,15 @@ public class ReportPanel extends JPanel {
 	    TimeSheetReport report = new TimeSheetReport(timeSheets, employees, new java.util.Date(startDate.getTime()), new java.util.Date(endDate.getTime()));
 	    JTable reportTable = report.generateReportTable();
 
-	    // Display the report in the print preview panel
-	    printPreviewPanel.addReportContent(reportTable, "Time Sheet Report");
-	}
+	    // Format the dates
+	    SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM dd, yyyy");
+	    String formattedStartDate = dateFormat.format(new java.util.Date(startDate.getTime()));
+	    String formattedEndDate = dateFormat.format(new java.util.Date(endDate.getTime()));
 
+	    // Display the report in the print preview panel with formatted dates
+	    String reportTitle = "Time Sheet Report (" + formattedStartDate + " - " + formattedEndDate + ")";
+	    printPreviewPanel.addReportContent(reportTable, reportTitle);
+	}
 	private void generateCallLogsReport(java.sql.Date startDate, java.sql.Date endDate) {
 	    // Fetch the data using the controller
 	    List<DailyCallLog> dailyCallLogs = controller.getCallLogsForReportPanel(startDate, endDate);
@@ -204,8 +208,14 @@ public class ReportPanel extends JPanel {
 	    CallLogReport report = new CallLogReport(dailyCallLogs);
 	    JPanel reportPanel = report.generateReportPanel();
 
-	    // Display the report in the print preview panel
-	    printPreviewPanel.addReportContent(reportPanel, "Call Logs and Ambulance Calls Report");
+	    // Format the dates
+	    SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
+	    String formattedStartDate = dateFormat.format(new java.util.Date(startDate.getTime()));
+	    String formattedEndDate = dateFormat.format(new java.util.Date(endDate.getTime()));
+
+	    // Display the report in the print preview panel with formatted dates
+	    String reportTitle = "Call Logs and Ambulance Calls Report (" + formattedStartDate + " - " + formattedEndDate + ")";
+	    printPreviewPanel.addReportContent(reportPanel, reportTitle);
 	}
 	
 	

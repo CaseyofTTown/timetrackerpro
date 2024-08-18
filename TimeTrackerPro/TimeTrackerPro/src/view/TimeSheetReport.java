@@ -1,8 +1,11 @@
-package model;
+package view;
 import java.util.*;
 import java.text.SimpleDateFormat;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+
+import model.Employee;
+import model.TimeSheet;
 
 public class TimeSheetReport {
     private List<TimeSheet> timeSheets;
@@ -15,6 +18,8 @@ public class TimeSheetReport {
         this.employees = employees;
         this.startDate = startDate;
         this.endDate = endDate;
+        
+        this.timeSheets.sort(Comparator.comparing(TimeSheet::getShiftStartDate).reversed());
     }
 
     public JTable generateReportTable() {
@@ -24,17 +29,17 @@ public class TimeSheetReport {
         
      // Set preferred column widths
         table.getColumnModel().getColumn(0).setPreferredWidth(150); // Employee Name
-        table.getColumnModel().getColumn(1).setPreferredWidth(75); // Shift Start Date
-        table.getColumnModel().getColumn(2).setPreferredWidth(75); // Shift End Date
-        table.getColumnModel().getColumn(3).setPreferredWidth(75); // Shift Start Time
-        table.getColumnModel().getColumn(4).setPreferredWidth(75); // Shift End Time
-        table.getColumnModel().getColumn(5).setPreferredWidth(125); // Hours Worked
+        table.getColumnModel().getColumn(1).setPreferredWidth(200); // Shift Start Date
+        table.getColumnModel().getColumn(2).setPreferredWidth(200); // Shift End Date
+        table.getColumnModel().getColumn(3).setPreferredWidth(100); // Shift Start Time
+        table.getColumnModel().getColumn(4).setPreferredWidth(100); // Shift End Time
+        table.getColumnModel().getColumn(5).setPreferredWidth(200); // Hours Worked
         table.getColumnModel().getColumn(6).setPreferredWidth(200); // Overtime Comments
 
         table.getTableHeader().setReorderingAllowed(false);
         table.getTableHeader().setResizingAllowed(true);
         
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM dd, yyyy");
 
         // Organize data into 7-day blocks and sort by date
         Map<Integer, List<TimeSheet>> employeeTimeSheets = new HashMap<>();
@@ -71,6 +76,7 @@ public class TimeSheetReport {
         }
         
         generateSummaryTable(model);
+        table.setPreferredScrollableViewportSize(table.getPreferredSize());
 
         return table;
     }
