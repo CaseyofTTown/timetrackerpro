@@ -29,6 +29,9 @@ public class CallLogReport {
 
         Font tableFont = new Font("Arial", Font.PLAIN, 16);
         for (DailyCallLog log : dailyCallLogs) {
+            JPanel logPanel = new JPanel();
+            logPanel.setLayout(new BoxLayout(logPanel, BoxLayout.Y_AXIS));
+
             // Create the call log table
             String[] logColumnNames = { "Start Date", "End Date", "Truck Unit Number", "Crew Members" };
             DefaultTableModel logTableModel = new DefaultTableModel(logColumnNames, 0);
@@ -58,12 +61,15 @@ public class CallLogReport {
             callTable.getTableHeader().setFont(tableFont);
             callTable.setPreferredScrollableViewportSize(callTable.getPreferredSize());
 
-            // Add the tables to the main panel
-            mainPanel.add(new JLabel("Call Log"));
-            mainPanel.add(new JScrollPane(logTable));
-            mainPanel.add(new JLabel("Ambulance Calls"));
-            mainPanel.add(new JScrollPane(callTable));
-            mainPanel.add(Box.createRigidArea(new Dimension(0, 20))); // Add spacing between logs
+            // Add the tables to the log panel
+            logPanel.add(new JLabel("Call Log"));
+            logPanel.add(new JScrollPane(logTable));
+            logPanel.add(new JLabel("Ambulance Calls"));
+            logPanel.add(new JScrollPane(callTable));
+            logPanel.add(Box.createRigidArea(new Dimension(0, 20))); // Add spacing between logs
+
+            // Add the log panel to the main panel
+            mainPanel.add(logPanel);
         }
 
         return mainPanel;

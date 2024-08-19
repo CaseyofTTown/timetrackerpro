@@ -587,6 +587,7 @@ public class DatabaseManager {
 				DailyCallLog dailyCallLog = new DailyCallLog(id, start_date, end_date, truckUnitNumber);
 				dailyCallLog.setCrewMembers(crewMembers);
 				dailyCallLog.setAmbulanceCalls(ambulanceCalls);
+				dailyCallLog.calculateNumberOfCalls();
 
 				dailyCallLogs.add(dailyCallLog);
 			}
@@ -618,6 +619,7 @@ public class DatabaseManager {
 				dailyCallLog = new DailyCallLog(startDate, endDate, truckUnitNumber);
 				dailyCallLog.setId(id);
 				dailyCallLog.setCrewMembers(crewMembers);
+				dailyCallLog.calculateNumberOfCalls();
 			}
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());

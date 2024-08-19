@@ -144,6 +144,7 @@ public class AddAmbulanceCallDialog extends JDialog {
 		            } else {
 		                // Create a new call
 		                controller.addAmbulanceCall(call);
+		                
 		            }
 		        } catch (Exception exception) {
 		            exception.printStackTrace();

@@ -417,6 +417,8 @@ public class TTController {
 		db.updateAmbulanceCall(call);
 
 	}
+	
+	
 
 	public DailyCallLog getCallLogById(int idOfSelectedCallLogCard) {
 		DailyCallLog result = db.getCallLogById(idOfSelectedCallLogCard);

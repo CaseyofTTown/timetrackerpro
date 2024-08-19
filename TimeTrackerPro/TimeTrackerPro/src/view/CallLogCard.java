@@ -37,6 +37,7 @@ public class CallLogCard extends JPanel {
 	private static CallLogCard selectedCard = null; // keep track of selected card
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	private int selectedRow = -1;
+	private int numberOfCalls = 0;
 
 	
 	public CallLogCard(DailyCallLog callLog, TTController controller) {
@@ -44,6 +45,7 @@ public class CallLogCard extends JPanel {
 		this.callLogId = callLog.getId();
 		this.controller = controller;
 		this.selectedRow = -1;
+		this.numberOfCalls = callLog.calculateNumberOfCalls();
 		setLayout(new BorderLayout());
 		setBackground(ColorConstants.DARK_GRAY);
 		setBorder(BorderFactory.createLineBorder(ColorConstants.GOLD, 2));
@@ -114,6 +116,12 @@ public class CallLogCard extends JPanel {
 		crewValueLabel.setFont(new Font("Arial", Font.PLAIN, 16));
 		headerPanel.add(crewValueLabel, gbc);
 
+		gbc.gridx = 8;
+		JLabel numberOfCallsLabel = new JLabel("Calls on log: " + String.valueOf(numberOfCalls));
+		numberOfCallsLabel.setForeground(ColorConstants.GOLD);
+		numberOfCallsLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+		headerPanel.add(numberOfCallsLabel, gbc);
+		
 		// Expand Button
 		gbc.gridx = 0;
 		gbc.gridy = 1;

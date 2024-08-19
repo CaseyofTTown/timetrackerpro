@@ -50,6 +50,8 @@ public class ReportPanel extends JPanel {
 		JButton addCallLogButton = new JButton("Add Call Log");
 		addCallLogButton.setBackground(ColorConstants.DEEP_BLUE);
 		addCallLogButton.setForeground(ColorConstants.LIME_GREEN);
+		
+	
 
 		controlPanel.add(addTimeSheetButton);
 		controlPanel.add(addCertificationListButton);
@@ -75,6 +77,7 @@ public class ReportPanel extends JPanel {
 		            showCallLogDateRangeDialog();
 		        }
 		    });
+		
 		
 	}
 	private void showCallLogDateRangeDialog() {
@@ -109,6 +112,8 @@ public class ReportPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 java.util.Date startDate = (java.util.Date) startDatePicker.getDatePicker().getModel().getValue();
                 java.util.Date endDate = (java.util.Date) endDatePicker.getDatePicker().getModel().getValue();
+               
+                //revert here back to generateCallLogsReport if it breaks
                 generateCallLogsReport(new java.sql.Date(startDate.getTime()), new java.sql.Date(endDate.getTime()));
                 dialog.dispose();
             }
@@ -188,7 +193,7 @@ public class ReportPanel extends JPanel {
 
 	    // Generate the report
 	    TimeSheetReport report = new TimeSheetReport(timeSheets, employees, new java.util.Date(startDate.getTime()), new java.util.Date(endDate.getTime()));
-	    JTable reportTable = report.generateReportTable();
+	    JPanel reportPanel = report.generateReportPanel();
 
 	    // Format the dates
 	    SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM dd, yyyy");
@@ -197,8 +202,9 @@ public class ReportPanel extends JPanel {
 
 	    // Display the report in the print preview panel with formatted dates
 	    String reportTitle = "Time Sheet Report (" + formattedStartDate + " - " + formattedEndDate + ")";
-	    printPreviewPanel.addReportContent(reportTable, reportTitle);
+	    printPreviewPanel.addReportContent(reportPanel, reportTitle);
 	}
+
 
 	private void generateCallLogsReport(java.sql.Date startDate, java.sql.Date endDate) {
 	    // Fetch the data using the controller
@@ -216,8 +222,13 @@ public class ReportPanel extends JPanel {
 	    // Display the report in the print preview panel with formatted dates
 	    String reportTitle = "Call Logs and Ambulance Calls Report (" + formattedStartDate + " - " + formattedEndDate + ")";
 	    printPreviewPanel.addReportContent(reportPanel, reportTitle);
+	    
+	    
 	}
 
+	
+
+	
 	
 	
 

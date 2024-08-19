@@ -201,7 +201,7 @@ public class DailyCallLogPanel extends JPanel implements CallLogCardSelectionLis
 		String truckUnitNumber = callLogEntryPanel.getTruckUnitNumber();
 
 		DailyCallLog log = new DailyCallLog(shiftStartDate, shiftEndDate, truckUnitNumber);
-
+		
 		// add employees to objects list
 		if (callLogEntryPanel.getCrewMemberList() != null) {
 			List<String> emplList = callLogEntryPanel.getCrewMemberList();
@@ -224,6 +224,7 @@ public class DailyCallLogPanel extends JPanel implements CallLogCardSelectionLis
 
 		DailyCallLog log = new DailyCallLog(shiftStartDate, shiftEndDate, truckUnitNumber);
 		log.setId(idOfSelectedCallLogCard); // Set the ID of the log being updated
+		
 		// add employees to objects list
 		if (callLogEntryPanel.getCrewMemberList() != null) {
 			List<String> emplList = callLogEntryPanel.getCrewMemberList();
@@ -251,6 +252,7 @@ public class DailyCallLogPanel extends JPanel implements CallLogCardSelectionLis
 			callLogDisplay.clearAllEntries();
 			dailyLogList = controller.getCallLogsFromDateToDate();
 			for (DailyCallLog callLog : dailyLogList) {
+				callLog.calculateNumberOfCalls();
 				CallLogCard card = new CallLogCard(callLog, controller);
 				card.setSelectionListener(this); // Set the listener
 				callLogDisplay.addCallLogCard(card);
@@ -292,6 +294,7 @@ public class DailyCallLogPanel extends JPanel implements CallLogCardSelectionLis
 	public void hideAddNewCallLogPanel() {
 		callLogEntryPanel.setVisible(false);
 		resetCallLogEntryPanel();
+		
 	}
 
 	private void resetCallLogEntryPanel() {

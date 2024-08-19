@@ -11,6 +11,7 @@ public class DailyCallLog {
     private String truckUnitNumber;
     private List<String> crewMembers;
     private List<AmbulanceCall> ambulanceCalls;
+    private int numberOfCallsOnLog = 0;
 
     public DailyCallLog(int id, Date startDate, Date endDate, String truckUnitNumber) {
         this.id = id;
@@ -19,6 +20,7 @@ public class DailyCallLog {
         this.truckUnitNumber = truckUnitNumber;
         this.crewMembers = new ArrayList<>();
         this.ambulanceCalls = new ArrayList<>();
+        this.numberOfCallsOnLog = calculateNumberOfCalls();
     }
     public DailyCallLog(Date startDate, Date endDate, String truckUnitNumber) {
     	this.startDate = startDate;
@@ -26,6 +28,7 @@ public class DailyCallLog {
     	this.truckUnitNumber = truckUnitNumber;
     	this.crewMembers = new ArrayList<>();
     	this.ambulanceCalls = new ArrayList<>();
+    	this.numberOfCallsOnLog = calculateNumberOfCalls();
     }
 
     public void addAmbulanceCall(AmbulanceCall call) {
@@ -78,10 +81,21 @@ public class DailyCallLog {
     }
 
     public List<AmbulanceCall> getAmbulanceCalls() {
+    	calculateNumberOfCalls();
         return ambulanceCalls;
     }
 
     public void setAmbulanceCalls(List<AmbulanceCall> ambulanceCalls) {
         this.ambulanceCalls = ambulanceCalls;
+        calculateNumberOfCalls();
     }
+    
+    public int calculateNumberOfCalls() {
+    	if(this.ambulanceCalls != null) {
+    		this.numberOfCallsOnLog = this.ambulanceCalls.size();
+    	}
+    	return this.numberOfCallsOnLog;
+    }
+   
 }
+

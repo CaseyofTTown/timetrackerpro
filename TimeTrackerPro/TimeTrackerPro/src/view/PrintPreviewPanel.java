@@ -9,8 +9,6 @@ import javax.swing.border.EmptyBorder;
 import model.ColorConstants;
 
 import java.awt.print.*;
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class PrintPreviewPanel extends JPanel {
@@ -26,6 +24,7 @@ public class PrintPreviewPanel extends JPanel {
         // Initialize report container
         reportContainer = new JPanel();
         reportContainer.setLayout(new BoxLayout(reportContainer, BoxLayout.Y_AXIS));
+        reportContainer.setBackground(ColorConstants.WHITE);
 
         // Add the report container to the panel with margins
         JScrollPane scrollPane = new JScrollPane(reportContainer);
@@ -85,20 +84,15 @@ public class PrintPreviewPanel extends JPanel {
 
     public void addReportContent(JPanel reportPanel, String title) {
         // Add the new report content to the report container
-        reportContainer.add(new JLabel(title, JLabel.CENTER));
-
-        // Wrap the panel in a JScrollPane to ensure headers are included
-        JScrollPane scrollPane = new JScrollPane(reportPanel);
-        reportContainer.add(scrollPane);
+        reportContainer.add(reportPanel);
 
         // Refresh the panel
         reportContainer.revalidate();
         reportContainer.repaint();
+       
     }
 
-
-
-
+   
 
     private void printReport() {
         PrinterJob job = PrinterJob.getPrinterJob();
@@ -107,12 +101,9 @@ public class PrintPreviewPanel extends JPanel {
 
         PageFormat pageFormat = job.defaultPage();
         
-        // Determine the best orientation
-        if (reportContainer.getWidth() > reportContainer.getHeight()) {
+      
             pageFormat.setOrientation(PageFormat.LANDSCAPE);
-        } else {
-            pageFormat.setOrientation(PageFormat.PORTRAIT);
-        }
+        
 
         if (job.printDialog()) {
             try {

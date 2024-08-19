@@ -1,5 +1,8 @@
 package view;
+
 import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.text.SimpleDateFormat;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -22,12 +25,27 @@ public class TimeSheetReport {
         this.timeSheets.sort(Comparator.comparing(TimeSheet::getShiftStartDate).reversed());
     }
 
-    public JTable generateReportTable() {
+    public JPanel generateReportPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+
+        String title = "Time Sheet Report (" + new SimpleDateFormat("EEE, MMM dd, yyyy").format(startDate) + " - " + new SimpleDateFormat("EEE, MMM dd, yyyy").format(endDate) + ")";
+        JLabel titleLabel = new JLabel(title, JLabel.CENTER);
+        panel.add(titleLabel, BorderLayout.NORTH);
+
+        JTable table = generateReportTable();
+        JScrollPane scrollPane = new JScrollPane(table);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+       return panel;
+    }
+
+    private JTable generateReportTable() {
         String[] columnNames = {"Employee Name", "Shift Start Date", "Shift End Date", "Shift Start Time", "Shift End Time", "Hours Worked", "Overtime Comments"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         JTable table = new JTable(model);
         
-     // Set preferred column widths
+        // Set preferred column widths
         table.getColumnModel().getColumn(0).setPreferredWidth(150); // Employee Name
         table.getColumnModel().getColumn(1).setPreferredWidth(200); // Shift Start Date
         table.getColumnModel().getColumn(2).setPreferredWidth(200); // Shift End Date
@@ -52,6 +70,7 @@ public class TimeSheetReport {
             tsList.sort(Comparator.comparing(TimeSheet::getShiftStartDate));
         }
 
+        String currentEmployee = null;
         // Generate report content
         for (Employee emp : employees) {
             List<TimeSheet> empTimeSheets = employeeTimeSheets.get(emp.getId());
@@ -61,6 +80,11 @@ public class TimeSheetReport {
                     if (shiftStartDate.before(startDate) || shiftStartDate.after(endDate)) {
                         continue;
                     }
+                    
+                    if (currentEmployee != null && !currentEmployee.equals(emp.getName())) {
+                        model.addRow(new Object[]{"", "", "", "", "", "", ""}); // Add empty row for separation
+                    }
+                    currentEmployee = emp.getName();
 
                     model.addRow(new Object[]{
                         emp.getName(),
@@ -105,14 +129,10 @@ public class TimeSheetReport {
         }
     }
 
-
     private Date addDays(Date date, int days) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         cal.add(Calendar.DAY_OF_MONTH, days);
         return cal.getTime();
     }
-    
-    
-    
 }
