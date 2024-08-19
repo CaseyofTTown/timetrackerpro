@@ -181,7 +181,6 @@ public class ReportPanel extends JPanel {
 		// Show the dialog
 		dialog.setVisible(true);
 	}
-
 	private void generatePayrollReport(java.sql.Date startDate, java.sql.Date endDate) {
 	    // Fetch the data using the controller
 	    List<TimeSheet> timeSheets = controller.getTimeSheetsByDateRange(startDate, endDate);
@@ -200,6 +199,7 @@ public class ReportPanel extends JPanel {
 	    String reportTitle = "Time Sheet Report (" + formattedStartDate + " - " + formattedEndDate + ")";
 	    printPreviewPanel.addReportContent(reportTable, reportTitle);
 	}
+
 	private void generateCallLogsReport(java.sql.Date startDate, java.sql.Date endDate) {
 	    // Fetch the data using the controller
 	    List<DailyCallLog> dailyCallLogs = controller.getCallLogsForReportPanel(startDate, endDate);
@@ -217,6 +217,7 @@ public class ReportPanel extends JPanel {
 	    String reportTitle = "Call Logs and Ambulance Calls Report (" + formattedStartDate + " - " + formattedEndDate + ")";
 	    printPreviewPanel.addReportContent(reportPanel, reportTitle);
 	}
+
 	
 	
 

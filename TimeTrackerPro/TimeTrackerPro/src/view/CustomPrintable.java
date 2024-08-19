@@ -3,6 +3,7 @@ package view;
 import java.awt.*;
 import java.awt.print.*;
 
+import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.JTableHeader;
 
@@ -42,7 +43,12 @@ public class CustomPrintable implements Printable {
         // Print the content
         int y = 0;
         for (Component comp : ((Container) component).getComponents()) {
-            if (comp instanceof JTable) {
+            if (comp instanceof JLabel) {
+                JLabel label = (JLabel) comp;
+                label.printAll(g2d);
+                g2d.translate(0, label.getHeight());
+                y += label.getHeight();
+            } else if (comp instanceof JTable) {
                 JTable table = (JTable) comp;
                 // Print the table header
                 JTableHeader header = table.getTableHeader();

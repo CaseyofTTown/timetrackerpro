@@ -73,9 +73,8 @@ public class PrintPreviewPanel extends JPanel {
     public void addReportContent(JTable reportTable, String title) {
         // Add the new report content to the report container
         reportContainer.add(new JLabel(title, JLabel.CENTER));
-        
-        
-        
+
+        // Wrap the table in a JScrollPane to ensure headers are included
         JScrollPane scrollPane = new JScrollPane(reportTable);
         reportContainer.add(scrollPane);
 
@@ -84,12 +83,11 @@ public class PrintPreviewPanel extends JPanel {
         reportContainer.repaint();
     }
 
-
     public void addReportContent(JPanel reportPanel, String title) {
         // Add the new report content to the report container
         reportContainer.add(new JLabel(title, JLabel.CENTER));
-        
-        // Remove the preferred size setting
+
+        // Wrap the panel in a JScrollPane to ensure headers are included
         JScrollPane scrollPane = new JScrollPane(reportPanel);
         reportContainer.add(scrollPane);
 
@@ -97,6 +95,7 @@ public class PrintPreviewPanel extends JPanel {
         reportContainer.revalidate();
         reportContainer.repaint();
     }
+
 
 
 
@@ -123,7 +122,6 @@ public class PrintPreviewPanel extends JPanel {
             }
         }
     }
-
 
 
 }
