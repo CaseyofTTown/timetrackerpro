@@ -35,6 +35,7 @@ public class HomeView extends JPanel {
 	private JButton updateInfoButton;
 	private JPanel medicationSignOutPanel;
 	private JPanel reportsPanel;
+	private JPanel emplStatusPanel;
 
 	// added as an update to simplify passing dates to other pages, original
 	// architecture for TS page left in place, modified to set these
@@ -120,7 +121,9 @@ public class HomeView extends JPanel {
 		tabbedPane.addTab("Time Sheets", createTimeSheetsPanel(controller));
 		tabbedPane.addTab("Call Logs", createCallLogsPanel());
 		tabbedPane.addTab("Medication S/O", createMedicationSOPanel());
+		tabbedPane.addTab("Manage Employee status", createEmplStatusPanel());
 		tabbedPane.addTab("Reports", createReportsPanel());
+		
 
 		// Add the tabbed pane to the panel
 		add(tabbedPane, BorderLayout.CENTER);
@@ -149,6 +152,11 @@ public class HomeView extends JPanel {
 		revalidate();
 		repaint();
 
+	}
+
+	private Component createEmplStatusPanel() {
+	    EmployeeStatusManager employeeStatusManager = new EmployeeStatusManager(controller);
+	    return employeeStatusManager;
 	}
 
 	// Methods to create panels for each tab

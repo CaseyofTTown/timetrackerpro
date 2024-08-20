@@ -27,8 +27,10 @@ public class EmployeeReport {
         DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
 
         for (Employee employee : employees) {
-            String certExpDate = (employee.getCertExpDate() != null) ? dateFormat.format(employee.getCertExpDate()) : "N/A";
-            tableModel.addRow(new Object[] { employee.getName(), employee.getCertLevel(), employee.getCertificationNumber(), certExpDate });
+            if (employee.isActive()) { // Filter out inactive employees
+                String certExpDate = (employee.getCertExpDate() != null) ? dateFormat.format(employee.getCertExpDate()) : "N/A";
+                tableModel.addRow(new Object[] { employee.getName(), employee.getCertLevel(), employee.getCertificationNumber(), certExpDate });
+            }
         }
 
         JTable table = new JTable(tableModel);

@@ -12,29 +12,37 @@ public class Employee {
 	private String certificationNumber;
 	private Date certExpirationDate;
 	private List<TimeSheet> timeSheetList;
+	private boolean isActive = false;
 
 	// constructor create new employee w/o cert number in case driver
-	public Employee(int id, String name, CertificationLevelenum level) {
+	public Employee(int id, String name, CertificationLevelenum level, boolean isActive) {
 		this.id = id;
 		this.name = name;
 		this.level = level;
 		this.timeSheetList = new ArrayList<TimeSheet>();
 		this.certificationNumber = null;
 		this.certExpirationDate = null; // included so will be null in database, can be upgraded in future
+		this.isActive = isActive;
 	}
 
 	// constructor create new employee w/ cert included
-	public Employee(int id, String name, CertificationLevelenum level, String certificationNumber, Date certificationExpDate) {
+	public Employee(int id, String name, CertificationLevelenum level, String certificationNumber, Date certificationExpDate, boolean isActive) {
 		this.id = id;
 		this.name = name;
 		this.level = level;
 		this.certificationNumber = certificationNumber;
 		this.certExpirationDate = certificationExpDate;
 		this.timeSheetList = new ArrayList<TimeSheet>();
+		this.isActive = isActive;
 	}
 
 	
-
+	public boolean isActive() {
+		return this.isActive;
+	}
+	public void setIsActive(boolean isActive) {
+		 this.isActive = isActive;
+	}
 	
 
 	public String getName() {

@@ -257,8 +257,9 @@ public class NewEmployeeInfoView extends JFrame {
 			certificationLevel = CertificationLevelenum.DRIVER;
 		}
 
+		boolean isActive = true;
 		try {
-			employee = new Employee(employee.getId(), name, certificationLevel, certificationNumber, expirationDate);
+			employee = new Employee(employee.getId(), name, certificationLevel, certificationNumber, expirationDate, isActive);
 		} catch (Exception e) {
 			System.out.println("Unable to create employee object: " + e.getMessage());
 		}

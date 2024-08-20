@@ -5,6 +5,7 @@ import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import model.AmbulanceCall;
 import model.CertificationLevelenum;
@@ -229,6 +230,18 @@ public class TTController {
 		handleHomeViewSetupAndNavigate();
 		
 	}
+	
+	public Map<String, List<String>> getEmployeeNamesByStatus() {
+		Map<String, List<String>> results = db.getEmployeeNamesByStatus();
+		return results;
+	}
+	
+	public  void setEmployeeStatus(String name, boolean status) {
+		db.setEmployeeStatus(name, status);
+		List<String> employeeNames = db.getAllEmployeeNames();
+		view.setEmployeeNameList(employeeNames);
+	}
+	
 
 	private void showNewEmployeeInfoUI() {
 		view.hideLoginRegisterView();
@@ -255,9 +268,10 @@ public class TTController {
 			certificationLevel = CertificationLevelenum.DRIVER;
 			System.out.println("New driver created");
 		}
+		boolean isActive = true;
 
 		try {
-			employee = new Employee(employeeId, name, certificationLevel, certificationNumber, expirationDate);
+			employee = new Employee(employeeId, name, certificationLevel, certificationNumber, expirationDate, isActive);
 		} catch (Exception e) {
 			System.out.println("unable to create employee object");
 		}

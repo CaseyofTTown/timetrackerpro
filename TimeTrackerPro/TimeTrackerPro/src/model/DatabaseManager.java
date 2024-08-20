@@ -15,7 +15,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DatabaseManager {
 
@@ -33,9 +35,15 @@ public class DatabaseManager {
 	}
 
 	private void createTables() {
-		String sqlCreateEmployeesTable = "CREATE TABLE IF NOT EXISTS employees (\n" + " id integer PRIMARY KEY,\n"
-				+ " name text NOT NULL,\n" + " level text,\n" + " certificationNumber text,\n"
-				+ " certExpirationDate text\n" + ");";
+		String sqlCreateEmployeesTable = "CREATE TABLE IF NOT EXISTS employees (\n" +
+	            " id integer PRIMARY KEY,\n" +
+	            " name text NOT NULL,\n" +
+	            " level text,\n" +
+	            " certificationNumber text,\n" +
+	            " certExpirationDate text,\n" +
+	            " isActive BOOLEAN DEFAULT TRUE\n" + // Add the new column here
+	            ");";
+
 
 		String sqlCreateTimeSheetsTable = "CREATE TABLE IF NOT EXISTS timesheets (\n"
 				+ " id integer PRIMARY KEY AUTOINCREMENT,\n" + " employeeId integer NOT NULL,\n"
@@ -77,30 +85,32 @@ public class DatabaseManager {
 	}
 
 	public List<Employee> getAllEmployees() {
-        List<Employee> employees = new ArrayList<>();
-        String sql = "SELECT id, name, level, certificationNumber, certExpirationDate FROM employees";
+	    List<Employee> employees = new ArrayList<>();
+	    String sql = "SELECT id, name, level, certificationNumber, certExpirationDate, isActive FROM employees";
 
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+	    try (Statement stmt = connection.createStatement();
+	         ResultSet rs = stmt.executeQuery(sql)) {
 
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                String name = rs.getString("name");
-                CertificationLevelenum level = CertificationLevelenum.valueOf(rs.getString("level"));
-                String certificationNumber = rs.getString("certificationNumber");
-                long certExpirationDateMillis = rs.getLong("certExpirationDate");
-                java.util.Date certExpirationDate = (certExpirationDateMillis != 0) ? new java.util.Date(certExpirationDateMillis) : null;
+	        while (rs.next()) {
+	            int id = rs.getInt("id");
+	            String name = rs.getString("name");
+	            CertificationLevelenum level = CertificationLevelenum.valueOf(rs.getString("level"));
+	            String certificationNumber = rs.getString("certificationNumber");
+	            long certExpirationDateMillis = rs.getLong("certExpirationDate");
+	            java.util.Date certExpirationDate = (certExpirationDateMillis != 0) ? new java.util.Date(certExpirationDateMillis) : null;
+	            boolean isActive = rs.getBoolean("isActive");
 
-                Employee employee = new Employee(id, name, level, certificationNumber, certExpirationDate);
-                employees.add(employee);
-            }
-        } catch (SQLException e) {
-            System.out.println("SQL Exception: " + e.getMessage());
-            e.printStackTrace();
-        }
+	            Employee employee = new Employee(id, name, level, certificationNumber, certExpirationDate, isActive);
+	            employees.add(employee);
+	        }
+	    } catch (SQLException e) {
+	        System.out.println("SQL Exception: " + e.getMessage());
+	        e.printStackTrace();
+	    }
 
-        return employees;
-    }
+	    return employees;
+	}
+
 
 	// add employee to the database
 	public boolean addEmployee(Employee employee) {
@@ -413,38 +423,82 @@ public class DatabaseManager {
 	}
 
 	public Employee getEmployeeById(int employeeId) {
-		String sql = "SELECT * FROM employees WHERE id = ?";
-		try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-			pstmt.setInt(1, employeeId);
-			ResultSet rs = pstmt.executeQuery();
-			if (rs.next()) {
-				// User has an entry in employee table
-				return new Employee(rs.getInt("id"), rs.getString("name"),
-						CertificationLevelenum.valueOf(rs.getString("level")), rs.getString("certificationNumber"),
-						new java.util.Date(rs.getLong("certExpirationDate")));
-			}
-		} catch (SQLException e) {
-			// Error occurred
-			System.out.println(e.getMessage());
-		}
-		// User does not have an entry, will display new employee info GUI
-		System.out.println("No entry in employee table for user");
-		return null;
+	    String sql = "SELECT * FROM employees WHERE id = ?";
+	    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+	        pstmt.setInt(1, employeeId);
+	        ResultSet rs = pstmt.executeQuery();
+	        if (rs.next()) {
+	            // User has an entry in employee table
+	            return new Employee(rs.getInt("id"), rs.getString("name"),
+	                    CertificationLevelenum.valueOf(rs.getString("level")), rs.getString("certificationNumber"),
+	                    new java.util.Date(rs.getLong("certExpirationDate")), rs.getBoolean("isActive"));
+	        }
+	    } catch (SQLException e) {
+	        // Error occurred
+	        System.out.println(e.getMessage());
+	    }
+	    // User does not have an entry, will display new employee info GUI
+	    System.out.println("No entry in employee table for user");
+	    return null;
 	}
 
+
 	public List<String> getAllEmployeeNames() {
-		List<String> employeeNames = new ArrayList<>();
-		String sql = "SELECT name FROM employees";
-		try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
-			while (rs.next()) {
-				employeeNames.add(rs.getString("name"));
-			}
-			System.out.println("getAllEmployeeNames returned with: " + employeeNames.size() + " names");
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
-		return employeeNames;
+	    List<String> employeeNames = new ArrayList<>();
+	    String sql = "SELECT name FROM employees WHERE isActive = TRUE"; // Add the WHERE clause to filter active employees
+	    try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+	        while (rs.next()) {
+	            employeeNames.add(rs.getString("name"));
+	        }
+	        System.out.println("getAllEmployeeNames returned with: " + employeeNames.size() + " names");
+	    } catch (SQLException e) {
+	        System.out.println(e.getMessage());
+	    }
+	    return employeeNames;
 	}
+	
+	public boolean setEmployeeStatus(String name, boolean isActive) {
+	    String sql = "UPDATE employees SET isActive = ? WHERE name = ?";
+	    int result = 0; // number of rows affected to verify success
+	    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+	        pstmt.setBoolean(1, isActive);
+	        pstmt.setString(2, name);
+	        result = pstmt.executeUpdate();
+	    } catch (SQLException e) {
+	        System.out.println(e.getMessage());
+	    }
+	    return result > 0; // true if successful
+	}
+	
+	public Map<String, List<String>> getEmployeeNamesByStatus() {
+	    List<String> activeEmployeeNames = new ArrayList<>();
+	    List<String> inactiveEmployeeNames = new ArrayList<>();
+	    String sql = "SELECT name, isActive FROM employees";
+	    
+	    try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+	        while (rs.next()) {
+	            String name = rs.getString("name");
+	            boolean isActive = rs.getBoolean("isActive");
+	            
+	            if (isActive) {
+	                activeEmployeeNames.add(name);
+	            } else {
+	                inactiveEmployeeNames.add(name);
+	            }
+	        }
+	        System.out.println("getEmployeeNamesByStatus returned with: " + activeEmployeeNames.size() + " active names and " + inactiveEmployeeNames.size() + " inactive names");
+	    } catch (SQLException e) {
+	        System.out.println(e.getMessage());
+	    }
+	    
+	    Map<String, List<String>> employeeNamesByStatus = new HashMap<>();
+	    employeeNamesByStatus.put("active", activeEmployeeNames);
+	    employeeNamesByStatus.put("inactive", inactiveEmployeeNames);
+	    
+	    return employeeNamesByStatus;
+	}
+
+
 
 	public String[] getSaltAndHashedPassword(String username) {
 		String sql = "SELECT salt, hashedPassword FROM users WHERE username = ?";
