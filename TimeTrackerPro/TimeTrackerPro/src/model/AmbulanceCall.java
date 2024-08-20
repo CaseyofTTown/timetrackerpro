@@ -13,10 +13,11 @@ public class AmbulanceCall {
 	private int totalMiles;
 	private String insurance;
 	private String aicEmployee;
+	private boolean isSkilled = false;
 
 	// all fields present
 	public AmbulanceCall(int id, int dailyLogId, Date callDate, String patientsName, TypeOfCallEnum callCategory,
-			String pickupLocation, String dropoffLocation, int totalMiles, String insurance, String aicEmployee) {
+			String pickupLocation, String dropoffLocation, int totalMiles, String insurance, String aicEmployee, boolean isSkilled) {
 		this.id = id;
 		this.dailyLogId = dailyLogId;
 		this.callDate = callDate;
@@ -27,6 +28,7 @@ public class AmbulanceCall {
 		this.totalMiles = totalMiles;
 		this.insurance = insurance;
 		this.aicEmployee = aicEmployee;
+		this.isSkilled = isSkilled;
 	}
 
 	// refusal for ptName, refusal typeOfCall, aic
@@ -44,7 +46,7 @@ public class AmbulanceCall {
 	// for creating object in application (wont have id, sqlite auto generates it)
 	// all fields present
 	public AmbulanceCall(int dailyLogId, Date callDate, String callType, TypeOfCallEnum callCategory,
-			String pickupLocation, String dropoffLocation, int totalMiles, String insurance, String aicEmployee) {
+			String pickupLocation, String dropoffLocation, int totalMiles, String insurance, String aicEmployee, boolean isSkilled) {
 
 		this.dailyLogId = dailyLogId;
 		this.callDate = callDate;
@@ -55,6 +57,7 @@ public class AmbulanceCall {
 		this.totalMiles = totalMiles;
 		this.insurance = insurance;
 		this.aicEmployee = aicEmployee;
+		this.isSkilled = isSkilled;
 	}
 
 	// refusal for ptName, refusal typeOfCall, aic
@@ -148,4 +151,12 @@ public class AmbulanceCall {
 	public void setAicEmployeeId(String aicEmployee) {
 		this.aicEmployee = aicEmployee;
 	}
+	
+	public void setSkilledCall(boolean skilled) {
+		this.isSkilled = skilled;
+	}
+	public boolean isSkilled() {
+		return this.isSkilled;
+	}
 }
+

@@ -121,6 +121,7 @@ public class CallLogCard extends JPanel {
 		numberOfCallsLabel.setForeground(ColorConstants.GOLD);
 		numberOfCallsLabel.setFont(new Font("Arial", Font.PLAIN, 14));
 		headerPanel.add(numberOfCallsLabel, gbc);
+	
 		
 		// Expand Button
 		gbc.gridx = 0;
@@ -147,7 +148,7 @@ public class CallLogCard extends JPanel {
 
 		// Table for Ambulance Calls
 		callTableModel = new DefaultTableModel(new Object[] { "Call Date", "Patients Name", "Call Category",
-				"Pickup Location", "Dropoff Location", "Total Miles", "Insurance", "AIC Name" }, 0) {
+				"Pickup Location", "Dropoff Location", "Total Miles", "Insurance", "AIC Name", "Skilled" }, 0) {
 			@Override
 			public boolean isCellEditable(int row, int column) {
 				return false; // Only the Actions column is editable
@@ -293,18 +294,29 @@ public class CallLogCard extends JPanel {
 
 
 	private void populateCallTable() {
-		callTableModel.setRowCount(0); // Clear existing rows
-		for (AmbulanceCall call : callLog.getAmbulanceCalls()) {
-			callTableModel.addRow(new Object[] { call.getCallDate(), call.getPatientsName(), call.getCallCategory(),
-					call.getPickupLocation(), call.getDropoffLocation(), call.getTotalMiles(), call.getInsurance(),
-					call.getAicName() });
-		}
+	    callTableModel.setRowCount(0); // Clear existing rows
+	    for (AmbulanceCall call : callLog.getAmbulanceCalls()) {
+	        String skilled = call.isSkilled() ? "Skilled" : "";
+	        callTableModel.addRow(new Object[] {
+	            call.getCallDate(),
+	            call.getPatientsName(),
+	            call.getCallCategory(),
+	            call.getPickupLocation(),
+	            call.getDropoffLocation(),
+	            call.getTotalMiles(),
+	            call.getInsurance(),
+	            call.getAicName(),
+	            skilled // Add the skilled value
+	        });
+	    }
 	}
+
 
 	private void refreshData() {
 		// Fetch updated data from the controller
 		List<AmbulanceCall> updatedCalls = controller.getAmbulanceCallsByID(callLogId);
 		callLog.setAmbulanceCalls(updatedCalls);
+		callLog.calculateNumberOfCalls();
 		populateCallTable();
 	}
 

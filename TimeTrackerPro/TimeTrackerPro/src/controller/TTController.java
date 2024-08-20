@@ -434,4 +434,9 @@ public class TTController {
 		List<Employee> myList = db.getAllEmployees();
 		return myList;
 	}
+
+	public List<AmbulanceCall> getAmbulanceCallsByDateRange(java.sql.Date startDate, java.sql.Date endDate) {
+		List<AmbulanceCall> results = db.getAmbulanceCallsByDateRange(startDate, endDate);
+		return results;
+	}
 }

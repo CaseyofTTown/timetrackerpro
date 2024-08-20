@@ -46,16 +46,17 @@ public class CallLogReport {
 
             // Create the ambulance call table
             String[] callColumnNames = { "Call Date", "Patient's Name", "Call Category", "Pickup Location",
-                    "Dropoff Location", "Total Miles", "Insurance", "AIC Employee" };
+                    "Dropoff Location", "Total Miles", "Insurance", "AIC Employee", "Skilled" };
             DefaultTableModel callTableModel = new DefaultTableModel(callColumnNames, 0);
 
             for (AmbulanceCall call : log.getAmbulanceCalls()) {
+            	String skilled = call.isSkilled() ? "Skilled" : "";
                 callTableModel.addRow(new Object[] { dateFormat.format(call.getCallDate()), call.getPatientsName(),
                         call.getCallCategory(), call.getPickupLocation(), call.getDropoffLocation(),
-                        call.getTotalMiles(), call.getInsurance(), call.getAicName() });
+                        call.getTotalMiles(), call.getInsurance(), call.getAicName(), skilled});
             }
             JTable callTable = new JTable(callTableModel);
-            setPreferredColumnWidths(callTable, new int[]{150, 150, 150, 200, 200, 100, 150, 150});
+            setPreferredColumnWidths(callTable, new int[]{150, 150, 150, 200, 200, 100, 150, 150, 100});
             callTable.setFont(tableFont);
             callTable.setRowHeight(20); // Adjust the row height to fit the font size
             callTable.getTableHeader().setFont(tableFont);

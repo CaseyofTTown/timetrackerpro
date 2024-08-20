@@ -31,6 +31,7 @@ public class AddAmbulanceCallDialog extends JDialog {
 	private JButton submitButton;
 	private boolean isModifyMode;
 	private AmbulanceCall existingCall;
+	private JCheckBox skilledPatientCheckBox;
 
 	public AddAmbulanceCallDialog(Frame owner, TTController controller, int dailyLogId, Date[] callDates,
 			List<String> employees, boolean isModifyMode) {
@@ -108,6 +109,15 @@ public class AddAmbulanceCallDialog extends JDialog {
 		gbc.gridx = 1;
 		gbc.gridy = 3;
 		panel.add(aicEmployeeField, gbc);
+		
+		 // Add the checkbox for Skilled Patient
+        skilledPatientCheckBox = new JCheckBox("Skilled Patient");
+        skilledPatientCheckBox.setBackground(ColorConstants.DARK_GRAY);
+        skilledPatientCheckBox.setForeground(ColorConstants.GOLD);
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.gridwidth = 2;
+        panel.add(skilledPatientCheckBox, gbc); 
 
 		// Submit button
 		submitButton = new JButton(isModifyMode ? "Update" : "Submit");
@@ -127,14 +137,15 @@ public class AddAmbulanceCallDialog extends JDialog {
 		                : Integer.parseInt(totalMilesField.getText().trim());
 		        String insurance = insuranceField.getText();
 		        String aicEmployee = (String) aicEmployeeField.getSelectedItem();
-
+		        boolean isSkilled = skilledPatientCheckBox.isSelected();
+		        
 		        try {
 		            AmbulanceCall call;
 		            if (callCategory == TypeOfCallEnum.Refusal) {
 		                call = new AmbulanceCall(dailyLogId, callDate, callCategory, pickupLocation, aicEmployee);
 		            } else {
 		                call = new AmbulanceCall(dailyLogId, callDate, patientsName, callCategory, pickupLocation,
-		                        dropoffLocation, totalMiles, insurance, aicEmployee);
+		                        dropoffLocation, totalMiles, insurance, aicEmployee, isSkilled);
 		            }
 
 		            if (isModifyMode && existingCall != null) {
@@ -156,7 +167,7 @@ public class AddAmbulanceCallDialog extends JDialog {
 		});
 
 		gbc.gridx = 0;
-		gbc.gridy = 4;
+		gbc.gridy = 5;
 		gbc.gridwidth = 2;
 		panel.add(submitButton, gbc);
 
@@ -170,7 +181,7 @@ public class AddAmbulanceCallDialog extends JDialog {
 				dispose();
 			}
 		});
-		gbc.gridy = 5;
+		gbc.gridy = 6;
 		panel.add(cancelButton, gbc);
 
 		add(panel);
@@ -264,6 +275,7 @@ public class AddAmbulanceCallDialog extends JDialog {
 	    totalMilesField.setText(String.valueOf(call.getTotalMiles()));
 	    insuranceField.setText(call.getInsurance());
 	    aicEmployeeField.setSelectedItem(call.getAicName());
+	    skilledPatientCheckBox.setSelected(call.isSkilled());
 	}
 
 }
