@@ -1,3 +1,4 @@
+import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
 import controller.TTController;
@@ -21,6 +22,7 @@ public class TimeTrackerProApplication {
 		// Create and display the GUI
 		SwingUtilities.invokeLater(() -> {
 			viewClass view = new viewClass();
+			view.setIconImage(new ImageIcon("src/timeTrackerLogo.ico").getImage()); // Set the icon here
 			view.setVisible(true);
 
 			// create the controller
