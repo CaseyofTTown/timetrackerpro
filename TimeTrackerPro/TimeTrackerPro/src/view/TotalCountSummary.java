@@ -2,6 +2,7 @@ package view;
 
 import java.awt.Dimension;
 import java.awt.Font;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -12,14 +13,29 @@ import model.AmbulanceCall;
 
 public class TotalCountSummary {
     private List<AmbulanceCall> calls;
+    private java.sql.Date startDate;
+    private java.sql.Date endDate;
 
-    public TotalCountSummary(List<AmbulanceCall> calls) {
+    public TotalCountSummary(List<AmbulanceCall> calls, java.sql.Date startDate, java.sql.Date endDate) {
         this.calls = calls;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     public JPanel generateReportPanel() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        
+        // Format the dates
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
+        String formattedStartDate = dateFormat.format(new java.util.Date(startDate.getTime()));
+        String formattedEndDate = dateFormat.format(new java.util.Date(endDate.getTime()));
+
+        // Add the title label with the date range
+        String title = "Total Count Date Range: (" + formattedStartDate + " - " + formattedEndDate + ")";
+        JLabel titleLabel = new JLabel(title, JLabel.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        mainPanel.add(titleLabel);
 
         // Count the occurrences of each type of call
         Map<TypeOfCallEnum, Integer> callCounts = new EnumMap<>(TypeOfCallEnum.class);

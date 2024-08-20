@@ -156,6 +156,7 @@ public class HomeView extends JPanel {
 
 	private Component createEmplStatusPanel() {
 	    EmployeeStatusManager employeeStatusManager = new EmployeeStatusManager(controller);
+	    employeeStatusManager.setBackground(ColorConstants.CHARCOAL);
 	    return employeeStatusManager;
 	}
 

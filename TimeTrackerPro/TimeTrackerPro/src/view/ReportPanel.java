@@ -286,7 +286,7 @@ public class ReportPanel extends JPanel {
 	    List<DailyCallLog> dailyCallLogs = controller.getCallLogsForReportPanel(startDate, endDate);
 
 	    // Generate the report panel
-	    CallLogReport report = new CallLogReport(dailyCallLogs);
+	    CallLogReport report = new CallLogReport(dailyCallLogs, startDate, endDate);
 	    JPanel reportPanel = report.generateReportPanel();
 
 	    // Format the dates
@@ -321,7 +321,7 @@ public class ReportPanel extends JPanel {
 	    List<AmbulanceCall> calls = controller.getAmbulanceCallsByDateRange(startDate, endDate);
 
 	    // Generate the report panel
-	    TotalCountSummary report = new TotalCountSummary(calls);
+	    TotalCountSummary report = new TotalCountSummary(calls, startDate, endDate);
 	    JPanel reportPanel = report.generateReportPanel();
 
 	    // Format the dates

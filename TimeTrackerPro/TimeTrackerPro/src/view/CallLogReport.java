@@ -13,9 +13,13 @@ import model.DailyCallLog;
 
 public class CallLogReport {
     private List<DailyCallLog> dailyCallLogs;
+    private java.sql.Date startDate;
+    private java.sql.Date endDate;
 
-    public CallLogReport(List<DailyCallLog> dailyCallLogs) {
+    public CallLogReport(List<DailyCallLog> dailyCallLogs, java.sql.Date startDate, java.sql.Date endDate) {
         this.dailyCallLogs = dailyCallLogs;
+        this.startDate = startDate;
+        this.endDate = endDate;
         // Sort the dailyCallLogs by start date in descending order
         this.dailyCallLogs.sort(Comparator.comparing(DailyCallLog::getStartDate).reversed());
     }
@@ -26,6 +30,13 @@ public class CallLogReport {
 
         // Date formatter to display date and weekday
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM dd, yyyy");
+        String formattedStartDate = dateFormat.format(new java.util.Date(startDate.getTime()));
+        String formattedEndDate = dateFormat.format(new java.util.Date(endDate.getTime()));
+        
+        String title = "Call Logs and Ambulance Calls Report (" + formattedStartDate + " - " + formattedEndDate + ")";
+        JLabel titleLabel = new JLabel(title, JLabel.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        mainPanel.add(titleLabel);
 
         Font tableFont = new Font("Arial", Font.PLAIN, 16);
         for (DailyCallLog log : dailyCallLogs) {
