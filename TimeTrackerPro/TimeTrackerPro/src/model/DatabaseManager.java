@@ -464,6 +464,8 @@ public class DatabaseManager {
 		System.out.println("unknown error in getSaltAndHashedPassword db manager");
 		return null;
 	}
+	
+	
 
 	public int getPin(String username) {
 		String sql = "SELECT pin FROM users WHERE username = ?";

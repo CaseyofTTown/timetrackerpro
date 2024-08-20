@@ -17,6 +17,7 @@ import model.UserAuth;
 import view.viewClass;
 import view.CustomAlertDialog;
 import view.Login_Register_View;
+import view.PasswordResetDialog;
 
 public class TTController {
 
@@ -54,8 +55,30 @@ public class TTController {
 		// add action listeners to the buttons in loginRegisterView
 		this.view.getSignInButton().addActionListener(e -> handleSignIn());
 		this.view.getRegisterButton().addActionListener(e -> handleRegister());
+		this.view.getPasswordResetButton().addActionListener(e -> showPasswordResetUi());
 
 	}
+	
+	private void showPasswordResetUi() {
+	    PasswordResetDialog dialog = new PasswordResetDialog(view, this);
+	    dialog.setVisible(true);
+
+	    if (dialog.isSubmitted()) {
+	        String username = dialog.getUsername();
+	        int pin = dialog.getPin();
+	        String newPassword = dialog.getNewPassword();
+
+	        boolean isReset = userAuth.resetPasswordWithPin(username, pin, newPassword);
+
+	        if (isReset) {
+	            CustomAlertDialog.showDialog(view, "Password Reset Successful", "Your password has been reset successfully.");
+	            view.showLoginRegisterView(); // Navigate back to login view
+	        } else {
+	            CustomAlertDialog.showDialog(view, "Password Reset Failed", "The PIN you entered is incorrect. Please try again.");
+	        }
+	    }
+	}
+
 
 	private void handleModifyTimeSheet() {
 		int selectedTimeSheetId = view.getSelectedTimeSheetId();
@@ -439,4 +462,6 @@ public class TTController {
 		List<AmbulanceCall> results = db.getAmbulanceCallsByDateRange(startDate, endDate);
 		return results;
 	}
+	
+	
 }

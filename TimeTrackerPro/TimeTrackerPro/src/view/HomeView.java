@@ -106,6 +106,8 @@ public class HomeView extends JPanel {
 		gbc.weightx = 1.0;
 		gbc.anchor = GridBagConstraints.EAST;
 		welcomePanel.add(updateInfoButton, gbc);
+		
+		
 
 		// Add the welcome panel to the NORTH region of the main panel
 		add(welcomePanel, BorderLayout.NORTH);

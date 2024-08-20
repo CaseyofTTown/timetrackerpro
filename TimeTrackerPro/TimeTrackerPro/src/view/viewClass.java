@@ -338,4 +338,8 @@ public class viewClass extends JFrame {
 	public void addAllTimeSheetsToDisplay(List<TimeSheet> timeSheets) {
 		homeView.addAllTimeSheetsToDisplay(timeSheets);
 	}
+	
+	public JButton getPasswordResetButton() {
+		return loginRegisterView.getPasswordResetButton();
+	}
 }

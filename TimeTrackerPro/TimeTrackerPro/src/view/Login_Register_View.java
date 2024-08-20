@@ -38,6 +38,7 @@ public class Login_Register_View extends JFrame {
 	private TitledPasswordField passwordRegisterConfirm;
 	private TitledTextField pinRegister;
 	private JLabel passwordWarningLabel;
+	private JButton resetPassword;
 
 	public Login_Register_View() {
 		// set the window title
@@ -100,6 +101,12 @@ public class Login_Register_View extends JFrame {
 		signInButton.setEnabled(false); // Initially disabled
 		signInPanel.add(signInButton, c);
 		tabbedPane.addTab("Sign In", signInPanel);
+		c.gridy++;
+		
+		resetPassword = new JButton("Reset password with pin");
+		resetPassword.setBackground(ColorConstants.CRIMSON_RED);
+		resetPassword.setForeground(ColorConstants.DEEP_BLUE);
+		signInPanel.add(resetPassword, c);
 
 		// create the registration panel
 		JPanel registerPanel = new JPanel(new GridBagLayout());
@@ -282,6 +289,13 @@ public class Login_Register_View extends JFrame {
 			System.out.println("Invalid PIN format!");
 			return -1;
 		}
+	}
+	
+	public void addResetPAsswordListener(ActionListener listenForReset) {
+		resetPassword.addActionListener(listenForReset);
+	}
+	public JButton getPasswordResetButton() {
+		return resetPassword;
 	}
 
 }
