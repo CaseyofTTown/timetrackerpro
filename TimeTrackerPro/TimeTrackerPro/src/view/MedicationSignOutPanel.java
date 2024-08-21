@@ -11,7 +11,7 @@ public class MedicationSignOutPanel extends JPanel {
     public MedicationSignOutPanel() {
         try {
             // Load the image using a relative path
-            String relativePath = "src/Designer.png";
+            String relativePath = "src/resources/Designer.png";
             this.image = new ImageIcon(relativePath).getImage();
 
             if (image == null) {
