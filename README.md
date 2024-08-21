@@ -5,8 +5,15 @@ username, password, and reset pin. Once registered
 this app collects the users full name, their
 ems cert if they have one, and its expiratiin
 date. All of this is stored in a local sqlite 
-database as well as tables for time sheets,
+database which is created in a folder /Users/Documents/TimeTrackerPro
+as well as tables for time sheets,
 daily logs, and the associated ambulance calls.
+
+Its VERY important the TimeTrackerPro.db
+file thats stored under Documents/TimeTrackerPro
+remains unaltered/unmoved. This was created
+so i can make a copy of the database prior to
+updates to maintain data integrity.
 
 Upon enetering the main page of the app the
 user will see a greeting label, a clock that
